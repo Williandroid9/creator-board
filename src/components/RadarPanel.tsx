@@ -15,6 +15,7 @@ import {
   DEFAULT_YOUTUBE_CLIENT_ID,
   YOUTUBE_CLIENT_ID_KEY,
   fetchYouTubeMarketScan,
+  preloadGoogleIdentityScript,
   requestYouTubeAccessToken,
   type YouTubeMarketScan,
 } from "../lib/youtubeApi";
@@ -581,6 +582,9 @@ export function RadarPanel({
   const [marketBusy, setMarketBusy] = useState(false);
   const [marketMessage, setMarketMessage] = useState("");
   const [marketScans, setMarketScans] = useState<Record<string, YouTubeMarketScan>>({});
+  const [marketOauthReady, setMarketOauthReady] = useState(false);
+  const [marketOauthError, setMarketOauthError] = useState("");
+  const runningFromFile = typeof window !== "undefined" && window.location.protocol === "file:";
 
   useEffect(() => {
     setDraft((current) => ({
@@ -596,6 +600,34 @@ export function RadarPanel({
       console.warn("Nao foi possivel salvar o Client ID do YouTube.", error);
     }
   }, [clientId]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    setMarketOauthError("");
+    if (!clientId.trim() || runningFromFile || marketAccessToken) {
+      setMarketOauthReady(Boolean(marketAccessToken));
+      return;
+    }
+
+    setMarketOauthReady(false);
+    preloadGoogleIdentityScript()
+      .then(() => {
+        if (!cancelled) {
+          setMarketOauthReady(true);
+        }
+      })
+      .catch((error) => {
+        if (!cancelled) {
+          setMarketOauthReady(false);
+          setMarketOauthError(error instanceof Error ? error.message : "Nao foi possivel preparar o login do Google.");
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [clientId, marketAccessToken, runningFromFile]);
 
   const channelVideos = useMemo(() => {
     if (!activeChannel) {
@@ -711,6 +743,16 @@ export function RadarPanel({
   async function analyzeMarket() {
     if (!marketIdea) {
       setMarketMessage("Gere ideias no Radar antes de pesquisar o mercado.");
+      return;
+    }
+
+    if (!marketAccessToken && (!clientId.trim() || runningFromFile)) {
+      setMarketMessage("Abra o app pelo site publicado ou servidor local e informe o OAuth Client ID para analisar o mercado.");
+      return;
+    }
+
+    if (!marketAccessToken && !marketOauthReady) {
+      setMarketMessage("O login do Google ainda esta carregando. Aguarde alguns segundos e tente novamente.");
       return;
     }
 
@@ -890,7 +932,7 @@ export function RadarPanel({
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button disabled={!marketIdea || marketBusy} variant="primary" onClick={analyzeMarket}>
+            <Button disabled={!marketIdea || marketBusy || (!marketAccessToken && !marketOauthReady)} variant="primary" onClick={analyzeMarket}>
               {marketBusy ? "Analisando..." : "Analisar mercado"}
             </Button>
           </div>
@@ -921,6 +963,12 @@ export function RadarPanel({
             <TextInput value={clientId} onChange={(event) => setClientId(event.target.value)} />
           </Field>
         </div>
+
+        {marketOauthError ? (
+          <p className="mt-4 rounded-xl border border-red-300/20 bg-red-400/10 p-3 text-sm font-bold text-red-100">
+            {marketOauthError}
+          </p>
+        ) : null}
 
         {marketMessage ? (
           <p className="mt-4 rounded-xl bg-white/[0.045] p-3 text-sm font-bold text-slate-300">{marketMessage}</p>

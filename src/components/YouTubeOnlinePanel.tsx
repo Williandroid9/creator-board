@@ -5,6 +5,7 @@ import { buildOnlineSyncPreview, type OnlineSyncPreview } from "../lib/onlineSyn
 import {
   fetchYouTubeConnectedChannels,
   fetchYouTubeOnlineSync,
+  preloadGoogleIdentityScript,
   requestYouTubeAccessToken,
   DEFAULT_YOUTUBE_CLIENT_ID,
   YOUTUBE_CLIENT_ID_KEY,
@@ -61,6 +62,9 @@ export function YouTubeOnlinePanel({ channels, videos, preferredChannelId, onSyn
   const [removeCreatedOnline, setRemoveCreatedOnline] = useState(false);
   const [clearResult, setClearResult] = useState<{ cleared: number; removed: number } | null>(null);
   const [busy, setBusy] = useState(false);
+  const [oauthReady, setOauthReady] = useState(false);
+  const [oauthLoadError, setOauthLoadError] = useState("");
+  const runningFromFile = typeof window !== "undefined" && window.location.protocol === "file:";
 
   useEffect(() => {
     if (channels.length && !channels.some((channel) => channel.id === selectedChannelId)) {
@@ -83,9 +87,37 @@ export function YouTubeOnlinePanel({ channels, videos, preferredChannelId, onSyn
     }
   }, [clientId]);
 
+  useEffect(() => {
+    let cancelled = false;
+
+    setOauthLoadError("");
+    if (!clientId.trim() || runningFromFile) {
+      setOauthReady(false);
+      return;
+    }
+
+    setOauthReady(false);
+    preloadGoogleIdentityScript()
+      .then(() => {
+        if (!cancelled) {
+          setOauthReady(true);
+        }
+      })
+      .catch((error) => {
+        if (!cancelled) {
+          setOauthReady(false);
+          setOauthLoadError(error instanceof Error ? error.message : "Nao foi possivel preparar o login do Google.");
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [clientId, runningFromFile]);
+
   const selectedChannel = channels.find((channel) => channel.id === selectedChannelId) || channels[0] || null;
-  const runningFromFile = typeof window !== "undefined" && window.location.protocol === "file:";
   const readyForOAuth = Boolean(clientId.trim()) && !runningFromFile;
+  const oauthCanOpen = readyForOAuth && oauthReady;
   const selectedRows = useMemo(
     () => (preview ? preview.items.filter((item) => selectedVideoIds.has(item.row.videoId)).map((item) => item.row) : []),
     [preview, selectedVideoIds],
@@ -154,11 +186,24 @@ export function YouTubeOnlinePanel({ channels, videos, preferredChannelId, onSyn
       return "Falta OAuth Client ID";
     }
 
+    if (oauthLoadError) {
+      return "Login bloqueado";
+    }
+
+    if (!oauthReady) {
+      return "Preparando login";
+    }
+
     return "Pronto para conectar";
-  }, [accessToken, clientId, runningFromFile]);
+  }, [accessToken, clientId, oauthLoadError, oauthReady, runningFromFile]);
 
   async function connectChannel() {
     if (!readyForOAuth) {
+      return;
+    }
+
+    if (!oauthReady) {
+      setStatusMessage("O login do Google ainda esta carregando. Aguarde alguns segundos e clique novamente.");
       return;
     }
 
@@ -342,7 +387,7 @@ export function YouTubeOnlinePanel({ channels, videos, preferredChannelId, onSyn
           </Field>
 
           <div className="flex flex-wrap gap-2">
-            <Button disabled={!readyForOAuth || busy} onClick={connectChannel}>
+            <Button disabled={!oauthCanOpen || busy} onClick={connectChannel}>
               Conectar canal
             </Button>
             <Button variant="primary" disabled={!canSync || busy} onClick={syncNow}>
@@ -360,6 +405,12 @@ export function YouTubeOnlinePanel({ channels, videos, preferredChannelId, onSyn
               Google Cloud
             </a>
           </div>
+
+          {oauthLoadError ? (
+            <p className="rounded-xl border border-red-300/20 bg-red-400/10 p-3 text-sm font-bold text-red-100">
+              {oauthLoadError}
+            </p>
+          ) : null}
 
           {statusMessage ? (
             <p className="rounded-xl bg-white/[0.045] p-3 text-sm font-bold text-slate-300">{statusMessage}</p>

@@ -64,6 +64,7 @@ export type YouTubeMarketScan = {
 
 const GIS_SCRIPT_ID = "google-identity-services";
 const THREE_MINUTE_SHORTS_START = "2024-10-15";
+let googleIdentityScriptPromise: Promise<void> | null = null;
 export const YOUTUBE_CLIENT_ID_KEY = "creator-board-youtube-client-id-v1";
 export const DEFAULT_YOUTUBE_CLIENT_ID =
   import.meta.env.VITE_YOUTUBE_CLIENT_ID || "238276840626-5h0b0d1k0l6fpgbj0uifm3rb930odkmp.apps.googleusercontent.com";
@@ -90,8 +91,24 @@ declare global {
   }
 }
 
+export function isGoogleIdentityReady() {
+  return Boolean(window.google?.accounts?.oauth2);
+}
+
+export function preloadGoogleIdentityScript() {
+  return loadGoogleIdentityScript();
+}
+
 function loadGoogleIdentityScript() {
-  return new Promise<void>((resolve, reject) => {
+  if (isGoogleIdentityReady()) {
+    return Promise.resolve();
+  }
+
+  if (googleIdentityScriptPromise) {
+    return googleIdentityScriptPromise;
+  }
+
+  googleIdentityScriptPromise = new Promise<void>((resolve, reject) => {
     if (window.google?.accounts?.oauth2) {
       resolve();
       return;
@@ -99,10 +116,27 @@ function loadGoogleIdentityScript() {
 
     const existing = document.getElementById(GIS_SCRIPT_ID) as HTMLScriptElement | null;
     if (existing) {
+      let attempts = 0;
+      const waitForGoogle = () => {
+        if (isGoogleIdentityReady()) {
+          resolve();
+          return;
+        }
+
+        attempts += 1;
+        if (attempts > 50) {
+          reject(new Error("Login do Google demorou para carregar. Recarregue a pagina e tente de novo."));
+          return;
+        }
+
+        window.setTimeout(waitForGoogle, 100);
+      };
+
       existing.addEventListener("load", () => resolve(), { once: true });
       existing.addEventListener("error", () => reject(new Error("Nao foi possivel carregar o login do Google.")), {
         once: true,
       });
+      waitForGoogle();
       return;
     }
 
@@ -111,12 +145,43 @@ function loadGoogleIdentityScript() {
     script.src = "https://accounts.google.com/gsi/client";
     script.async = true;
     script.defer = true;
-    script.addEventListener("load", () => resolve(), { once: true });
-    script.addEventListener("error", () => reject(new Error("Nao foi possivel carregar o login do Google.")), {
-      once: true,
-    });
+    script.addEventListener(
+      "load",
+      () => {
+        let attempts = 0;
+        const waitForGoogle = () => {
+          if (isGoogleIdentityReady()) {
+            resolve();
+            return;
+          }
+
+          attempts += 1;
+          if (attempts > 50) {
+            reject(new Error("Login do Google demorou para carregar. Recarregue a pagina e tente de novo."));
+            return;
+          }
+
+          window.setTimeout(waitForGoogle, 100);
+        };
+
+        waitForGoogle();
+      },
+      { once: true },
+    );
+    script.addEventListener(
+      "error",
+      () => {
+        googleIdentityScriptPromise = null;
+        reject(new Error("Nao foi possivel carregar o login do Google."));
+      },
+      {
+        once: true,
+      },
+    );
     document.head.appendChild(script);
   });
+
+  return googleIdentityScriptPromise;
 }
 
 export async function requestYouTubeAccessToken(clientId: string) {
@@ -142,7 +207,15 @@ export async function requestYouTubeAccessToken(clientId: string) {
         resolve(response.access_token);
       },
       error_callback: (error) => {
-        reject(new Error(error.message || error.type || "Falha ao abrir o login do Google."));
+        const detail = error.message || error.type || "";
+        const popupBlocked = /popup|window|failed/i.test(detail);
+        reject(
+          new Error(
+            popupBlocked
+              ? "O navegador bloqueou a janela de login. Permita pop-ups para este site, recarregue a pagina e clique em Conectar canal novamente."
+              : detail || "Falha ao abrir o login do Google.",
+          ),
+        );
       },
     });
 
