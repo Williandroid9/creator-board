@@ -184,13 +184,11 @@ function loadGoogleIdentityScript() {
   return googleIdentityScriptPromise;
 }
 
-export async function requestYouTubeAccessToken(clientId: string) {
-  await loadGoogleIdentityScript();
-
+export function requestYouTubeAccessToken(clientId: string) {
   return new Promise<string>((resolve, reject) => {
     const oauth = window.google?.accounts?.oauth2;
     if (!oauth) {
-      reject(new Error("Login do Google indisponivel neste navegador."));
+      reject(new Error("Login do Google ainda esta carregando. Aguarde alguns segundos e clique novamente."));
       return;
     }
 
