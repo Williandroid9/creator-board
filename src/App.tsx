@@ -15,6 +15,13 @@ import type {
 import { addDays, isToday, localDateKey } from "./lib/date";
 import { exportCsv, exportJson } from "./lib/export";
 import { loadAppData, parseImportedData, saveAppData } from "./lib/storage";
+import {
+  createBackupSnapshot,
+  deleteBackupSnapshot,
+  getBackupStats,
+  maybeCreateDailyBackup,
+  readBackupSnapshots,
+} from "./lib/backup";
 import type { YouTubeOnlineVideo } from "./lib/youtubeApi";
 import { isYouTubeApiSource } from "./lib/dataSource";
 import { normalizeChannel, normalizeChannelName } from "./lib/channel";
@@ -170,9 +177,11 @@ export default function App() {
   const [compactKanban, setCompactKanban] = useState(() => loadCompactKanban());
   const [toast, setToast] = useState("");
   const importRef = useRef<HTMLInputElement>(null);
+  const [backupSnapshots, setBackupSnapshots] = useState(() => readBackupSnapshots());
 
   useEffect(() => {
     saveAppData(data);
+    setBackupSnapshots((current) => maybeCreateDailyBackup(data, current));
   }, [data]);
 
   useEffect(() => {
@@ -1182,6 +1191,9 @@ export default function App() {
     reader.addEventListener("load", () => {
       try {
         const parsed = JSON.parse(String(reader.result));
+        setBackupSnapshots((current) =>
+          createBackupSnapshot(data, current, "import", `Antes de importar ${file.name || "backup externo"}`),
+        );
         setData((current) => parseImportedData(parsed, current));
         setToast("Backup importado.");
       } catch (error) {
@@ -1192,6 +1204,57 @@ export default function App() {
       }
     });
     reader.readAsText(file);
+  }
+
+  function handleCreateRestorePoint() {
+    const label = `Ponto manual ${new Date().toLocaleString("pt-BR")}`;
+    setBackupSnapshots((current) => createBackupSnapshot(data, current, "manual", label));
+    setToast("Ponto de restauracao criado.");
+  }
+
+  function handleRestoreSnapshot(id: string) {
+    const snapshot = backupSnapshots.find((item) => item.id === id);
+    if (!snapshot) {
+      setToast("Ponto de restauracao nao encontrado.");
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Restaurar "${snapshot.label}"?\n\nOs dados atuais serao substituidos, mas um ponto de seguranca sera criado antes da restauracao.`,
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setBackupSnapshots((current) =>
+      createBackupSnapshot(data, current, "restore", `Antes de restaurar ${snapshot.label}`),
+    );
+    setData((current) => parseImportedData({ data: snapshot.data }, current));
+    setToast("Backup restaurado.");
+  }
+
+  function handleDeleteSnapshot(id: string) {
+    const snapshot = backupSnapshots.find((item) => item.id === id);
+    const confirmed = window.confirm(`Excluir o ponto de restauracao "${snapshot?.label || "selecionado"}"?`);
+
+    if (!confirmed) {
+      return;
+    }
+
+    setBackupSnapshots((current) => deleteBackupSnapshot(id, current));
+    setToast("Ponto de restauracao excluido.");
+  }
+
+  function handleDownloadSnapshot(id: string) {
+    const snapshot = backupSnapshots.find((item) => item.id === id);
+    if (!snapshot) {
+      setToast("Ponto de restauracao nao encontrado.");
+      return;
+    }
+
+    exportJson(snapshot.data);
+    setToast("Backup do ponto baixado.");
   }
 
   return (
@@ -1384,6 +1447,8 @@ export default function App() {
 
             {activeView === "data" && (
               <DataPanel
+                dataStats={getBackupStats(data)}
+                backupSnapshots={backupSnapshots}
                 syncHistory={data.syncHistory}
                 onExportJson={() => {
                   exportJson(data);
@@ -1394,6 +1459,10 @@ export default function App() {
                   setToast("Planilha exportada.");
                 }}
                 onImportBackup={handleImport}
+                onCreateRestorePoint={handleCreateRestorePoint}
+                onRestoreSnapshot={handleRestoreSnapshot}
+                onDeleteSnapshot={handleDeleteSnapshot}
+                onDownloadSnapshot={handleDownloadSnapshot}
                 backupInputRef={importRef}
               />
             )}
