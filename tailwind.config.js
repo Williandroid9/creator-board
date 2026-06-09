@@ -15,6 +15,10 @@ export default {
       },
       boxShadow: {
         soft: "0 22px 70px rgba(0, 0, 0, 0.28)",
+        card: "0 2px 12px rgba(0, 0, 0, 0.22)",
+      },
+      transitionDuration: {
+        250: "250ms",
       },
     },
   },

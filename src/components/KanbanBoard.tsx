@@ -7,9 +7,26 @@ import { hasScript, hasSeo, hasThumbnail, nextStatus, sortByPriorityAndDate, WIP
 import { Button, cx } from "./ui";
 
 const priorityDot: Record<VideoPriority, string> = {
-  Alta: "bg-red-400",
+  Alta: "bg-brand",
   Media: "bg-amber-300",
-  Baixa: "bg-slate-400",
+  Baixa: "bg-slate-500",
+};
+
+const priorityBorder: Record<VideoPriority, string> = {
+  Alta: "border-l-brand/60",
+  Media: "border-l-amber-300/40",
+  Baixa: "border-l-slate-600/40",
+};
+
+const statusAccent: Record<string, string> = {
+  Ideia: "text-slate-400",
+  Roteiro: "text-sky-400",
+  Gravacao: "text-violet-400",
+  Edicao: "text-fuchsia-400",
+  Thumbnail: "text-orange-400",
+  SEO: "text-amber-300",
+  Agendado: "text-teal-400",
+  Publicado: "text-aqua",
 };
 
 function KanbanCard({
@@ -41,7 +58,12 @@ function KanbanCard({
 
   return (
     <article
-      className={cx("group rounded-xl border border-slate-700/35 bg-[#111722] shadow-lg shadow-black/10", compact ? "p-2.5" : "p-3")}
+      className={cx(
+        "group rounded-xl border border-l-2 bg-[#111722] shadow-card transition-all hover:border-slate-600/50 hover:shadow-md",
+        compact ? "p-2.5" : "p-3",
+        "border-slate-700/30",
+        priorityBorder[video.priority],
+      )}
       draggable
       onDragStart={(event) => {
         event.dataTransfer.setData("text/plain", video.id);
@@ -194,10 +216,13 @@ export function KanbanBoard({
             <section key={status} className={cx("min-h-[17rem] rounded-xl bg-black/18 p-3", overLimit && "ring-1 ring-amber-300/40")}>
               <div className="mb-3 flex items-center justify-between gap-3 px-1">
                 <div>
-                  <h3 className="text-sm font-black text-slate-100">{status}</h3>
-                  {overLimit && <p className="text-xs font-bold text-amber-200">Limite excedido</p>}
+                  <h3 className={cx("text-xs font-black uppercase tracking-wider", statusAccent[status] || "text-slate-400")}>{status}</h3>
+                  {overLimit && <p className="text-[0.65rem] font-bold text-amber-300">WIP excedido</p>}
                 </div>
-                <span className="rounded-full bg-white/[0.06] px-2 py-1 text-xs font-black text-slate-300">
+                <span className={cx(
+                  "rounded-full px-2 py-0.5 text-xs font-black",
+                  overLimit ? "bg-amber-300/10 text-amber-200" : "bg-white/[0.06] text-slate-400",
+                )}>
                   {columnVideos.length}{limit ? `/${limit}` : ""}
                 </span>
               </div>
