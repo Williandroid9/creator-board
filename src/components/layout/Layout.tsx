@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useApp } from "../../context/AppContext";
 import { CommandPalette } from "../CommandPalette";
+import { PublishCelebration } from "../PublishCelebration";
 import { ConfirmDialog, Confetti, Toast } from "../ui";
 import { VideoModal } from "../VideoModal";
 import { Header } from "./Header";
@@ -27,6 +28,10 @@ export function Layout() {
     setPaletteOpen,
     confirmDialog,
     closeConfirmDialog,
+    publishCelebration,
+    clearPublishCelebration,
+    progress,
+    achievementCtx,
   } = useApp();
 
   return (
@@ -73,6 +78,17 @@ export function Layout() {
         onDelete={deleteVideo}
         onDuplicate={duplicateVideo}
         onToggleArchive={toggleArchiveVideo}
+      />
+
+      {/* Full-screen publish celebration */}
+      <PublishCelebration
+        video={publishCelebration?.video ?? null}
+        publishedCount={achievementCtx.publishedCount}
+        xpBefore={publishCelebration?.xpBefore ?? 0}
+        xpAfter={publishCelebration?.xpAfter ?? 0}
+        newAchievements={publishCelebration?.newAchievements ?? []}
+        unlockedAchievements={progress.achievements}
+        onClose={clearPublishCelebration}
       />
 
       {/* Celebration confetti 🎉 */}

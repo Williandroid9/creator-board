@@ -9,11 +9,13 @@ import {
   Lightbulb,
   Plus,
   Radar,
+  Trophy,
   TrendingUp,
   Tv2,
   X,
   Zap,
 } from "lucide-react";
+import { computeXp, getLevelInfo } from "../../lib/achievements";
 import { type AppView, useApp } from "../../context/AppContext";
 import { cx } from "../ui";
 
@@ -69,6 +71,12 @@ const navGroups: Array<{ title: string; items: NavItem[] }> = [
         badgeFn: ({ data }) => data.videos.filter((v) => v.archived).length,
       },
       { key: "data", label: "Dados", icon: Database },
+      {
+        key: "progress",
+        label: "Conquistas",
+        icon: Trophy,
+        badgeFn: ({ newAchievements }) => newAchievements.length,
+      },
     ],
   },
 ];
@@ -152,45 +160,41 @@ function NavLink({ item, onClick }: { item: NavItem; onClick?: () => void }) {
   );
 }
 
-// ─── Patent badge ─────────────────────────────────────────────────────────────
+// ─── XP badge ─────────────────────────────────────────────────────────────────
 
-const PATENT_LEVELS = [
-  { min: 0,   max: 4,        label: "Iniciando a Jornada",   emoji: "🌱", color: "text-slate-400",    bar: "bg-slate-600" },
-  { min: 5,   max: 19,       label: "Criador em Ascensão",   emoji: "🚀", color: "text-emerald-400",  bar: "bg-emerald-400" },
-  { min: 20,  max: 59,       label: "Produtor Consistente",  emoji: "🎯", color: "text-sky-400",      bar: "bg-sky-400" },
-  { min: 60,  max: 149,      label: "Estrategista Digital",  emoji: "⚡", color: "text-violet-400",   bar: "bg-violet-400" },
-  { min: 150, max: Infinity, label: "Referência do Nicho",   emoji: "👑", color: "text-amber-400",    bar: "bg-amber-400" },
-];
-
-function PatentBadge() {
-  const { data } = useApp();
-  const publishedCount = data.videos.filter(
-    (v) => v.status === "Publicado" && !v.studioCreatedFromOnline && !v.studioCreatedFromCsv,
-  ).length;
-
-  const level = PATENT_LEVELS.find((l) => publishedCount >= l.min && publishedCount <= l.max) || PATENT_LEVELS[0];
-  const nextLevel = PATENT_LEVELS[PATENT_LEVELS.indexOf(level) + 1];
-  const progress = nextLevel
-    ? ((publishedCount - level.min) / (nextLevel.min - level.min)) * 100
-    : 100;
+function XpBadge() {
+  const { data, progress, setActiveView } = useApp();
+  const xp = computeXp(data.videos, progress.achievements);
+  const info = getLevelInfo(xp);
+  const xpInLevel = xp - info.xpStart;
+  const xpNeeded = info.xpEnd - info.xpStart;
+  const levelProgress = Math.min(100, (xpInLevel / xpNeeded) * 100);
 
   return (
-    <div className="mx-3 mb-3 rounded-xl border border-slate-400/10 bg-white/[0.03] p-3">
-      <div className="mb-2 flex items-center gap-2">
-        <span className="text-sm">{level.emoji}</span>
-        <span className={cx("text-xs font-bold leading-tight", level.color)}>{level.label}</span>
+    <button
+      type="button"
+      onClick={() => setActiveView("progress")}
+      className="mx-3 mb-3 w-[calc(100%-1.5rem)] rounded-xl border border-slate-400/10 bg-white/[0.03] p-3 text-left transition hover:bg-white/[0.06]"
+    >
+      <div className="mb-2 flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <span className="text-sm">{info.emoji}</span>
+          <span className={cx("truncate text-xs font-bold leading-tight", info.color)}>{info.title}</span>
+        </div>
+        <span className="shrink-0 rounded-full bg-white/[0.07] px-2 py-0.5 text-[0.6rem] font-black text-slate-400">
+          Nv. {info.level}
+        </span>
       </div>
       <div className="mb-1.5 h-1.5 w-full overflow-hidden rounded-full bg-white/5">
         <div
-          className={cx("h-full rounded-full transition-all duration-700", level.bar)}
-          style={{ width: `${Math.min(progress, 100)}%` }}
+          className={cx("h-full rounded-full transition-all duration-700", info.bar)}
+          style={{ width: `${levelProgress}%` }}
         />
       </div>
       <p className="text-[0.65rem] text-slate-500">
-        {publishedCount} publicado{publishedCount !== 1 ? "s" : ""} no app
-        {nextLevel && ` · faltam ${nextLevel.min - publishedCount}`}
+        {xp.toLocaleString("pt-BR")} XP · {progress.achievements.length} conquistas
       </p>
-    </div>
+    </button>
   );
 }
 
@@ -258,8 +262,8 @@ export function Sidebar({ open, onClose }: SidebarProps) {
 
       <div className="mx-3 my-1 h-px bg-slate-400/[0.06]" />
 
-      {/* Patent badge */}
-      <PatentBadge />
+      {/* XP / Level badge */}
+      <XpBadge />
 
       {/* Create button */}
       <div className="p-3 pt-0">

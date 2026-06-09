@@ -305,3 +305,30 @@ export type Recommendation = {
 };
 
 export type SaveState = "idle" | "saving" | "saved" | "draft";
+
+// ─── Gamification ─────────────────────────────────────────────────────────────
+
+export type UnlockedAchievement = {
+  id: string;
+  unlockedAt: string; // ISO date string
+};
+
+export type CreatorProgress = {
+  achievements: UnlockedAchievement[];
+};
+
+export type AchievementDef = {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+  xp: number;
+  check: (videos: Video[], ctx: AchievementContext) => boolean;
+};
+
+export type AchievementContext = {
+  streak: number;
+  weeklyPublished: number;
+  weeklyGoal: number;
+  publishedCount: number;
+};

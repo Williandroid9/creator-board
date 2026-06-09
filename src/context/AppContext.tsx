@@ -11,9 +11,12 @@ import {
   type RefObject,
 } from "react";
 import type {
+  AchievementContext,
+  AchievementDef,
   AppData,
   Channel,
   ChannelDraft,
+  CreatorProgress,
   DailyTask,
   Filters as FilterState,
   InspirationDraft,
@@ -24,6 +27,13 @@ import type {
   VideoDraft,
   VideoStatus,
 } from "../types";
+import {
+  ACHIEVEMENTS,
+  checkNewAchievements,
+  computeXp,
+  loadProgress,
+  saveProgress,
+} from "../lib/achievements";
 import { addDays, isToday, localDateKey } from "../lib/date";
 import { exportJson } from "../lib/export";
 import { loadAppData, parseImportedData, saveAppData } from "../lib/storage";
@@ -58,7 +68,8 @@ export type AppView =
   | "references"
   | "performance"
   | "archive"
-  | "data";
+  | "data"
+  | "progress";
 
 export const APP_VIEWS: AppView[] = [
   "production",
@@ -71,6 +82,7 @@ export const APP_VIEWS: AppView[] = [
   "performance",
   "archive",
   "data",
+  "progress",
 ];
 
 // ─── Storage keys ─────────────────────────────────────────────────────────────
@@ -273,6 +285,14 @@ export interface AppContextValue {
   handleRestoreSnapshot: (id: string) => void;
   handleDeleteSnapshot: (id: string) => void;
   handleDownloadSnapshot: (id: string) => void;
+
+  // Gamification
+  progress: CreatorProgress;
+  newAchievements: AchievementDef[];
+  clearNewAchievements: () => void;
+  publishCelebration: { video: Video; xpBefore: number; xpAfter: number; newAchievements: string[] } | null;
+  clearPublishCelebration: () => void;
+  achievementCtx: AchievementContext;
 }
 
 // ─── Context ──────────────────────────────────────────────────────────────────
@@ -303,6 +323,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [confirmDialog, setConfirmDialog] = useState<{ title: string; message?: string; confirmLabel?: string; onConfirm: () => void } | null>(null);
   const importRef = useRef<HTMLInputElement>(null);
   const [backupSnapshots, setBackupSnapshots] = useState(() => readBackupSnapshots());
+  const [progress, setProgress] = useState<CreatorProgress>(() => loadProgress());
+  const [newAchievements, setNewAchievements] = useState<AchievementDef[]>([]);
+  const [publishCelebration, setPublishCelebration] = useState<{
+    video: Video;
+    xpBefore: number;
+    xpAfter: number;
+    newAchievements: string[];
+  } | null>(null);
 
   // Persist data
   useEffect(() => {
@@ -334,6 +362,49 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const timer = window.setTimeout(() => setToast(""), 4200);
     return () => window.clearTimeout(timer);
   }, [toast]);
+
+  // ── Achievement & XP check ────────────────────────────────────────────────
+
+  const achievementCtx = useMemo((): AchievementContext => {
+    const days = data.settings.productionDays || [];
+    const unique = new Set(days.filter(Boolean));
+    let streak = 0;
+    const cursor = new Date();
+    while (unique.has(cursor.toISOString().slice(0, 10))) {
+      streak++;
+      cursor.setDate(cursor.getDate() - 1);
+    }
+    const weekStart = (() => {
+      const now = new Date();
+      const d = now.getDay();
+      const dToMon = d === 0 ? 6 : d - 1;
+      const mon = new Date(now);
+      mon.setDate(now.getDate() - dToMon);
+      return mon.toISOString().slice(0, 10);
+    })();
+    const weeklyPublished = data.videos.filter(
+      (v) => v.status === "Publicado" && !v.studioCreatedFromOnline && !v.studioCreatedFromCsv && v.publishedAt >= weekStart,
+    ).length;
+    const publishedCount = data.videos.filter(
+      (v) => v.status === "Publicado" && !v.studioCreatedFromOnline && !v.studioCreatedFromCsv,
+    ).length;
+    return { streak, weeklyPublished, weeklyGoal: data.settings.weeklyGoal, publishedCount };
+  }, [data]);
+
+  useEffect(() => {
+    const newly = checkNewAchievements(data.videos, achievementCtx, progress.achievements);
+    if (newly.length === 0) return;
+    const now = new Date().toISOString();
+    const updated: CreatorProgress = {
+      achievements: [
+        ...progress.achievements,
+        ...newly.map((a) => ({ id: a.id, unlockedAt: now })),
+      ],
+    };
+    setProgress(updated);
+    saveProgress(updated);
+    setNewAchievements((prev) => [...prev, ...newly]);
+  }, [data, achievementCtx]);
 
   // ── Derived values ────────────────────────────────────────────────────────
 
@@ -524,9 +595,29 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
     if (isPublishing) {
       setCelebrate(true);
-      setToast("🎉 Vídeo publicado! Parabéns!");
       window.setTimeout(() => setCelebrate(false), 3000);
       setUndoAction(null);
+      // Trigger full-screen celebration with XP info (computed after state update settles)
+      window.setTimeout(() => {
+        setData((current) => {
+          const publishedVid = current.videos.find((v) => v.id === id);
+          const publishedCount = current.videos.filter(
+            (v) => v.status === "Publicado" && !v.studioCreatedFromOnline && !v.studioCreatedFromCsv,
+          ).length;
+          setProgress((prev) => {
+            const xpBefore = computeXp(current.videos.filter((v) => v.id !== id || v.status !== "Publicado"), prev.achievements);
+            const xpAfter = computeXp(current.videos, prev.achievements);
+            const newAch = checkNewAchievements(current.videos, {
+              streak: 0, weeklyPublished: 0, weeklyGoal: current.settings.weeklyGoal, publishedCount,
+            }, prev.achievements).map((a) => a.id);
+            if (publishedVid) {
+              setPublishCelebration({ video: publishedVid, xpBefore, xpAfter, newAchievements: newAch });
+            }
+            return prev;
+          });
+          return current;
+        });
+      }, 200);
     } else if (prevStatus) {
       const captured = prevStatus;
       setUndoAction(() => {
@@ -1254,6 +1345,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
     handleRestoreSnapshot,
     handleDeleteSnapshot,
     handleDownloadSnapshot,
+
+    // Gamification
+    progress,
+    newAchievements,
+    clearNewAchievements: () => setNewAchievements([]),
+    publishCelebration,
+    clearPublishCelebration: () => setPublishCelebration(null),
+    achievementCtx,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

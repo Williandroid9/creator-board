@@ -4,7 +4,9 @@ import { BottleneckPanel } from "../BottleneckPanel";
 import { ChannelInsightsPanel } from "../ChannelInsightsPanel";
 import { ChannelPanel } from "../ChannelPanel";
 import { ChannelPulsePanel } from "../ChannelPulsePanel";
+import { AchievementsPanel } from "../AchievementsPanel";
 import { DailyBrief } from "../DailyBrief";
+import { ProductionHeatmap } from "../ProductionHeatmap";
 import { DailyChecklist } from "../DailyChecklist";
 import { DataPanel } from "../DataPanel";
 import { Filters } from "../Filters";
@@ -76,6 +78,8 @@ export function MainContent() {
     handleDeleteSnapshot,
     handleDownloadSnapshot,
     setToast,
+    progress,
+    achievementCtx,
   } = useApp();
 
   if (focusMode) {
@@ -106,6 +110,7 @@ export function MainContent() {
             videos={scopedActiveVideos}
             weeklyGoal={data.settings.weeklyGoal}
             productionDays={data.settings.productionDays}
+            unlockedAchievements={progress.achievements}
           />
 
           {(!data.channels.length || !scopedActiveVideos.length) && (
@@ -269,6 +274,21 @@ export function MainContent() {
           onRestore={toggleArchiveVideo}
           onDuplicate={duplicateVideo}
         />
+      )}
+
+      {/* ── Progress / Conquistas ─────────────────────────────────────────── */}
+      {activeView === "progress" && (
+        <div className="space-y-6">
+          <ProductionHeatmap
+            videos={data.videos}
+            productionDays={data.settings.productionDays}
+          />
+          <AchievementsPanel
+            videos={data.videos}
+            unlockedAchievements={progress.achievements}
+            ctx={achievementCtx}
+          />
+        </div>
       )}
 
       {/* ── Data ──────────────────────────────────────────────────────────── */}
