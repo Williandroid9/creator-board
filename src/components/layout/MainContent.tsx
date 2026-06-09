@@ -1,6 +1,5 @@
 import { useApp } from "../../context/AppContext";
 import { ArchivePanel } from "../ArchivePanel";
-import { AssetSnowballPanel } from "../AssetSnowballPanel";
 import { BottleneckPanel } from "../BottleneckPanel";
 import { ChannelInsightsPanel } from "../ChannelInsightsPanel";
 import { ChannelPanel } from "../ChannelPanel";
@@ -119,13 +118,7 @@ export function MainContent() {
 
           <ChannelPulsePanel channel={activeChannel} videos={scopedActiveVideos} />
 
-          <AssetSnowballPanel
-            videos={scopedActiveVideos}
-            channels={activeChannel ? [activeChannel] : data.channels}
-            weeklyGoal={activeChannel?.weeklyGoal || data.settings.weeklyGoal}
-            compact
-          />
-
+          {/* Pipeline */}
           <section className="space-y-4">
             <Filters videos={scopedActiveVideos} filters={filters} onChange={setFilters} />
             <KanbanBoard
@@ -140,17 +133,13 @@ export function MainContent() {
             />
           </section>
 
-          <details className="clean-panel rounded-2xl p-4 sm:p-5">
-            <summary className="cursor-pointer list-none">
-              <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <p className="mb-1 text-xs font-black uppercase text-slate-500">Avançado</p>
-                  <h2 className="text-lg font-black text-white">Planejamento e diagnósticos</h2>
-                </div>
-                <span className="text-sm font-black text-slate-500">Abrir ferramentas secundárias</span>
-              </div>
-            </summary>
-            <div className="mt-5 grid gap-5 2xl:grid-cols-[340px_minmax(0,1fr)]">
+          {/* Planning & diagnostics – always visible, no details/summary */}
+          <section className="clean-panel rounded-2xl p-4 sm:p-5">
+            <div className="mb-5">
+              <p className="mb-0.5 text-xs font-black uppercase tracking-wider text-slate-500">Ferramentas</p>
+              <h2 className="text-lg font-black text-white">Planejamento & Diagnósticos</h2>
+            </div>
+            <div className="grid gap-5 2xl:grid-cols-[340px_minmax(0,1fr)]">
               <DailyChecklist
                 tasks={data.dailyChecklist.tasks}
                 onToggle={(id) =>
@@ -175,7 +164,7 @@ export function MainContent() {
                 <BottleneckPanel videos={scopedActiveVideos} onOpenVideo={openVideo} />
               </div>
             </div>
-          </details>
+          </section>
         </>
       )}
 

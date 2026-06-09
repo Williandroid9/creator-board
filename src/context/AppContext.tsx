@@ -180,6 +180,7 @@ export interface AppContextValue {
   activeView: AppView;
   compactKanban: boolean;
   toast: string;
+  celebrate: boolean;
   importRef: RefObject<HTMLInputElement>;
   backupSnapshots: BackupSnapshot[];
 
@@ -204,6 +205,8 @@ export interface AppContextValue {
   setCompactKanban: (compact: boolean | ((prev: boolean) => boolean)) => void;
   setFilters: (f: FilterState | ((prev: FilterState) => FilterState)) => void;
   setToast: (message: string) => void;
+  paletteOpen: boolean;
+  setPaletteOpen: (open: boolean | ((prev: boolean) => boolean)) => void;
 
   // Navigation helpers
   openCreate: () => void;
@@ -287,6 +290,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [activeView, setActiveView] = useState<AppView>(() => loadActiveView());
   const [compactKanban, setCompactKanban] = useState(() => loadCompactKanban());
   const [toast, setToast] = useState("");
+  const [celebrate, setCelebrate] = useState(false);
+  const [paletteOpen, setPaletteOpen] = useState(false);
   const importRef = useRef<HTMLInputElement>(null);
   const [backupSnapshots, setBackupSnapshots] = useState(() => readBackupSnapshots());
 
@@ -467,6 +472,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   );
 
   const moveVideo = useCallback((id: string, status: VideoStatus) => {
+    let isPublishing = false;
     setData((current) => {
       let changed = false;
       const nextData = stampData({
@@ -474,6 +480,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         videos: current.videos.map((v) => {
           if (v.id === id && v.status !== status) {
             changed = true;
+            if (status === "Publicado") isPublishing = true;
             return normalizeVideo({
               ...v,
               status,
@@ -486,6 +493,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
       });
       return changed ? markProductionDay(nextData) : nextData;
     });
+    if (isPublishing) {
+      setCelebrate(true);
+      setToast("🎉 Vídeo publicado! Parabéns!");
+      window.setTimeout(() => setCelebrate(false), 3000);
+    }
   }, []);
 
   const applyWeeklyPlan = useCallback((items: WeeklyPlanItem[]) => {
@@ -1080,6 +1092,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const key = event.key.toLowerCase();
 
       if (event.key === "Escape") {
+        if (paletteOpen) { event.preventDefault(); setPaletteOpen(false); return; }
         if (modalOpen) {
           event.preventDefault();
           setModalOpen(false);
@@ -1089,16 +1102,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
         if (focusMode) { event.preventDefault(); setFocusMode(false); }
       }
 
-      if (isEditableTarget(event.target)) return;
-
       if ((event.ctrlKey || event.metaKey) && key === "k") {
         event.preventDefault();
-        const searchInput = document.getElementById("global-search-input") as HTMLInputElement | null;
-        searchInput?.focus();
-        searchInput?.select();
+        setPaletteOpen((c) => !c);
         return;
       }
 
+      if (isEditableTarget(event.target)) return;
       if (event.ctrlKey || event.metaKey || event.altKey) return;
 
       if (key === "n") { event.preventDefault(); openCreate(); }
@@ -1114,7 +1124,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [focusMode, modalOpen, openCreate]);
+  }, [focusMode, modalOpen, paletteOpen, openCreate]);
 
   // ─────────────────────────────────────────────────────────────────────────
 
@@ -1127,6 +1137,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     activeView,
     compactKanban,
     toast,
+    celebrate,
+    paletteOpen,
     importRef,
     backupSnapshots,
     editingVideo,
@@ -1147,6 +1159,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setCompactKanban,
     setFilters,
     setToast,
+    setPaletteOpen,
     openCreate,
     openVideo,
     setActiveChannel,

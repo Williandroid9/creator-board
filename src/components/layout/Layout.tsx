@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useApp } from "../../context/AppContext";
+import { CommandPalette } from "../CommandPalette";
+import { Confetti, Toast } from "../ui";
 import { VideoModal } from "../VideoModal";
-import { Toast } from "../ui";
 import { Header } from "./Header";
 import { MainContent } from "./MainContent";
 import { Sidebar } from "./Sidebar";
@@ -20,6 +21,9 @@ export function Layout() {
     duplicateVideo,
     toggleArchiveVideo,
     toast,
+    celebrate,
+    paletteOpen,
+    setPaletteOpen,
   } = useApp();
 
   return (
@@ -36,7 +40,10 @@ export function Layout() {
         <MainContent />
       </div>
 
-      {/* Global overlays */}
+      {/* Command palette (Ctrl+K) */}
+      <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />
+
+      {/* Video modal */}
       <VideoModal
         open={modalOpen}
         video={editingVideo}
@@ -53,6 +60,10 @@ export function Layout() {
         onDuplicate={duplicateVideo}
         onToggleArchive={toggleArchiveVideo}
       />
+
+      {/* Celebration confetti 🎉 */}
+      <Confetti show={celebrate} />
+
       <Toast message={toast} />
     </div>
   );

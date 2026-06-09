@@ -19,20 +19,34 @@ import { cx } from "../ui";
 
 // ─── Nav config ───────────────────────────────────────────────────────────────
 
-type NavItem = { key: AppView; label: string; icon: React.ElementType; badge?: string };
+type NavItem = { key: AppView; label: string; icon: React.ElementType; badgeFn?: (ctx: ReturnType<typeof useApp>) => number };
 
 const navGroups: Array<{ title: string; items: NavItem[] }> = [
   {
     title: "Operação",
     items: [
-      { key: "production", label: "Dashboard", icon: LayoutDashboard },
+      {
+        key: "production",
+        label: "Dashboard",
+        icon: LayoutDashboard,
+        badgeFn: ({ scopedActiveVideos }) =>
+          scopedActiveVideos.filter((v) => {
+            if (!v.plannedDate || v.status === "Publicado") return false;
+            return new Date(v.plannedDate) < new Date();
+          }).length,
+      },
       { key: "calendar", label: "Calendário", icon: CalendarDays },
     ],
   },
   {
     title: "Crescimento",
     items: [
-      { key: "radar", label: "Radar", icon: Radar },
+      {
+        key: "radar",
+        label: "Radar",
+        icon: Radar,
+        badgeFn: ({ data }) => data.radar?.ideas?.length ?? 0,
+      },
       { key: "insights", label: "Insights", icon: TrendingUp },
       { key: "performance", label: "Performance", icon: BarChart2 },
     ],
@@ -48,7 +62,12 @@ const navGroups: Array<{ title: string; items: NavItem[] }> = [
     title: "Sistema",
     items: [
       { key: "channels", label: "Canais", icon: Tv2 },
-      { key: "archive", label: "Arquivo", icon: Archive },
+      {
+        key: "archive",
+        label: "Arquivo",
+        icon: Archive,
+        badgeFn: ({ data }) => data.videos.filter((v) => v.archived).length,
+      },
       { key: "data", label: "Dados", icon: Database },
     ],
   },
@@ -91,9 +110,11 @@ function ChannelSelector() {
 // ─── Nav item ─────────────────────────────────────────────────────────────────
 
 function NavLink({ item, onClick }: { item: NavItem; onClick?: () => void }) {
-  const { activeView, setActiveView } = useApp();
+  const ctx = useApp();
+  const { activeView, setActiveView } = ctx;
   const isActive = activeView === item.key;
   const Icon = item.icon;
+  const badge = item.badgeFn ? item.badgeFn(ctx) : 0;
 
   return (
     <button
@@ -116,7 +137,15 @@ function NavLink({ item, onClick }: { item: NavItem; onClick?: () => void }) {
         )}
       />
       <span className="truncate">{item.label}</span>
-      {isActive && (
+      {badge > 0 && (
+        <span className={cx(
+          "ml-auto flex h-4.5 min-w-[1.15rem] items-center justify-center rounded-full px-1 text-[0.6rem] font-black",
+          isActive ? "bg-aqua/20 text-aqua" : "bg-white/[0.08] text-slate-400",
+        )}>
+          {badge > 99 ? "99+" : badge}
+        </span>
+      )}
+      {isActive && badge === 0 && (
         <span className="ml-auto h-1.5 w-1.5 shrink-0 rounded-full bg-aqua" />
       )}
     </button>
@@ -125,22 +154,22 @@ function NavLink({ item, onClick }: { item: NavItem; onClick?: () => void }) {
 
 // ─── Patent badge ─────────────────────────────────────────────────────────────
 
+const PATENT_LEVELS = [
+  { min: 0,   max: 4,        label: "Iniciando a Jornada",   emoji: "🌱", color: "text-slate-400",    bar: "bg-slate-600" },
+  { min: 5,   max: 19,       label: "Criador em Ascensão",   emoji: "🚀", color: "text-emerald-400",  bar: "bg-emerald-400" },
+  { min: 20,  max: 59,       label: "Produtor Consistente",  emoji: "🎯", color: "text-sky-400",      bar: "bg-sky-400" },
+  { min: 60,  max: 149,      label: "Estrategista Digital",  emoji: "⚡", color: "text-violet-400",   bar: "bg-violet-400" },
+  { min: 150, max: Infinity, label: "Referência do Nicho",   emoji: "👑", color: "text-amber-400",    bar: "bg-amber-400" },
+];
+
 function PatentBadge() {
   const { data } = useApp();
   const publishedCount = data.videos.filter(
     (v) => v.status === "Publicado" && !v.studioCreatedFromOnline && !v.studioCreatedFromCsv,
   ).length;
 
-  const levels = [
-    { min: 0, max: 4, label: "Iniciante Fantasma", color: "text-slate-400" },
-    { min: 5, max: 19, label: "Criador Emergente", color: "text-emerald-400" },
-    { min: 20, max: 59, label: "Produtor Consistente", color: "text-sky-400" },
-    { min: 60, max: 149, label: "Estrategista de Conteudo", color: "text-violet-400" },
-    { min: 150, max: Infinity, label: "Dono de Imperio", color: "text-amber-400" },
-  ];
-
-  const level = levels.find((l) => publishedCount >= l.min && publishedCount <= l.max) || levels[0];
-  const nextLevel = levels[levels.indexOf(level) + 1];
+  const level = PATENT_LEVELS.find((l) => publishedCount >= l.min && publishedCount <= l.max) || PATENT_LEVELS[0];
+  const nextLevel = PATENT_LEVELS[PATENT_LEVELS.indexOf(level) + 1];
   const progress = nextLevel
     ? ((publishedCount - level.min) / (nextLevel.min - level.min)) * 100
     : 100;
@@ -148,25 +177,18 @@ function PatentBadge() {
   return (
     <div className="mx-3 mb-3 rounded-xl border border-slate-400/10 bg-white/[0.03] p-3">
       <div className="mb-2 flex items-center gap-2">
-        <Zap className="size-3.5 text-amber-400" />
-        <span className={cx("text-xs font-bold", level.color)}>{level.label}</span>
+        <span className="text-sm">{level.emoji}</span>
+        <span className={cx("text-xs font-bold leading-tight", level.color)}>{level.label}</span>
       </div>
-      <div className="mb-1.5 h-1 w-full overflow-hidden rounded-full bg-white/5">
+      <div className="mb-1.5 h-1.5 w-full overflow-hidden rounded-full bg-white/5">
         <div
-          className={cx(
-            "h-full rounded-full transition-all duration-700",
-            publishedCount >= 150 ? "bg-amber-400" :
-            publishedCount >= 60 ? "bg-violet-400" :
-            publishedCount >= 20 ? "bg-sky-400" :
-            publishedCount >= 5 ? "bg-emerald-400" :
-            "bg-slate-600",
-          )}
+          className={cx("h-full rounded-full transition-all duration-700", level.bar)}
           style={{ width: `${Math.min(progress, 100)}%` }}
         />
       </div>
       <p className="text-[0.65rem] text-slate-500">
         {publishedCount} publicado{publishedCount !== 1 ? "s" : ""} no app
-        {nextLevel && ` · ${nextLevel.min - publishedCount} para ${nextLevel.label}`}
+        {nextLevel && ` · faltam ${nextLevel.min - publishedCount}`}
       </p>
     </div>
   );
@@ -259,14 +281,12 @@ export function Sidebar({ open, onClose }: SidebarProps) {
   if (isMobile) {
     return (
       <>
-        {/* Backdrop */}
         {open && (
           <div
             className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden"
             onClick={onClose}
           />
         )}
-        {/* Drawer */}
         <div
           className={cx(
             "fixed inset-y-0 left-0 z-50 transform transition-transform duration-250 lg:hidden",

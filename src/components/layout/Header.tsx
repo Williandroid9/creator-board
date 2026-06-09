@@ -1,4 +1,4 @@
-import { Menu, Plus, Search, X } from "lucide-react";
+import { Command, Menu, Plus, Search, X } from "lucide-react";
 import { useApp } from "../../context/AppContext";
 import { cx } from "../ui";
 
@@ -11,9 +11,6 @@ export function Header({ onOpenSidebar }: HeaderProps) {
     filters,
     setFilters,
     openCreate,
-    data,
-    activeChannelId,
-    setActiveChannel,
     activeView,
   } = useApp();
 
@@ -57,20 +54,17 @@ export function Header({ onOpenSidebar }: HeaderProps) {
         </div>
 
         {/* Search */}
-        <div className={cx(
-          "relative flex flex-1 items-center",
-          "lg:max-w-sm",
-        )}>
+        <div className="relative flex flex-1 items-center lg:max-w-sm">
           <Search className="pointer-events-none absolute left-3 size-3.5 text-slate-500" />
           <input
             id="global-search-input"
             type="search"
-            placeholder="Buscar… (/ ou Ctrl+K)"
+            placeholder="Buscar…"
             value={filters.search}
             onChange={(e) => setFilters((f) => ({ ...f, search: e.target.value }))}
-            className="h-9 w-full rounded-xl border border-slate-400/10 bg-white/[0.04] pl-8 pr-8 text-sm text-slate-200 outline-none placeholder:text-slate-600 transition hover:bg-white/[0.07] focus:border-slate-400/25 focus:bg-white/[0.07] focus:ring-2 focus:ring-white/5"
+            className="h-9 w-full rounded-xl border border-slate-400/10 bg-white/[0.04] pl-8 pr-20 text-sm text-slate-200 outline-none placeholder:text-slate-600 transition hover:bg-white/[0.07] focus:border-slate-400/25 focus:bg-white/[0.07] focus:ring-2 focus:ring-white/5"
           />
-          {filters.search && (
+          {filters.search ? (
             <button
               type="button"
               onClick={() => setFilters((f) => ({ ...f, search: "" }))}
@@ -78,24 +72,12 @@ export function Header({ onOpenSidebar }: HeaderProps) {
             >
               <X className="size-3.5" />
             </button>
+          ) : (
+            <kbd className="pointer-events-none absolute right-2.5 flex items-center gap-0.5 rounded border border-slate-700/60 bg-white/[0.04] px-1.5 py-0.5 text-[0.65rem] font-bold text-slate-600">
+              <Command className="size-2.5" />K
+            </kbd>
           )}
         </div>
-
-        {/* Channel selector (desktop header) */}
-        {data.channels.length > 0 && (
-          <div className="hidden xl:block">
-            <select
-              value={activeChannelId}
-              onChange={(e) => setActiveChannel(e.target.value)}
-              className="h-9 rounded-xl border border-slate-400/10 bg-white/[0.04] px-3 text-sm font-semibold text-slate-300 outline-none transition hover:bg-white/[0.07] focus:border-slate-400/25"
-            >
-              <option value="all">Todos os canais</option>
-              {data.channels.map((c) => (
-                <option key={c.id} value={c.id}>{c.name}</option>
-              ))}
-            </select>
-          </div>
-        )}
 
         {/* Create button */}
         <button
