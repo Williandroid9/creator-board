@@ -4,6 +4,7 @@ import { BottleneckPanel } from "../BottleneckPanel";
 import { ChannelInsightsPanel } from "../ChannelInsightsPanel";
 import { ChannelPanel } from "../ChannelPanel";
 import { ChannelPulsePanel } from "../ChannelPulsePanel";
+import { DailyBrief } from "../DailyBrief";
 import { DailyChecklist } from "../DailyChecklist";
 import { DataPanel } from "../DataPanel";
 import { Filters } from "../Filters";
@@ -15,6 +16,7 @@ import { OnboardingPanel } from "../OnboardingPanel";
 import { OpportunityPanel } from "../OpportunityPanel";
 import { PerformancePanel } from "../PerformancePanel";
 import { RadarPanel } from "../RadarPanel";
+import { ShortcutsModal } from "../ShortcutsModal";
 import { SmartWeeklyPlanner } from "../SmartWeeklyPlanner";
 import { TodayPanel } from "../TodayPanel";
 import { TrendsPanel } from "../TrendsPanel";
@@ -36,6 +38,8 @@ export function MainContent() {
     setFocusMode,
     compactKanban,
     setCompactKanban,
+    shortcutsOpen,
+    setShortcutsOpen,
     scopedActiveVideos,
     filteredVideos,
     searchedVideos,
@@ -91,9 +95,19 @@ export function MainContent() {
 
   return (
     <main className="mx-auto max-w-[1800px] space-y-5 px-4 py-5 sm:px-6 lg:px-8">
+      {/* Shortcuts modal — available on all views */}
+      <ShortcutsModal open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
+
       {/* ── Production (Dashboard) ─────────────────────────────────────────── */}
       {activeView === "production" && (
         <>
+          {/* Daily Brief banner */}
+          <DailyBrief
+            videos={scopedActiveVideos}
+            weeklyGoal={data.settings.weeklyGoal}
+            productionDays={data.settings.productionDays}
+          />
+
           {(!data.channels.length || !scopedActiveVideos.length) && (
             <OnboardingPanel
               hasChannels={Boolean(data.channels.length)}

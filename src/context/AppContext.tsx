@@ -205,8 +205,13 @@ export interface AppContextValue {
   setCompactKanban: (compact: boolean | ((prev: boolean) => boolean)) => void;
   setFilters: (f: FilterState | ((prev: FilterState) => FilterState)) => void;
   setToast: (message: string) => void;
+  undoAction: (() => void) | null;
   paletteOpen: boolean;
   setPaletteOpen: (open: boolean | ((prev: boolean) => boolean)) => void;
+  shortcutsOpen: boolean;
+  setShortcutsOpen: (open: boolean | ((prev: boolean) => boolean)) => void;
+  confirmDialog: { title: string; message?: string; confirmLabel?: string; onConfirm: () => void } | null;
+  closeConfirmDialog: () => void;
 
   // Navigation helpers
   openCreate: () => void;
@@ -290,8 +295,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [activeView, setActiveView] = useState<AppView>(() => loadActiveView());
   const [compactKanban, setCompactKanban] = useState(() => loadCompactKanban());
   const [toast, setToast] = useState("");
+  const [undoAction, setUndoAction] = useState<(() => void) | null>(null);
   const [celebrate, setCelebrate] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(false);
+  const [shortcutsOpen, setShortcutsOpen] = useState(false);
+  const [confirmDialog, setConfirmDialog] = useState<{ title: string; message?: string; confirmLabel?: string; onConfirm: () => void } | null>(null);
   const importRef = useRef<HTMLInputElement>(null);
   const [backupSnapshots, setBackupSnapshots] = useState(() => readBackupSnapshots());
 
@@ -318,8 +326,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, [compactKanban]);
 
   useEffect(() => {
-    if (!toast) return undefined;
-    const timer = window.setTimeout(() => setToast(""), 2400);
+    if (!toast) {
+      setUndoAction(null);
+      return undefined;
+    }
+    const timer = window.setTimeout(() => setToast(""), 4200);
     return () => window.clearTimeout(timer);
   }, [toast]);
 
@@ -460,19 +471,28 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const deleteVideo = useCallback(
     (id: string) => {
       const video = data.videos.find((v) => v.id === id);
-      if (!window.confirm(`Excluir "${video?.title || "este vídeo"}" do Creator Board?`)) return;
-      setData((current) =>
-        stampData({ ...current, videos: current.videos.filter((v) => v.id !== id) }),
-      );
-      setModalOpen(false);
-      setEditingVideoId(null);
-      setToast("Vídeo excluído.");
+      setConfirmDialog({
+        title: `Excluir "${video?.title || "este vídeo"}"?`,
+        message: "Esta ação é permanente e não pode ser desfeita.",
+        confirmLabel: "Excluir",
+        onConfirm: () => {
+          setData((current) =>
+            stampData({ ...current, videos: current.videos.filter((v) => v.id !== id) }),
+          );
+          setModalOpen(false);
+          setEditingVideoId(null);
+          setToast("Vídeo excluído.");
+          setConfirmDialog(null);
+        },
+      });
     },
     [data.videos],
   );
 
   const moveVideo = useCallback((id: string, status: VideoStatus) => {
     let isPublishing = false;
+    let prevStatus: VideoStatus | undefined;
+
     setData((current) => {
       let changed = false;
       const nextData = stampData({
@@ -480,6 +500,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         videos: current.videos.map((v) => {
           if (v.id === id && v.status !== status) {
             changed = true;
+            prevStatus = v.status;
             if (status === "Publicado") isPublishing = true;
             return normalizeVideo({
               ...v,
@@ -493,10 +514,26 @@ export function AppProvider({ children }: { children: ReactNode }) {
       });
       return changed ? markProductionDay(nextData) : nextData;
     });
+
     if (isPublishing) {
       setCelebrate(true);
       setToast("🎉 Vídeo publicado! Parabéns!");
       window.setTimeout(() => setCelebrate(false), 3000);
+      setUndoAction(null);
+    } else if (prevStatus) {
+      const captured = prevStatus;
+      setUndoAction(() => {
+        setData((current) =>
+          stampData({
+            ...current,
+            videos: current.videos.map((v) =>
+              v.id === id ? normalizeVideo({ ...v, status: captured, updatedAt: new Date().toISOString() }) : v,
+            ),
+          }),
+        );
+        setToast("Movimentação desfeita.");
+        setUndoAction(null);
+      });
     }
   }, []);
 
@@ -529,7 +566,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
           ),
         }),
       );
-      setToast(nextArchived ? "Video arquivado." : "Video restaurado.");
+      setToast(nextArchived ? "Vídeo arquivado." : "Vídeo restaurado.");
+      // Undo support
+      setUndoAction(() => {
+        setData((current) =>
+          stampData({
+            ...current,
+            videos: current.videos.map((v) =>
+              v.id === id ? normalizeVideo({ ...v, archived: !nextArchived, updatedAt: new Date().toISOString() }) : v,
+            ),
+          }),
+        );
+        setToast(nextArchived ? "Arquivamento desfeito." : "Restauração desfeita.");
+        setUndoAction(null);
+      });
     },
     [data.videos],
   );
@@ -1120,11 +1170,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
       }
       if (key === "f") { event.preventDefault(); setFocusMode((c) => !c); }
       if (key === "r") { event.preventDefault(); setActiveView("radar"); }
+      if (key === "?") { event.preventDefault(); setShortcutsOpen((c) => !c); }
     }
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [focusMode, modalOpen, paletteOpen, openCreate]);
+  }, [focusMode, modalOpen, paletteOpen, shortcutsOpen, openCreate]);
 
   // ─────────────────────────────────────────────────────────────────────────
 
@@ -1137,8 +1188,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     activeView,
     compactKanban,
     toast,
+    undoAction,
     celebrate,
     paletteOpen,
+    shortcutsOpen,
+    confirmDialog,
     importRef,
     backupSnapshots,
     editingVideo,
@@ -1160,6 +1214,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setFilters,
     setToast,
     setPaletteOpen,
+    setShortcutsOpen,
+    closeConfirmDialog: () => setConfirmDialog(null),
     openCreate,
     openVideo,
     setActiveChannel,

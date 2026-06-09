@@ -198,6 +198,65 @@ export function Confetti({ show }: { show: boolean }) {
   );
 }
 
+// ─── ConfirmDialog ────────────────────────────────────────────────────────────
+
+export function ConfirmDialog({
+  open,
+  title,
+  message,
+  confirmLabel = "Confirmar",
+  cancelLabel = "Cancelar",
+  onConfirm,
+  onCancel,
+  danger = false,
+}: {
+  open: boolean;
+  title: string;
+  message?: string;
+  confirmLabel?: string;
+  cancelLabel?: string;
+  onConfirm: () => void;
+  onCancel: () => void;
+  danger?: boolean;
+}) {
+  if (!open) return null;
+
+  return (
+    <div
+      className="fixed inset-0 z-[75] flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm"
+      onClick={onCancel}
+    >
+      <div
+        className="animate-palette-in w-full max-w-sm overflow-hidden rounded-2xl border border-slate-700/60 bg-[#0d1218] shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="p-5">
+          <h2 className="mb-1 text-base font-black text-white">{title}</h2>
+          {message && (
+            <p className="mt-2 text-sm font-semibold leading-relaxed text-slate-400">{message}</p>
+          )}
+        </div>
+        <div className="flex justify-end gap-2 border-t border-slate-700/40 px-5 py-3.5">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="btn btn-ghost min-h-9 px-4 text-sm"
+          >
+            {cancelLabel}
+          </button>
+          <button
+            type="button"
+            onClick={onConfirm}
+            className={cx("btn min-h-9 px-4 text-sm", danger ? "btn-danger" : "btn-primary")}
+          >
+            {confirmLabel}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Toast ────────────────────────────────────────────────────────────────────
 
 type ToastType = "success" | "error" | "info" | "celebrate";
@@ -239,7 +298,13 @@ const toastIcons: Record<ToastType, ReactNode> = {
   celebrate: <span className="shrink-0 text-base">🎉</span>,
 };
 
-export function Toast({ message }: { message: string }) {
+export function Toast({
+  message,
+  onUndo,
+}: {
+  message: string;
+  onUndo?: (() => void) | null;
+}) {
   const type = detectToastType(message);
 
   return (
@@ -252,7 +317,16 @@ export function Toast({ message }: { message: string }) {
       role="status"
     >
       {message && toastIcons[type]}
-      <span>{message}</span>
+      <span className="flex-1">{message}</span>
+      {message && onUndo && (
+        <button
+          type="button"
+          onClick={onUndo}
+          className="ml-1 shrink-0 rounded-md border border-current/25 bg-white/10 px-2 py-1 text-xs font-black transition hover:bg-white/20"
+        >
+          Desfazer
+        </button>
+      )}
     </div>
   );
 }

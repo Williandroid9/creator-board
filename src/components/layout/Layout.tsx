@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useApp } from "../../context/AppContext";
 import { CommandPalette } from "../CommandPalette";
-import { Confetti, Toast } from "../ui";
+import { ConfirmDialog, Confetti, Toast } from "../ui";
 import { VideoModal } from "../VideoModal";
 import { Header } from "./Header";
 import { MainContent } from "./MainContent";
@@ -21,9 +21,12 @@ export function Layout() {
     duplicateVideo,
     toggleArchiveVideo,
     toast,
+    undoAction,
     celebrate,
     paletteOpen,
     setPaletteOpen,
+    confirmDialog,
+    closeConfirmDialog,
   } = useApp();
 
   return (
@@ -42,6 +45,17 @@ export function Layout() {
 
       {/* Command palette (Ctrl+K) */}
       <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />
+
+      {/* Confirm dialog (replaces window.confirm) */}
+      <ConfirmDialog
+        open={Boolean(confirmDialog)}
+        title={confirmDialog?.title || ""}
+        message={confirmDialog?.message}
+        confirmLabel={confirmDialog?.confirmLabel}
+        onConfirm={confirmDialog?.onConfirm || (() => {})}
+        onCancel={closeConfirmDialog}
+        danger
+      />
 
       {/* Video modal */}
       <VideoModal
@@ -64,7 +78,7 @@ export function Layout() {
       {/* Celebration confetti 🎉 */}
       <Confetti show={celebrate} />
 
-      <Toast message={toast} />
+      <Toast message={toast} onUndo={undoAction} />
     </div>
   );
 }

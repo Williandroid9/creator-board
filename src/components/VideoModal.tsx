@@ -287,6 +287,123 @@ export function VideoModal({
     setSaveState("saved");
   }
 
+  // ── Quick Create mode (new video, basic form) ──────────────────────────────
+  const isQuickCreate = !editing && !advancedMode;
+
+  if (isQuickCreate) {
+    return (
+      <div
+        className="modal-backdrop fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-black/70 p-3 sm:p-5"
+        onMouseDown={(event) => event.target === event.currentTarget && closeModal()}
+      >
+        <form
+          className="modal-card glass-panel w-full max-w-lg rounded-2xl p-5 sm:p-6"
+          onSubmit={submit}
+        >
+          {/* Header */}
+          <div className="mb-5 flex items-center justify-between gap-3">
+            <div>
+              <p className="mb-0.5 text-xs font-black uppercase text-aqua">Nova ideia</p>
+              <h2 className="text-xl font-black">Criação rápida</h2>
+            </div>
+            <Button onClick={closeModal}>Fechar</Button>
+          </div>
+
+          <div className="space-y-4">
+            {/* Title */}
+            <Field label="Título *">
+              <TextInput
+                required
+                autoFocus
+                value={draft.title}
+                onChange={(e) => setField("title", e.target.value)}
+                placeholder="Ex: 7 erros que travam seu canal"
+                className="text-base"
+              />
+            </Field>
+
+            {/* Channel + Niche row */}
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label="Canal">
+                {channels.length ? (
+                  <SelectInput value={draft.channelId} onChange={(e) => setChannel(e.target.value)}>
+                    <option value="">Sem canal</option>
+                    {channels.map((c) => (
+                      <option key={c.id} value={c.id}>{c.name}</option>
+                    ))}
+                  </SelectInput>
+                ) : (
+                  <TextInput value={draft.channel} onChange={(e) => setField("channel", e.target.value)} placeholder="Nome do canal" />
+                )}
+              </Field>
+              <Field label="Nicho *">
+                <TextInput
+                  required
+                  value={draft.niche}
+                  onChange={(e) => setField("niche", e.target.value)}
+                  placeholder="Ex: Marketing"
+                />
+              </Field>
+            </div>
+
+            {/* Priority pills */}
+            <div className="grid gap-2">
+              <span className="text-[0.8rem] font-bold text-slate-300">Prioridade</span>
+              <div className="flex gap-2">
+                {PRIORITIES.map((p) => (
+                  <button
+                    key={p}
+                    type="button"
+                    onClick={() => setField("priority", p)}
+                    className={cx(
+                      "flex-1 rounded-xl border py-2.5 text-sm font-black transition",
+                      draft.priority === p
+                        ? p === "Alta"
+                          ? "border-brand/40 bg-brand/10 text-red-200"
+                          : p === "Media"
+                          ? "border-amber-400/40 bg-amber-400/10 text-amber-200"
+                          : "border-slate-400/30 bg-white/[0.06] text-slate-300"
+                        : "border-slate-700/40 bg-white/[0.03] text-slate-500 hover:border-slate-600/40 hover:text-slate-300",
+                    )}
+                  >
+                    {p}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Format (optional) */}
+            <Field label="Formato (opcional)">
+              <SelectInput value={draft.videoFormat} onChange={(e) => setField("videoFormat", e.target.value)}>
+                <option value="">Escolher formato</option>
+                {SCRIPT_TEMPLATES.map((t) => (
+                  <option key={t.key} value={t.key}>{t.label}</option>
+                ))}
+              </SelectInput>
+            </Field>
+
+            {/* Actions */}
+            <div className="flex flex-col gap-2 pt-1 sm:flex-row">
+              <Button variant="primary" type="submit" className="flex-1 py-3 text-base">
+                Salvar ideia
+              </Button>
+            </div>
+
+            {/* Full form toggle */}
+            <button
+              type="button"
+              onClick={() => setAdvancedMode(true)}
+              className="w-full text-center text-xs font-bold text-slate-500 transition hover:text-slate-300"
+            >
+              Mais campos (roteiro, SEO, data, thumbnail) →
+            </button>
+          </div>
+        </form>
+      </div>
+    );
+  }
+
+  // ── Full form ───────────────────────────────────────────────────────────────
   return (
     <div
       className="modal-backdrop fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-black/70 p-3 sm:p-5"
@@ -305,8 +422,13 @@ export function VideoModal({
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
+            {!editing && (
+              <Button onClick={() => setAdvancedMode(false)}>
+                ← Criação rápida
+              </Button>
+            )}
             <Button onClick={() => setAdvancedMode((current) => !current)}>
-              {advancedMode ? "Modo simples" : "Mostrar avancado"}
+              {advancedMode && editing ? "Modo simples" : "Mostrar avançado"}
             </Button>
             <Button onClick={closeModal}>Fechar</Button>
             <Button variant="primary" type="submit">
