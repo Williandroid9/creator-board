@@ -40,7 +40,7 @@ import type { YouTubeOnlineVideo } from "../lib/youtubeApi";
 import { isYouTubeApiSource } from "../lib/dataSource";
 import { normalizeChannel, normalizeChannelName } from "../lib/channel";
 import { extractYouTubeId, normalizeTitleKey } from "../lib/onlineSync";
-import { getRecommendation, isOverdue, makeId, normalizeVideo } from "../lib/video";
+import { getRecommendation, hasScript, isOverdue, isReadyToPublish, makeId, normalizeVideo } from "../lib/video";
 import type { WeeklyPlanItem } from "../lib/weeklyPlan";
 import { normalizeInspiration } from "../lib/inspiration";
 import { generateRadarReport, normalizeRadarCompetitor, radarIdeaToVideoDraft } from "../lib/radar";
@@ -161,6 +161,7 @@ function matchesVideoSearch(video: Video, search: string) {
     video.studioImpressions,
     video.studioRetention,
     video.studioSubscribers,
+    ...(video.tags ?? []),
   ]
     .filter(Boolean)
     .join(" ")
@@ -288,7 +289,7 @@ export function useApp(): AppContextValue {
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [data, setData] = useState<AppData>(() => loadAppData());
-  const [filters, setFilters] = useState<FilterState>({ niche: "all", channel: "all", search: "" });
+  const [filters, setFilters] = useState<FilterState>({ niche: "all", channel: "all", search: "", quickFilter: "" });
   const [modalOpen, setModalOpen] = useState(false);
   const [editingVideoId, setEditingVideoId] = useState<string | null>(null);
   const [focusMode, setFocusMode] = useState(false);
@@ -368,10 +369,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   const filteredVideos = useMemo(() => {
     const search = filters.search.trim().toLowerCase();
+    const qf = filters.quickFilter;
     const base = scopedActiveVideos.filter((v) => {
       const matchesNiche = filters.niche === "all" || v.niche === filters.niche;
       const matchesChannel = filters.channel === "all" || v.channel === filters.channel;
-      return matchesNiche && matchesChannel && matchesVideoSearch(v, search);
+      if (!matchesNiche || !matchesChannel || !matchesVideoSearch(v, search)) return false;
+      if (qf === "alta") return v.priority === "Alta";
+      if (qf === "atrasados") return isOverdue(v);
+      if (qf === "sem-roteiro") return !hasScript(v) && v.status !== "Publicado";
+      if (qf === "prontos") return isReadyToPublish(v);
+      return true;
     });
     if (!focusMode) return base;
     const recommendation = getRecommendation(scopedActiveVideos);

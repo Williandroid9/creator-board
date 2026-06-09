@@ -1,3 +1,4 @@
+import { Archive } from "lucide-react";
 import type { Video } from "../types";
 import { formatDate } from "../lib/date";
 import { sortByPriorityAndDate } from "../lib/video";
@@ -30,7 +31,7 @@ export function ArchivePanel({ videos, onOpen, onRestore, onDuplicate }: Archive
               <div className="mb-3 flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <h3 className="line-clamp-2 text-sm font-black text-white">{video.title}</h3>
-                  <p className="mt-1 truncate text-xs font-bold text-slate-500">
+                  <p className="mt-1 truncate text-xs font-bold text-slate-400">
                     {[video.channel, video.niche].filter(Boolean).join(" / ") || "Sem canal"}
                   </p>
                 </div>
@@ -38,7 +39,7 @@ export function ArchivePanel({ videos, onOpen, onRestore, onDuplicate }: Archive
                   {video.status}
                 </span>
               </div>
-              <p className="text-xs font-bold text-slate-500">Planejado: {formatDate(video.plannedDate, "Sem data")}</p>
+              <p className="text-xs font-bold text-slate-400">Planejado: {formatDate(video.plannedDate, "Sem data")}</p>
               <div className="mt-4 flex flex-wrap gap-2">
                 <Button className="min-h-9 px-3 text-xs" onClick={() => onOpen(video)}>
                   Abrir
@@ -54,8 +55,16 @@ export function ArchivePanel({ videos, onOpen, onRestore, onDuplicate }: Archive
           ))}
         </div>
       ) : (
-        <div className="rounded-xl border border-dashed border-slate-700/70 p-6 text-sm font-semibold text-slate-500">
-          Nenhum video arquivado. Use arquivar para limpar o Kanban sem excluir ideias antigas.
+        <div className="flex flex-col items-center gap-4 rounded-xl border border-dashed border-slate-700/60 py-12 text-center">
+          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/[0.04] ring-1 ring-slate-700/50">
+            <Archive className="size-7 text-slate-500" />
+          </div>
+          <div>
+            <p className="text-base font-black text-slate-300">Arquivo vazio</p>
+            <p className="mt-1.5 max-w-sm text-sm font-semibold leading-relaxed text-slate-500">
+              Arquive vídeos no Kanban para manter o pipeline limpo sem perder ideias antigas. Eles aparecem aqui e podem ser restaurados a qualquer momento.
+            </p>
+          </div>
         </div>
       )}
     </section>

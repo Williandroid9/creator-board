@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { CheckSquare, ChevronDown, ChevronRight, Square, X } from "lucide-react";
 import { STATUSES, type Video, type VideoPriority, type VideoStatus } from "../types";
 import { getDataSourceLabel } from "../lib/dataSource";
 import { formatDate } from "../lib/date";
@@ -34,6 +34,9 @@ function KanbanCard({
   video,
   allVideos,
   compact,
+  selectMode,
+  selected,
+  onSelect,
   onOpen,
   onMove,
   onDuplicate,
@@ -42,6 +45,9 @@ function KanbanCard({
   video: Video;
   allVideos: Video[];
   compact: boolean;
+  selectMode: boolean;
+  selected: boolean;
+  onSelect: (id: string) => void;
   onOpen: (video: Video) => void;
   onMove: (id: string, status: VideoStatus) => void;
   onDuplicate: (id: string) => void;
@@ -68,10 +74,10 @@ function KanbanCard({
         "group rounded-xl border border-l-2 bg-[#111722] shadow-card transition-all",
         "hover:border-slate-600/50 hover:shadow-md hover:translate-y-[-1px]",
         compact ? "p-2.5" : "p-3",
-        "border-slate-700/30",
-        priorityBorder[video.priority],
+        selectMode && selected ? "border-aqua/40 bg-aqua/5" : "border-slate-700/30",
+        !selectMode && priorityBorder[video.priority],
       )}
-      draggable
+      draggable={!selectMode}
       onDragStart={(event) => {
         event.dataTransfer.setData("text/plain", video.id);
         event.dataTransfer.effectAllowed = "move";
@@ -81,6 +87,20 @@ function KanbanCard({
         requestAnimationFrame(() => { el.style.opacity = ""; });
       }}
     >
+      {/* Select mode checkbox */}
+      {selectMode && (
+        <button
+          type="button"
+          onClick={() => onSelect(video.id)}
+          className="mb-2 flex items-center gap-2 text-xs font-bold text-slate-400 hover:text-white"
+        >
+          {selected
+            ? <CheckSquare className="size-4 text-aqua" />
+            : <Square className="size-4" />}
+          <span>{selected ? "Selecionado" : "Selecionar"}</span>
+        </button>
+      )}
+
       <div className={cx("flex items-start gap-2", compact ? "mb-1.5" : "mb-2")}>
         <span
           className={cx("mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full", priorityDot[video.priority])}
@@ -96,7 +116,7 @@ function KanbanCard({
 
       {!compact && (
         <div className="flex items-center justify-between gap-2">
-          <p className="min-w-0 truncate text-xs font-bold text-slate-500">
+          <p className="min-w-0 truncate text-xs font-bold text-slate-400">
             {[video.channel, video.niche].filter(Boolean).join(" / ") || "Sem canal"}
           </p>
           <Tooltip tip={scoreTip} placement="left">
@@ -152,6 +172,16 @@ function KanbanCard({
         </div>
       ) : null}
 
+      {!compact && video.tags && video.tags.length > 0 && (
+        <div className="mt-2 flex flex-wrap gap-1">
+          {video.tags.slice(0, 4).map((tag) => (
+            <span key={tag} className="rounded-md bg-indigo-400/10 px-2 py-0.5 text-[0.64rem] font-bold text-indigo-300">
+              #{tag}
+            </span>
+          ))}
+        </div>
+      )}
+
       <div className={cx(
         "grid gap-2",
         compact ? "mt-3 grid-cols-3" : isPublished ? "mt-4 grid-cols-1" : "mt-4 grid-cols-2",
@@ -191,6 +221,9 @@ function PublishedColumn({
   videos,
   allVideos,
   compact,
+  selectMode,
+  selectedIds,
+  onSelect,
   onOpen,
   onMove,
   onDuplicate,
@@ -201,6 +234,9 @@ function PublishedColumn({
   videos: Video[];
   allVideos: Video[];
   compact: boolean;
+  selectMode: boolean;
+  selectedIds: Set<string>;
+  onSelect: (id: string) => void;
   onOpen: (v: Video) => void;
   onMove: (id: string, s: VideoStatus) => void;
   onDuplicate: (id: string) => void;
@@ -252,6 +288,9 @@ function PublishedColumn({
                 video={video}
                 allVideos={allVideos}
                 compact={compact}
+                selectMode={selectMode}
+                selected={selectedIds.has(video.id)}
+                onSelect={onSelect}
                 onOpen={onOpen}
                 onMove={onMove}
                 onDuplicate={onDuplicate}
@@ -295,7 +334,36 @@ export function KanbanBoard({
   onArchive: (id: string) => void;
 }) {
   const [dragOver, setDragOver] = useState<VideoStatus | "">("");
+  const [selectMode, setSelectMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const activeStatuses = STATUSES.filter((s) => s !== "Publicado");
+
+  function toggleSelect(id: string) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  }
+
+  function handleSelectAll() {
+    setSelectedIds(new Set(videos.map((v) => v.id)));
+  }
+
+  function handleClearSelect() {
+    setSelectedIds(new Set());
+    setSelectMode(false);
+  }
+
+  function bulkMove(status: VideoStatus) {
+    selectedIds.forEach((id) => onMove(id, status));
+    handleClearSelect();
+  }
+
+  function bulkArchive() {
+    selectedIds.forEach((id) => onArchive(id));
+    handleClearSelect();
+  }
 
   return (
     <section className="clean-panel rounded-2xl p-4 sm:p-5">
@@ -315,6 +383,22 @@ export function KanbanBoard({
             />
             Compacto
           </label>
+          <button
+            type="button"
+            onClick={() => {
+              if (selectMode) handleClearSelect();
+              else setSelectMode(true);
+            }}
+            className={cx(
+              "flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-bold transition",
+              selectMode
+                ? "bg-aqua/10 text-aqua ring-1 ring-aqua/30"
+                : "bg-white/[0.045] text-slate-300 hover:bg-white/[0.07]",
+            )}
+          >
+            {selectMode ? <X className="size-4" /> : <CheckSquare className="size-4" />}
+            {selectMode ? "Cancelar seleção" : "Selecionar"}
+          </button>
         </div>
       </div>
 
@@ -370,6 +454,9 @@ export function KanbanBoard({
                         video={video}
                         allVideos={allVideos}
                         compact={compact}
+                        selectMode={selectMode}
+                        selected={selectedIds.has(video.id)}
+                        onSelect={toggleSelect}
                         onOpen={onOpen}
                         onMove={onMove}
                         onDuplicate={onDuplicate}
@@ -389,6 +476,9 @@ export function KanbanBoard({
             videos={sortByPriorityAndDate(videos.filter((v) => v.status === "Publicado"))}
             allVideos={allVideos}
             compact={compact}
+            selectMode={selectMode}
+            selectedIds={selectedIds}
+            onSelect={toggleSelect}
             onOpen={onOpen}
             onMove={onMove}
             onDuplicate={onDuplicate}
@@ -396,6 +486,46 @@ export function KanbanBoard({
             dragOver={dragOver}
             setDragOver={setDragOver}
           />
+        </div>
+      )}
+
+      {/* Floating bulk action bar */}
+      {selectMode && selectedIds.size > 0 && (
+        <div className="animate-palette-in mt-4 flex flex-wrap items-center gap-3 rounded-xl border border-aqua/25 bg-[#071e1c] p-3 shadow-xl">
+          <div className="flex items-center gap-2">
+            <span className="rounded-full bg-aqua/15 px-2.5 py-1 text-xs font-black text-aqua">
+              {selectedIds.size} selecionado{selectedIds.size !== 1 ? "s" : ""}
+            </span>
+            <button
+              type="button"
+              onClick={handleSelectAll}
+              className="text-xs font-bold text-slate-400 transition hover:text-white"
+            >
+              Todos ({videos.length})
+            </button>
+          </div>
+          <span className="hidden h-5 w-px bg-slate-700 sm:block" />
+          <div className="flex flex-wrap gap-2">
+            <p className="self-center text-xs font-bold text-slate-500">Mover para:</p>
+            {(["Ideia", "Roteiro", "Gravacao", "Edicao", "Agendado"] as VideoStatus[]).map((s) => (
+              <button
+                key={s}
+                type="button"
+                onClick={() => bulkMove(s)}
+                className="rounded-lg bg-white/[0.07] px-2.5 py-1.5 text-xs font-black text-slate-300 transition hover:bg-white/[0.12]"
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+          <span className="hidden h-5 w-px bg-slate-700 sm:block" />
+          <button
+            type="button"
+            onClick={bulkArchive}
+            className="rounded-lg bg-slate-700/50 px-2.5 py-1.5 text-xs font-black text-slate-300 transition hover:bg-slate-600/50"
+          >
+            Arquivar todos
+          </button>
         </div>
       )}
     </section>

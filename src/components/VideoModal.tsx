@@ -502,6 +502,17 @@ export function VideoModal({
             <Field label="Palavra-chave principal">
               <TextInput value={draft.keyword} onChange={(event) => setField("keyword", event.target.value)} placeholder="Ex: crescer no YouTube" />
             </Field>
+            <Field label="Tags" hint="separadas por vírgula">
+              <TextInput
+                value={(draft.tags ?? []).join(", ")}
+                onChange={(event) => {
+                  const raw = event.target.value;
+                  const tags = raw.split(",").map((t) => t.trim()).filter(Boolean);
+                  setField("tags", tags);
+                }}
+                placeholder="Ex: facecam, shorts, série, educativo"
+              />
+            </Field>
             <Field label="Formato do video" className="sm:col-span-2">
               <SelectInput value={draft.videoFormat} onChange={(event) => setField("videoFormat", event.target.value)}>
                 <option value="">Escolher formato</option>

@@ -80,7 +80,12 @@ textarea {
   }
 
   .field-label {
-    @apply grid gap-2 text-[0.8rem] font-bold text-slate-300;
+    @apply grid gap-2 text-[0.8rem] font-bold text-slate-200;
+  }
+
+  /* WCAG AA: ensure readable helper text meets 4.5:1 contrast */
+  .help-text {
+    @apply text-sm font-semibold text-slate-400;
   }
 
   .btn {

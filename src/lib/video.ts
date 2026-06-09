@@ -58,6 +58,7 @@ export const EMPTY_VIDEO: VideoDraft = {
   studioCreatedFromOnline: false,
   archived: false,
   linkedInspirationIds: [],
+  tags: [],
 };
 
 export const WIP_LIMITS: Partial<Record<VideoStatus, number>> = {
@@ -237,6 +238,7 @@ export function normalizeVideo(raw: Partial<VideoDraft | Video>): Video {
     linkedInspirationIds: Array.isArray(raw.linkedInspirationIds)
       ? raw.linkedInspirationIds.map((id) => text(id)).filter(Boolean)
       : [],
+    tags: Array.isArray(raw.tags) ? raw.tags.map((t) => text(t).trim()).filter(Boolean) : [],
     createdAt: text(raw.createdAt) || now,
     updatedAt: text(raw.updatedAt) || now,
   };

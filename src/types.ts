@@ -57,6 +57,7 @@ export type Video = {
   studioCreatedFromOnline: boolean;
   archived: boolean;
   linkedInspirationIds: string[];
+  tags: string[];
   createdAt: string;
   updatedAt: string;
 };
@@ -287,6 +288,7 @@ export type Filters = {
   niche: string;
   channel: string;
   search: string;
+  quickFilter: string;
 };
 
 export type InspirationFilters = {
