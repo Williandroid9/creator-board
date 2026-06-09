@@ -1,6 +1,8 @@
+import { useState } from "react";
 import {
   Archive,
   BarChart2,
+  Bell,
   BookOpen,
   CalendarDays,
   ChevronDown,
@@ -17,6 +19,7 @@ import {
 } from "lucide-react";
 import { computeXp, getLevelInfo } from "../../lib/achievements";
 import { type AppView, useApp } from "../../context/AppContext";
+import { NotificationSetup } from "../NotificationSetup";
 import { cx } from "../ui";
 
 // ─── Nav config ───────────────────────────────────────────────────────────────
@@ -206,7 +209,8 @@ type SidebarProps = {
 };
 
 export function Sidebar({ open, onClose }: SidebarProps) {
-  const { openCreate } = useApp();
+  const { openCreate, notifPrefs } = useApp();
+  const [notifSetupOpen, setNotifSetupOpen] = useState(false);
 
   const isMobile = onClose !== undefined;
 
@@ -265,6 +269,28 @@ export function Sidebar({ open, onClose }: SidebarProps) {
       {/* XP / Level badge */}
       <XpBadge />
 
+      {/* Notifications button */}
+      <div className="px-3 pb-2">
+        <button
+          type="button"
+          onClick={() => setNotifSetupOpen(true)}
+          className="flex w-full items-center gap-2.5 rounded-xl border border-slate-400/[0.08] bg-white/[0.02] px-3 py-2 text-left transition hover:bg-white/[0.06]"
+        >
+          <div className="relative">
+            <Bell className={cx("size-4", notifPrefs.enabled ? "text-aqua" : "text-slate-500")} />
+            {!notifPrefs.enabled && (
+              <span className="absolute -right-0.5 -top-0.5 size-2 rounded-full bg-brand" />
+            )}
+          </div>
+          <span className={cx("flex-1 text-xs font-semibold", notifPrefs.enabled ? "text-slate-300" : "text-slate-500")}>
+            {notifPrefs.enabled ? `Notificações às ${notifPrefs.time}` : "Ativar notificações"}
+          </span>
+          {notifPrefs.enabled && (
+            <span className="size-1.5 shrink-0 rounded-full bg-aqua" />
+          )}
+        </button>
+      </div>
+
       {/* Create button */}
       <div className="p-3 pt-0">
         <button
@@ -280,6 +306,10 @@ export function Sidebar({ open, onClose }: SidebarProps) {
         </button>
       </div>
     </aside>
+  );
+
+  const modal = (
+    <NotificationSetup open={notifSetupOpen} onClose={() => setNotifSetupOpen(false)} />
   );
 
   if (isMobile) {
@@ -299,13 +329,17 @@ export function Sidebar({ open, onClose }: SidebarProps) {
         >
           {content}
         </div>
+        {modal}
       </>
     );
   }
 
   return (
-    <div className="fixed inset-y-0 left-0 hidden w-[17rem] lg:block">
-      {content}
-    </div>
+    <>
+      <div className="fixed inset-y-0 left-0 hidden w-[17rem] lg:block">
+        {content}
+      </div>
+      {modal}
+    </>
   );
 }

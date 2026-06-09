@@ -34,6 +34,16 @@ import {
   loadProgress,
   saveProgress,
 } from "../lib/achievements";
+import {
+  generateSmartNotification,
+  getLastShownDate,
+  loadNotifPrefs,
+  type NotificationPrefs,
+  registerPeriodicSync,
+  saveNotifPrefs,
+  scheduleDailyNotification,
+  syncPayloadToSW,
+} from "../lib/notifications";
 import { addDays, isToday, localDateKey } from "../lib/date";
 import { exportJson } from "../lib/export";
 import { loadAppData, parseImportedData, saveAppData } from "../lib/storage";
@@ -293,6 +303,10 @@ export interface AppContextValue {
   publishCelebration: { video: Video; xpBefore: number; xpAfter: number; newAchievements: string[] } | null;
   clearPublishCelebration: () => void;
   achievementCtx: AchievementContext;
+
+  // Notifications
+  notifPrefs: NotificationPrefs;
+  saveNotifPrefsAndReschedule: (prefs: NotificationPrefs) => void;
 }
 
 // ─── Context ──────────────────────────────────────────────────────────────────
@@ -331,6 +345,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     xpAfter: number;
     newAchievements: string[];
   } | null>(null);
+  const [notifPrefs, setNotifPrefsState] = useState<NotificationPrefs>(() => loadNotifPrefs());
+
+  // Stable ref so notification callbacks never hold stale data
+  const dataRef = useRef(data);
+  useEffect(() => { dataRef.current = data; }, [data]);
 
   // Persist data
   useEffect(() => {
@@ -405,6 +424,29 @@ export function AppProvider({ children }: { children: ReactNode }) {
     saveProgress(updated);
     setNewAchievements((prev) => [...prev, ...newly]);
   }, [data, achievementCtx]);
+
+  // ── Notification scheduling ───────────────────────────────────────────────
+
+  // Resume scheduled timer on mount (if already configured + permission granted)
+  useEffect(() => {
+    if (
+      notifPrefs.enabled &&
+      typeof Notification !== "undefined" &&
+      Notification.permission === "granted"
+    ) {
+      scheduleDailyNotification(notifPrefs, () => dataRef.current);
+      registerPeriodicSync();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // intentionally only on mount
+
+  // Keep IDB payload fresh so periodic background sync (PWA) always has current data
+  useEffect(() => {
+    if (!notifPrefs.enabled) return;
+    if (typeof Notification === "undefined" || Notification.permission !== "granted") return;
+    const payload = generateSmartNotification(data, notifPrefs.types);
+    syncPayloadToSW(payload, getLastShownDate());
+  }, [data, notifPrefs]);
 
   // ── Derived values ────────────────────────────────────────────────────────
 
@@ -1233,6 +1275,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [backupSnapshots],
   );
 
+  // ── Notification prefs ───────────────────────────────────────────────────
+
+  const saveNotifPrefsAndReschedule = useCallback((prefs: NotificationPrefs) => {
+    setNotifPrefsState(prefs);
+    saveNotifPrefs(prefs);
+    if (
+      prefs.enabled &&
+      typeof Notification !== "undefined" &&
+      Notification.permission === "granted"
+    ) {
+      scheduleDailyNotification(prefs, () => dataRef.current);
+      registerPeriodicSync();
+    }
+  }, []);
+
   // ── Keyboard shortcuts ────────────────────────────────────────────────────
 
   useEffect(() => {
@@ -1353,6 +1410,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
     publishCelebration,
     clearPublishCelebration: () => setPublishCelebration(null),
     achievementCtx,
+
+    // Notifications
+    notifPrefs,
+    saveNotifPrefsAndReschedule,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
