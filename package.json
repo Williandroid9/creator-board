@@ -19,6 +19,7 @@
     "standalone": "tailwindcss -i ./src/index.css -o ./dist/assets/creator-board.css --minify && node ./scripts/build-standalone.cjs"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.104.1",
     "date-fns": "^4.4.0",
     "lucide-react": "^1.17.0",
     "react": "^18.3.1",

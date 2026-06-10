@@ -11,13 +11,13 @@ import { DailyChecklist } from "../DailyChecklist";
 import { DataPanel } from "../DataPanel";
 import { Filters } from "../Filters";
 import { FocusMode } from "../FocusMode";
+import { IdeaScoutPanel } from "../IdeaScoutPanel";
 import { InspirationBank } from "../InspirationBank";
 import { KanbanBoard } from "../KanbanBoard";
 import { MetricGrid } from "../MetricGrid";
 import { OnboardingPanel } from "../OnboardingPanel";
 import { OpportunityPanel } from "../OpportunityPanel";
 import { PerformancePanel } from "../PerformancePanel";
-import { RadarPanel } from "../RadarPanel";
 import { ShortcutsModal } from "../ShortcutsModal";
 import { SmartWeeklyPlanner } from "../SmartWeeklyPlanner";
 import { TodayPanel } from "../TodayPanel";
@@ -62,10 +62,6 @@ export function MainContent() {
     deleteInspiration,
     saveTrend,
     deleteTrend,
-    saveRadarCompetitor,
-    deleteRadarCompetitor,
-    runRadar,
-    createFromRadarIdea,
     saveChannel,
     saveChannels,
     deleteChannel,
@@ -222,20 +218,8 @@ export function MainContent() {
         />
       )}
 
-      {/* ── Radar ─────────────────────────────────────────────────────────── */}
-      {activeView === "radar" && (
-        <RadarPanel
-          activeChannel={activeChannel}
-          videos={data.videos}
-          trends={data.trends}
-          inspirations={data.inspirations}
-          radar={data.radar}
-          onRun={runRadar}
-          onSaveCompetitor={saveRadarCompetitor}
-          onDeleteCompetitor={deleteRadarCompetitor}
-          onCreateFromIdea={createFromRadarIdea}
-        />
-      )}
+      {/* ── Caçador de Ideias (ex-Radar) ──────────────────────────────────── */}
+      {activeView === "radar" && <IdeaScoutPanel />}
 
       {/* ── Trends / Banco de Ideias ───────────────────────────────────────── */}
       {activeView === "trends" && (

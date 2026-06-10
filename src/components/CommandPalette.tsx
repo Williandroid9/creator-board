@@ -7,8 +7,8 @@ import {
   Database,
   LayoutDashboard,
   Lightbulb,
+  Crosshair,
   Plus,
-  Radar,
   Search,
   TrendingUp,
   Tv2,
@@ -38,7 +38,7 @@ const COMMANDS: Command[] = [
   // Navigation
   { id: "go-dashboard",    label: "Ir para Dashboard",     group: "Navegar", icon: LayoutDashboard, action: { type: "view", view: "production" } },
   { id: "go-calendar",     label: "Ir para Calendário",    group: "Navegar", icon: CalendarDays,    action: { type: "view", view: "calendar" } },
-  { id: "go-radar",        label: "Ir para Radar",         group: "Navegar", icon: Radar,           shortcut: "R", action: { type: "view", view: "radar" } },
+  { id: "go-radar",        label: "Ir para Caçador de Ideias", group: "Navegar", icon: Crosshair,   shortcut: "R", action: { type: "view", view: "radar" }, keywords: "radar scout ideias agente" },
   { id: "go-insights",     label: "Ir para Insights",      group: "Navegar", icon: TrendingUp,      action: { type: "view", view: "insights" } },
   { id: "go-performance",  label: "Ir para Performance",   group: "Navegar", icon: BarChart2,       action: { type: "view", view: "performance" } },
   { id: "go-trends",       label: "Ir para Banco de Ideias", group: "Navegar", icon: Lightbulb,     action: { type: "view", view: "trends" } },
