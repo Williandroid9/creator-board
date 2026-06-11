@@ -1,7 +1,7 @@
 import type { Video } from "../types";
 import { addDays, formatDate, localDateKey, parseDate, startOfWeek } from "./date";
 import { getNextAction, getOpportunityScore, getTopOpportunities } from "./opportunity";
-import { hasScript, hasSeo, hasThumbnail, isOverdue } from "./video";
+import { hasScript, hasSeo, isOverdue } from "./video";
 
 export type WeeklyPlanItem = {
   id: string;
@@ -36,7 +36,7 @@ function isDateInRange(value: string, start: Date, end: Date) {
 }
 
 function isReadyToPublishNow(video: Video) {
-  return hasScript(video) && hasThumbnail(video) && hasSeo(video);
+  return hasScript(video) && hasSeo(video);
 }
 
 function getReason(video: Video, action: string) {
@@ -45,15 +45,11 @@ function getReason(video: Video, action: string) {
   }
 
   if (isReadyToPublishNow(video) && action === "Publicar") {
-    return "Ja tem roteiro, thumbnail e SEO.";
+    return "Ja tem roteiro e SEO.";
   }
 
   if (!hasScript(video)) {
     return "Roteiro e o maior bloqueio.";
-  }
-
-  if (!hasThumbnail(video)) {
-    return "Precisa de visual antes de publicar.";
   }
 
   if (!hasSeo(video)) {
@@ -85,7 +81,7 @@ function preferredDayIndex(item: { video: Video; action: string }, start: Date, 
     return 2;
   }
 
-  if (item.action === "Criar thumbnail" || item.action === "Revisar SEO") {
+  if (item.action === "Revisar SEO") {
     return 3;
   }
 

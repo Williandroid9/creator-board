@@ -110,7 +110,7 @@ export function OpportunityPanel({ videos, onOpenVideo, onCreate }: OpportunityP
         />
         <RecommendationCard
           title="Publicacao rapida"
-          emptyText="Complete roteiro, thumbnail e SEO para aparecer aqui."
+          emptyText="Complete roteiro e SEO para aparecer aqui."
           item={opportunities.quickWin}
           onOpenVideo={onOpenVideo}
         />

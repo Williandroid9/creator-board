@@ -104,7 +104,7 @@ const channelInactiveGenerator: Generator = (data, types) => {
     if (days >= 7 && ready.length > 0) {
       return {
         title: `🚨 ${channel.name} está ${days} dias sem publicar!`,
-        body: `"${ready[0].title}" está completamente pronto — roteiro ✓ thumb ✓ SEO ✓. Só falta apertar o botão.`,
+        body: `"${ready[0].title}" está completamente pronto — roteiro ✓ SEO ✓. Só falta apertar o botão.`,
         type: "channel_inactive",
         tag: "channel-inactive",
         url: "/",
@@ -166,7 +166,7 @@ const readyToPublishGenerator: Generator = (data, types) => {
   if (ready.length === 1) {
     return {
       title: `🚀 "${ready[0].title}" está pronto!`,
-      body: `Roteiro ✓ Thumbnail ✓ SEO ✓ — Está esperando só você. Publique hoje!`,
+      body: `Roteiro ✓ SEO ✓ — Está esperando só você. Publique hoje!`,
       type: "ready_to_publish",
       tag: "ready-to-publish",
       url: "/",

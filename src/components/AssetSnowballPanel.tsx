@@ -158,7 +158,6 @@ function buildProjectionPoints(current: number, weeklyPace: number) {
 function hasAppProductionEvidence(video: Video) {
   return Boolean(
     video.script.trim() ||
-      video.thumbnailIdeas.trim() ||
       video.notes.trim() ||
       video.inspirationLinks.trim() ||
       video.linkedInspirationIds.length,

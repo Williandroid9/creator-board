@@ -23,7 +23,7 @@ const steps = [
     iconColor: "text-violet-400",
     iconBg: "bg-violet-400/10",
     title: "Lance a primeira ideia",
-    body: "Basta título, nicho e prioridade para começar. Script, thumbnail e SEO podem entrar conforme você avança.",
+    body: "Basta título, nicho e prioridade para começar. Roteiro e SEO podem entrar conforme você avança.",
     cta: "Nova ideia",
     action: "idea" as const,
   },

@@ -12,7 +12,6 @@ import {
 export const DEFAULT_TASKS = [
   "Pesquisar ideias",
   "Escrever roteiro",
-  "Criar thumbnail",
   "Revisar SEO",
   "Publicar video",
   "Responder comentarios",
@@ -66,7 +65,6 @@ export const WIP_LIMITS: Partial<Record<VideoStatus, number>> = {
   Roteiro: 4,
   Gravacao: 3,
   Edicao: 4,
-  Thumbnail: 4,
   SEO: 4,
   Agendado: 8,
 };
@@ -101,10 +99,6 @@ function text(value: unknown, fallback = "") {
 
 export function hasScript(video: Pick<Video, "script">) {
   return !isBlank(video.script);
-}
-
-export function hasThumbnail(video: Pick<Video, "thumbnailIdeas">) {
-  return !isBlank(video.thumbnailIdeas);
 }
 
 export function hasSeo(video: Pick<Video, "seoTitle" | "seoDescription" | "seoNotes">) {
@@ -149,7 +143,6 @@ export function isReadyToPublish(video: Video) {
   return (
     video.status !== "Publicado" &&
     hasScript(video) &&
-    hasThumbnail(video) &&
     hasSeo(video) &&
     ["SEO", "Agendado"].includes(video.status)
   );
@@ -168,6 +161,8 @@ export function normalizeStatus(status: unknown): VideoStatus {
     "Edição": "Edicao",
     "Edicao": "Edicao",
     "EdiÃ§Ã£o": "Edicao",
+    // Etapa removida do pipeline — migra dados antigos para a etapa seguinte
+    "Thumbnail": "SEO",
   };
 
   return STATUSES.includes(value as VideoStatus) ? (value as VideoStatus) : aliases[value] || "Ideia";
@@ -333,15 +328,6 @@ export function getRecommendation(videos: Video[]): Recommendation {
     };
   }
 
-  const missingThumbnail = openVideos.find((video) => !hasThumbnail(video));
-  if (missingThumbnail) {
-    return {
-      label: "Criar thumbnail",
-      detail: `Defina a thumbnail de "${missingThumbnail.title}".`,
-      video: missingThumbnail,
-    };
-  }
-
   const missingSeo = openVideos.find((video) => !hasSeo(video));
   if (missingSeo) {
     return {
@@ -376,7 +362,7 @@ export function getMetrics(videos: Video[], weeklyGoal: number) {
     { label: "Atrasados", value: videos.filter(isOverdue).length },
     { label: "Prontos para publicar", value: videos.filter(isReadyToPublish).length },
     { label: "Sem roteiro", value: openVideos.filter((video) => !hasScript(video)).length },
-    { label: "Sem thumbnail", value: openVideos.filter((video) => !hasThumbnail(video)).length },
+    { label: "Sem SEO", value: openVideos.filter((video) => !hasSeo(video)).length },
     { label: "Publicados no mes", value: publishedThisMonth },
     { label: "Meta semanal", value: `${publishedThisWeek}/${weeklyGoal}` },
   ];
@@ -389,7 +375,6 @@ export function getFocusChecklist(video: Video | null) {
 
   return [
     hasScript(video) ? "Roteiro pronto" : "Escrever roteiro",
-    hasThumbnail(video) ? "Thumbnail planejada" : "Criar thumbnail",
     hasSeo(video) ? "SEO revisado" : "Revisar SEO",
     video.plannedDate ? "Data planejada definida" : "Definir data planejada",
     video.publishedLink ? "Link publicado salvo" : "Salvar link quando publicar",

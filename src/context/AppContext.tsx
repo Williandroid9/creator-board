@@ -20,8 +20,6 @@ import type {
   DailyTask,
   Filters as FilterState,
   InspirationDraft,
-  RadarCompetitorDraft,
-  RadarIdea,
   TrendDraft,
   Video,
   VideoDraft,
@@ -44,7 +42,7 @@ import {
   scheduleDailyNotification,
   syncPayloadToSW,
 } from "../lib/notifications";
-import { addDays, isToday, localDateKey } from "../lib/date";
+import { isToday, localDateKey } from "../lib/date";
 import { exportJson } from "../lib/export";
 import { loadAppData, parseImportedData, saveAppData } from "../lib/storage";
 import {
@@ -63,7 +61,6 @@ import { extractYouTubeId, normalizeTitleKey } from "../lib/onlineSync";
 import { getRecommendation, hasScript, isOverdue, isReadyToPublish, makeId, normalizeVideo } from "../lib/video";
 import type { WeeklyPlanItem } from "../lib/weeklyPlan";
 import { normalizeInspiration } from "../lib/inspiration";
-import { generateRadarReport, normalizeRadarCompetitor, radarIdeaToVideoDraft } from "../lib/radar";
 import { normalizeTrend } from "../lib/trend";
 
 // ─── View type (single source of truth) ──────────────────────────────────────
@@ -263,12 +260,6 @@ export interface AppContextValue {
   // Trend actions
   saveTrend: (draft: TrendDraft) => void;
   deleteTrend: (id: string) => void;
-
-  // Radar actions
-  saveRadarCompetitor: (draft: RadarCompetitorDraft) => void;
-  deleteRadarCompetitor: (id: string) => void;
-  runRadar: () => void;
-  createFromRadarIdea: (idea: RadarIdea, mode: "idea" | "calendar" | "series" | "script") => void;
 
   // Channel actions
   saveChannel: (draft: ChannelDraft) => void;
@@ -820,93 +811,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setToast("Tendencia excluida.");
   }, []);
 
-  // ── Radar actions ─────────────────────────────────────────────────────────
-
-  const saveRadarCompetitor = useCallback((draft: RadarCompetitorDraft) => {
-    const now = new Date().toISOString();
-    const competitor = normalizeRadarCompetitor({ ...draft, id: draft.id || makeId(), createdAt: draft.createdAt || now, updatedAt: now });
-    setData((current) => {
-      const exists = current.radar.competitors.some((c) => c.id === competitor.id);
-      return stampData({
-        ...current,
-        radar: {
-          ...current.radar,
-          competitors: exists
-            ? current.radar.competitors.map((c) => (c.id === competitor.id ? competitor : c))
-            : [competitor, ...current.radar.competitors],
-        },
-      });
-    });
-    setToast(draft.id ? "Referencia atualizada." : "Referencia adicionada ao Radar.");
-  }, []);
-
-  const deleteRadarCompetitor = useCallback(
-    (id: string) => {
-      const competitor = data.radar.competitors.find((c) => c.id === id);
-      if (!window.confirm(`Remover "${competitor?.name || "esta referencia"}" do Radar?`)) return;
-      setData((current) =>
-        stampData({
-          ...current,
-          radar: { ...current.radar, competitors: current.radar.competitors.filter((c) => c.id !== id) },
-        }),
-      );
-      setToast("Referencia removida.");
-    },
-    [data.radar.competitors],
-  );
-
-  const runRadar = useCallback(() => {
-    if (!activeChannel) { setToast("Escolha um canal ativo para rodar o Radar."); return; }
-    const channelVideos = data.videos.filter(
-      (v) => !v.archived && (v.channelId === activeChannel.id || (!v.channelId && v.channel === activeChannel.name)),
-    );
-    const competitors = data.radar.competitors.filter((c) => c.channelId === activeChannel.id);
-    const result = generateRadarReport({ channel: activeChannel, videos: channelVideos, trends: data.trends, inspirations: data.inspirations, competitors });
-    setData((current) =>
-      stampData({
-        ...current,
-        radar: {
-          competitors: current.radar.competitors,
-          runs: [result.run, ...current.radar.runs.filter((r) => r.id !== result.run.id)].slice(0, 40),
-          ideas: [...result.ideas, ...current.radar.ideas.filter((i) => i.channelId !== activeChannel.id)].slice(0, 240),
-          alerts: [...result.alerts, ...current.radar.alerts.filter((a) => a.channelId !== activeChannel.id)].slice(0, 120),
-        },
-      }),
-    );
-    setActiveView("radar");
-    setToast(`Radar concluido: ${result.ideas.length} ideias geradas.`);
-  }, [activeChannel, data.inspirations, data.radar.competitors, data.trends, data.videos]);
-
-  const createFromRadarIdea = useCallback(
-    (idea: RadarIdea, mode: "idea" | "calendar" | "series" | "script") => {
-      if (!activeChannel) { setToast("Escolha um canal ativo antes de salvar a ideia."); return; }
-      const now = new Date().toISOString();
-      const baseDraft = radarIdeaToVideoDraft(idea, activeChannel, mode === "calendar");
-      const titles = mode === "series" ? [idea.title, ...idea.titleVariations].slice(0, 4) : [idea.title];
-      const createdVideos = titles.map((title, index) =>
-        normalizeVideo({
-          ...baseDraft,
-          id: makeId(),
-          title,
-          plannedDate: mode === "series" ? localDateKey(addDays(new Date(), index + 1)) : baseDraft.plannedDate,
-          notes: mode === "series" ? `${baseDraft.notes}\nSerie Radar: episodio ${index + 1} de ${titles.length}` : baseDraft.notes,
-          createdAt: now,
-          updatedAt: now,
-        }),
-      );
-      setData((current) => stampData({ ...current, videos: [...createdVideos, ...current.videos] }));
-      if (mode === "script") { setEditingVideoId(createdVideos[0].id); setModalOpen(true); }
-      setActiveView(mode === "calendar" || mode === "series" ? "calendar" : "production");
-      setToast(
-        mode === "series" ? `${createdVideos.length} ideias de serie salvas.`
-          : mode === "calendar" ? "Ideia salva no calendario de amanha."
-          : mode === "script" ? "Roteiro gerado a partir do Radar."
-          : "Ideia salva no Kanban.",
-      );
-    },
-    [activeChannel],
-  );
-
   // ── Channel actions ───────────────────────────────────────────────────────
 
   const saveChannel = useCallback((draft: ChannelDraft) => {
@@ -1387,10 +1291,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     deleteInspiration,
     saveTrend,
     deleteTrend,
-    saveRadarCompetitor,
-    deleteRadarCompetitor,
-    runRadar,
-    createFromRadarIdea,
     saveChannel,
     saveChannels,
     deleteChannel,

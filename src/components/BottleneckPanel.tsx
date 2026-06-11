@@ -3,7 +3,6 @@ import { STATUSES, type Video } from "../types";
 import {
   hasScript,
   hasSeo,
-  hasThumbnail,
   isOverdue,
   isReadyToPublish,
   sortByPriorityAndDate,
@@ -55,7 +54,6 @@ export function BottleneckPanel({ videos, onOpenVideo }: BottleneckPanelProps) {
     const overdue = sortByPriorityAndDate(videos.filter(isOverdue));
     const ready = sortByPriorityAndDate(videos.filter(isReadyToPublish));
     const missingScript = sortByPriorityAndDate(openVideos.filter((video) => !hasScript(video)));
-    const missingThumbnail = sortByPriorityAndDate(openVideos.filter((video) => !hasThumbnail(video)));
     const missingSeo = sortByPriorityAndDate(openVideos.filter((video) => !hasSeo(video)));
     const stale = sortByPriorityAndDate(openVideos.filter((video) => daysSince(video.updatedAt) >= 10));
 
@@ -91,13 +89,6 @@ export function BottleneckPanel({ videos, onOpenVideo }: BottleneckPanelProps) {
         count: missingScript.length,
         videos: missingScript,
         tone: missingScript.length ? "warning" : "good",
-      },
-      {
-        title: "Sem thumbnail",
-        detail: "Sem direcao visual.",
-        count: missingThumbnail.length,
-        videos: missingThumbnail,
-        tone: missingThumbnail.length ? "warning" : "good",
       },
       {
         title: "Sem SEO",

@@ -1,5 +1,5 @@
 import type { AchievementContext, AchievementDef, CreatorProgress, UnlockedAchievement, Video } from "../types";
-import { hasScript, hasSeo, hasThumbnail } from "./video";
+import { hasScript, hasSeo } from "./video";
 
 export const PROGRESS_KEY = "creator-board-progress-v1";
 
@@ -25,10 +25,10 @@ export const ACHIEVEMENTS: AchievementDef[] = [
   {
     id: "full_pipeline",
     title: "Processo Completo",
-    description: "Preencheu roteiro, thumbnail E SEO no mesmo vídeo",
+    description: "Preencheu roteiro E SEO no mesmo vídeo",
     icon: "🎯",
     xp: 150,
-    check: (v) => v.some((x) => hasScript(x) && hasThumbnail(x) && hasSeo(x)),
+    check: (v) => v.some((x) => hasScript(x) && hasSeo(x)),
   },
   {
     id: "first_publish",
@@ -199,7 +199,7 @@ export function getLevelInfo(xp: number): LevelInfo {
 export function computeXp(videos: Video[], unlocked: UnlockedAchievement[]): number {
   const published = videos.filter((v) => v.status === "Publicado" && !v.studioCreatedFromOnline && !v.studioCreatedFromCsv);
   const scripts = videos.filter(hasScript);
-  const fullPipeline = videos.filter((v) => hasScript(v) && hasThumbnail(v) && hasSeo(v));
+  const fullPipeline = videos.filter((v) => hasScript(v) && hasSeo(v));
 
   const base =
     published.length * 180 +

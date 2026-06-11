@@ -3,7 +3,6 @@ export const STATUSES = [
   "Roteiro",
   "Gravacao",
   "Edicao",
-  "Thumbnail",
   "SEO",
   "Agendado",
   "Publicado",

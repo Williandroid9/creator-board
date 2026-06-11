@@ -10,7 +10,6 @@ const statusDot: Record<VideoStatus, string> = {
   Roteiro: "bg-sky-400",
   Gravacao: "bg-violet-400",
   Edicao: "bg-fuchsia-400",
-  Thumbnail: "bg-orange-400",
   SEO: "bg-amber-300",
   Agendado: "bg-teal-400",
   Publicado: "bg-[#14b8a6]",

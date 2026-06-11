@@ -10,9 +10,9 @@ import {
   type VideoStatus,
 } from "../types";
 import { localDateKey } from "../lib/date";
-import { buildScriptFromTemplate, getScriptFormatLabel, mergeScriptTemplate, SCRIPT_TEMPLATES } from "../lib/scriptTemplates";
+import { SCRIPT_TEMPLATES } from "../lib/scriptTemplates";
 import { NEW_VIDEO_DRAFT_KEY, readJson } from "../lib/storage";
-import { EMPTY_VIDEO, hasPerformance, hasScript, hasSeo, hasThumbnail, nextStatus, normalizeVideoDraft } from "../lib/video";
+import { EMPTY_VIDEO, hasPerformance, hasScript, hasSeo, nextStatus, normalizeVideoDraft } from "../lib/video";
 import { PublishReview } from "./PublishReview";
 import { ScriptAnalysis } from "./ScriptAnalysis";
 import { TitleAnalyzer } from "./TitleAnalyzer";
@@ -100,7 +100,6 @@ export function VideoModal({
   const nextStage = nextStatus(draft.status);
   const summaryItems = [
     { label: "Roteiro", done: hasScript(draft) },
-    { label: "Thumbnail", done: hasThumbnail(draft) },
     { label: "SEO", done: hasSeo(draft) },
     { label: "Data", done: Boolean(draft.plannedDate) },
   ];
@@ -230,15 +229,6 @@ export function VideoModal({
     }
 
     setField("linkedInspirationIds", [...current]);
-  }
-
-  function insertScriptTemplate() {
-    const template = buildScriptFromTemplate(draft);
-    setField("script", mergeScriptTemplate(draft.script, template));
-    if (draft.status === "Ideia") {
-      setField("status", "Roteiro");
-    }
-    setActiveTab("production");
   }
 
   function sendBriefToNotes(brief: string) {
@@ -395,7 +385,7 @@ export function VideoModal({
               onClick={() => setAdvancedMode(true)}
               className="w-full text-center text-xs font-bold text-slate-500 transition hover:text-slate-300"
             >
-              Mais campos (roteiro, SEO, data, thumbnail) →
+              Mais campos (roteiro, SEO, data) →
             </button>
           </div>
         </form>
@@ -528,35 +518,12 @@ export function VideoModal({
 
         {activeTab === "production" && (
           <section className="grid gap-5">
-            <div className="rounded-xl border border-slate-400/10 bg-white/[0.035] p-4">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-                <div>
-                  <p className="text-xs font-black uppercase text-slate-500">Roteiro rapido</p>
-                  <h3 className="mt-1 text-lg font-black text-white">{getScriptFormatLabel(draft.videoFormat)}</h3>
-                  <p className="mt-1 text-sm font-semibold leading-6 text-slate-300">
-                    Use uma estrutura pronta quando estiver sem ponto de partida.
-                  </p>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  <Button className="min-h-9 px-3 text-xs" onClick={() => setActiveTab("planning")}>
-                    Trocar formato
-                  </Button>
-                  <Button className="min-h-9 px-3 text-xs" variant="primary" onClick={insertScriptTemplate}>
-                    Inserir estrutura
-                  </Button>
-                </div>
-              </div>
-            </div>
-
             <div className="grid gap-4">
               <div>
                 <p className="mb-3 text-xs font-black uppercase text-slate-500">Conteúdo</p>
                 <div className="grid gap-4">
                   <Field label="Roteiro">
                     <TextArea rows={8} value={draft.script} onChange={(event) => setField("script", event.target.value)} placeholder="Gancho, blocos principais, CTA e cortes importantes" />
-                  </Field>
-                  <Field label="Ideias de thumbnails">
-                    <TextArea rows={4} value={draft.thumbnailIdeas} onChange={(event) => setField("thumbnailIdeas", event.target.value)} placeholder="Texto curto, expressão, contraste, referência visual" />
                   </Field>
                   <Field label="Observações gerais">
                     <TextArea rows={4} value={draft.notes} onChange={(event) => setField("notes", event.target.value)} placeholder="Pendências, feedback, ajustes" />
@@ -753,7 +720,6 @@ export function VideoModal({
                   className="flex w-full items-center justify-between gap-3 rounded-lg bg-white/[0.045] px-3 py-2 text-left text-sm"
                   onClick={() => {
                     if (item.label === "Roteiro") setActiveTab("production");
-                    if (item.label === "Thumbnail") setActiveTab("production");
                     if (item.label === "SEO") {
                       setAdvancedMode(true);
                       setActiveTab("production");

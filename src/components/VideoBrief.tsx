@@ -12,8 +12,8 @@ type VideoBriefProps = {
 };
 
 export function VideoBrief({ draft, onEditPlanning, onEditContent, onEditSeo, onSendToNotes }: VideoBriefProps) {
-  const blocks = useMemo(() => buildBriefBlocks(draft), [draft.keyword, draft.niche, draft.seoDescription, draft.seoNotes, draft.seoTitle, draft.thumbnailIdeas, draft.title, draft.videoFormat]);
-  const briefText = useMemo(() => buildVideoBriefText(draft), [draft.channel, draft.keyword, draft.niche, draft.seoDescription, draft.seoTitle, draft.thumbnailIdeas, draft.title, draft.videoFormat]);
+  const blocks = useMemo(() => buildBriefBlocks(draft), [draft.keyword, draft.niche, draft.seoDescription, draft.seoNotes, draft.seoTitle, draft.title, draft.videoFormat]);
+  const briefText = useMemo(() => buildVideoBriefText(draft), [draft.channel, draft.keyword, draft.niche, draft.seoDescription, draft.seoTitle, draft.title, draft.videoFormat]);
 
   return (
     <section className="grid gap-4">

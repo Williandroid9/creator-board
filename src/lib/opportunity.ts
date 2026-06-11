@@ -1,6 +1,6 @@
 import type { Video, VideoStatus } from "../types";
 import { isToday, parseDate } from "./date";
-import { hasScript, hasSeo, hasThumbnail, isOverdue, nextStatus } from "./video";
+import { hasScript, hasSeo, isOverdue, nextStatus } from "./video";
 
 export type OpportunityScore = {
   score: number;
@@ -15,7 +15,6 @@ const STATUS_WEIGHT: Record<VideoStatus, number> = {
   Roteiro: 14,
   Gravacao: 22,
   Edicao: 18,
-  Thumbnail: 16,
   SEO: 20,
   Agendado: 24,
   Publicado: 0,
@@ -99,13 +98,8 @@ function readinessSignal(video: Video) {
     reasons.push("roteiro pronto");
   }
 
-  if (hasThumbnail(video)) {
-    points += 8;
-    reasons.push("thumbnail pensada");
-  }
-
   if (hasSeo(video)) {
-    points += 8;
+    points += 10;
     reasons.push("SEO iniciado");
   }
 
@@ -128,10 +122,6 @@ export function getNextAction(video: Video) {
 
   if (video.status === "Gravacao") {
     return "Editar";
-  }
-
-  if (!hasThumbnail(video)) {
-    return "Criar thumbnail";
   }
 
   if (!hasSeo(video)) {
@@ -197,7 +187,7 @@ export function getOpportunityScore(video: Video, videos: Video[]): OpportunityS
     score -= 4;
   }
 
-  if (!hasScript(video) && ["Gravacao", "Edicao", "Thumbnail", "SEO", "Agendado"].includes(video.status)) {
+  if (!hasScript(video) && ["Gravacao", "Edicao", "SEO", "Agendado"].includes(video.status)) {
     score -= 12;
     reasons.push("etapa avancada sem roteiro");
   }
@@ -220,7 +210,7 @@ export function getTopOpportunities(videos: Video[]) {
     .sort((a, b) => b.opportunity.score - a.opportunity.score || b.video.updatedAt.localeCompare(a.video.updatedAt));
 
   const recordNow = scored.find(({ video }) => hasScript(video) && ["Ideia", "Roteiro", "Gravacao"].includes(video.status));
-  const quickWin = scored.find(({ video }) => hasScript(video) && hasThumbnail(video) && hasSeo(video));
+  const quickWin = scored.find(({ video }) => hasScript(video) && hasSeo(video));
 
   return {
     top: scored[0] || null,

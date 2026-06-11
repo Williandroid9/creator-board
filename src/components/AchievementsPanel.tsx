@@ -93,7 +93,7 @@ export function AchievementsPanel({ videos, unlockedAchievements, ctx }: Props) 
             },
             {
               label: "Pipeline completo",
-              value: `+${(videos.filter((v) => v.script?.trim() && v.thumbnailIdeas?.trim() && (v.seoTitle?.trim() || v.seoDescription?.trim())).length * 80).toLocaleString("pt-BR")} XP`,
+              value: `+${(videos.filter((v) => v.script?.trim() && (v.seoTitle?.trim() || v.seoDescription?.trim() || v.seoNotes?.trim())).length * 80).toLocaleString("pt-BR")} XP`,
               sub: `× 80 cada`,
             },
             {

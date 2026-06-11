@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import type { DailyTask, Video } from "../types";
 import { formatDate } from "../lib/date";
 import { getTopOpportunities } from "../lib/opportunity";
-import { hasScript, hasSeo, hasThumbnail, isOverdue, sortByPriorityAndDate } from "../lib/video";
+import { hasScript, hasSeo, isOverdue, sortByPriorityAndDate } from "../lib/video";
 import { Button, cx } from "./ui";
 
 type TodayPanelProps = {
@@ -217,7 +217,7 @@ type ProductionProgress = {
   currentIndex: number;
 };
 
-const PRODUCTION_STAGES = ["Ideia", "Roteiro", "Locucao", "Edicao", "Thumbnail", "Postado"];
+const PRODUCTION_STAGES = ["Ideia", "Roteiro", "Locucao", "Edicao", "SEO", "Postado"];
 
 function getProductionProgress(video: Video): ProductionProgress {
   const currentIndexByStatus: Record<Video["status"], number> = {
@@ -225,7 +225,6 @@ function getProductionProgress(video: Video): ProductionProgress {
     Roteiro: 1,
     Gravacao: 2,
     Edicao: 3,
-    Thumbnail: 4,
     SEO: 4,
     Agendado: 4,
     Publicado: 5,
@@ -289,7 +288,6 @@ function toDateKey(date: Date) {
 function getReadinessItems(video: Video) {
   return [
     { label: "roteiro", done: hasScript(video) },
-    { label: "thumbnail", done: hasThumbnail(video) },
     { label: "SEO", done: hasSeo(video) },
     { label: "data", done: Boolean(video.plannedDate) },
   ];

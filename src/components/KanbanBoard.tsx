@@ -4,7 +4,7 @@ import { STATUSES, type Video, type VideoPriority, type VideoStatus } from "../t
 import { getDataSourceLabel } from "../lib/dataSource";
 import { formatDate } from "../lib/date";
 import { getOpportunityScore } from "../lib/opportunity";
-import { hasScript, hasSeo, hasThumbnail, nextStatus, sortByPriorityAndDate, WIP_LIMITS } from "../lib/video";
+import { hasScript, hasSeo, nextStatus, sortByPriorityAndDate, WIP_LIMITS } from "../lib/video";
 import { Button, cx, Tooltip } from "./ui";
 
 const priorityDot: Record<VideoPriority, string> = {
@@ -24,7 +24,6 @@ const statusAccent: Record<string, string> = {
   Roteiro: "text-sky-400",
   Gravacao: "text-violet-400",
   Edicao: "text-fuchsia-400",
-  Thumbnail: "text-orange-400",
   SEO: "text-amber-300",
   Agendado: "text-teal-400",
   Publicado: "text-aqua",
@@ -59,7 +58,6 @@ function KanbanCard({
   const isPublished = video.status === "Publicado";
   const indicators = [
     !hasScript(video) && "Roteiro",
-    !hasThumbnail(video) && "Thumb",
     !hasSeo(video) && "SEO",
   ].filter((indicator): indicator is string => Boolean(indicator));
 
