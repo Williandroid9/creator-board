@@ -352,17 +352,21 @@ export function generateSmartNotification(
 
 // ─── localStorage helpers ─────────────────────────────────────────────────────
 
+export function normalizeNotifPrefs(raw: unknown): NotificationPrefs {
+  const p = (raw ?? {}) as Partial<NotificationPrefs>;
+  return {
+    enabled: Boolean(p.enabled),
+    time: typeof p.time === "string" && /^\d{2}:\d{2}$/.test(p.time) ? p.time : "09:00",
+    days: Array.isArray(p.days) ? p.days.filter((d) => Number.isInteger(d) && d >= 0 && d <= 6) : [1, 2, 3, 4, 5],
+    types: Array.isArray(p.types) ? (p.types as NotifType[]) : DEFAULT_NOTIF_PREFS.types,
+  };
+}
+
 export function loadNotifPrefs(): NotificationPrefs {
   try {
     const raw = localStorage.getItem(NOTIF_PREFS_KEY);
     if (!raw) return { ...DEFAULT_NOTIF_PREFS };
-    const p = JSON.parse(raw) as Partial<NotificationPrefs>;
-    return {
-      enabled: Boolean(p.enabled),
-      time: typeof p.time === "string" && /^\d{2}:\d{2}$/.test(p.time) ? p.time : "09:00",
-      days: Array.isArray(p.days) ? p.days : [1, 2, 3, 4, 5],
-      types: Array.isArray(p.types) ? (p.types as NotifType[]) : DEFAULT_NOTIF_PREFS.types,
-    };
+    return normalizeNotifPrefs(JSON.parse(raw));
   } catch {
     return { ...DEFAULT_NOTIF_PREFS };
   }

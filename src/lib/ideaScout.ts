@@ -137,15 +137,19 @@ export function profileIsReady(p: ScoutProfile): { ok: boolean; missing: string[
 
 // ─── Storage ──────────────────────────────────────────────────────────────────
 
+export function normalizeScoutState(raw: unknown): ScoutState {
+  const parsed = (raw ?? {}) as Partial<ScoutState>;
+  return {
+    profiles: parsed.profiles && typeof parsed.profiles === "object" ? (parsed.profiles as Record<string, ScoutProfile>) : {},
+    runs: Array.isArray(parsed.runs) ? (parsed.runs as ScoutRun[]) : [],
+  };
+}
+
 export function loadScoutState(): ScoutState {
   try {
     const raw = localStorage.getItem(SCOUT_STORAGE_KEY);
     if (!raw) return { profiles: {}, runs: [] };
-    const parsed = JSON.parse(raw) as Partial<ScoutState>;
-    return {
-      profiles: parsed.profiles && typeof parsed.profiles === "object" ? (parsed.profiles as Record<string, ScoutProfile>) : {},
-      runs: Array.isArray(parsed.runs) ? (parsed.runs as ScoutRun[]) : [],
-    };
+    return normalizeScoutState(JSON.parse(raw));
   } catch {
     return { profiles: {}, runs: [] };
   }
@@ -170,6 +174,26 @@ export function saveAnthropicKey(key: string): void {
     if (key) localStorage.setItem(ANTHROPIC_KEY_STORAGE, key);
     else localStorage.removeItem(ANTHROPIC_KEY_STORAGE);
   } catch { /* silent */ }
+}
+
+// ─── Seed (handoff vindo do Banco de Ideias) ─────────────────────────────────
+
+export const SCOUT_SEED_KEY = "creator-board-scout-seed-v1";
+
+export function setScoutSeed(text: string): void {
+  try {
+    localStorage.setItem(SCOUT_SEED_KEY, text);
+  } catch { /* silent */ }
+}
+
+export function consumeScoutSeed(): string {
+  try {
+    const value = localStorage.getItem(SCOUT_SEED_KEY) || "";
+    localStorage.removeItem(SCOUT_SEED_KEY);
+    return value;
+  } catch {
+    return "";
+  }
 }
 
 export function loadScoutModel(): string {

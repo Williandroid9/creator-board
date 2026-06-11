@@ -1,6 +1,6 @@
 // ─── Cache shell ─────────────────────────────────────────────────────────────
 
-const CACHE_NAME = "creator-board-shell-v4";
+const CACHE_NAME = "creator-board-shell-v5";
 const SHELL_ASSETS = ["/", "/index.html", "/manifest.webmanifest", "/logo-creator-board.webp"];
 
 self.addEventListener("install", (event) => {
@@ -25,6 +25,16 @@ self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
   const url = new URL(event.request.url);
   if (url.origin !== self.location.origin) return;
+
+  // Nunca intercepte módulos do servidor de dev do Vite — cache-first aqui
+  // serviria código velho a cada edição.
+  if (
+    url.pathname.startsWith("/src/") ||
+    url.pathname.startsWith("/@") ||
+    url.pathname.startsWith("/node_modules/")
+  ) {
+    return;
+  }
 
   if (event.request.mode === "navigate") {
     event.respondWith(

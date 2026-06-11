@@ -20,6 +20,7 @@ import {
 import { useApp } from "../context/AppContext";
 import {
   buildProfileFromChannel,
+  consumeScoutSeed,
   DEFAULT_SCOUT_MODEL,
   EMPTY_SCOUT_PROFILE,
   loadAnthropicKey,
@@ -221,6 +222,14 @@ export function IdeaScoutPanel() {
   const [useYouTubeData, setUseYouTubeData] = useState(false);
   const [refineText, setRefineText] = useState("");
   const [viewRunId, setViewRunId] = useState<string>("");
+  // Semente vinda do Banco de Ideias ("Caçar parecidas").
+  // Consumida em effect (não no initializer): o initializer roda 2x no StrictMode
+  // e a segunda chamada apagaria a semente recém-lida.
+  const [seedInstruction, setSeedInstruction] = useState("");
+  useEffect(() => {
+    const seed = consumeScoutSeed();
+    if (seed) setSeedInstruction(seed);
+  }, []);
 
   const runningRef = useRef(false);
 
@@ -316,6 +325,9 @@ export function IdeaScoutPanel() {
       return;
     }
 
+    // Sem refino explícito, a semente do Banco de Ideias guia a caçada
+    const effectiveInstruction = refineInstruction || seedInstruction;
+
     runningRef.current = true;
     setRunning(true);
     setError("");
@@ -331,7 +343,7 @@ export function IdeaScoutPanel() {
         apiKey: apiKey.trim(),
         model,
         youtubeScans: scans,
-        refineInstruction,
+        refineInstruction: effectiveInstruction,
         previousTopTitles: refineInstruction && currentRun ? currentRun.report.ideas.map((i) => i.title) : [],
         onProgress: (event) => {
           setProgress(event);
@@ -348,7 +360,7 @@ export function IdeaScoutPanel() {
         createdAt: new Date().toISOString(),
         model,
         usedYouTubeData: scans.length > 0,
-        refineInstruction,
+        refineInstruction: effectiveInstruction,
         report,
       };
       const state: ScoutState = {
@@ -361,6 +373,7 @@ export function IdeaScoutPanel() {
       setViewRunId(run.id);
       setProfileOpen(false);
       setRefineText("");
+      setSeedInstruction("");
       setToast(`Caçador concluído: ${report.ideas.length} ideias ranqueadas.`);
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
@@ -608,6 +621,22 @@ export function IdeaScoutPanel() {
 
       {/* Run controls */}
       <section className="rounded-2xl border border-slate-400/10 bg-panel/75 p-5">
+        {seedInstruction && !running && (
+          <div className="mb-4 flex items-start gap-2.5 rounded-xl border border-sky-400/20 bg-sky-500/5 px-3.5 py-3">
+            <Lightbulb className="mt-0.5 size-4 shrink-0 text-sky-400" />
+            <p className="flex-1 text-xs leading-relaxed text-slate-300">
+              <strong className="text-sky-300">Semente do Banco de Ideias:</strong> {seedInstruction}
+            </p>
+            <button
+              type="button"
+              onClick={() => setSeedInstruction("")}
+              className="shrink-0 rounded-md p-1 text-slate-500 transition hover:bg-white/[0.06] hover:text-slate-300"
+              title="Descartar semente"
+            >
+              ✕
+            </button>
+          </div>
+        )}
         <div className="flex flex-wrap items-center gap-3">
           <Button
             variant="primary"

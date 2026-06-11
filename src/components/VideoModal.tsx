@@ -97,6 +97,16 @@ export function VideoModal({
   const [advancedMode, setAdvancedMode] = useState(false);
   const editing = Boolean(draft.id);
   const performanceVisible = draft.status === "Publicado" || hasPerformance(draft);
+  const hasStudioSyncData = Boolean(
+    draft.studioViews ||
+      draft.studioImpressions ||
+      draft.studioWatchTimeHours ||
+      draft.studioSubscribers ||
+      draft.studioPublishedHour ||
+      draft.studioSyncPeriod ||
+      draft.studioImportedAt ||
+      draft.contentType,
+  );
   const nextStage = nextStatus(draft.status);
   const summaryItems = [
     { label: "Roteiro", done: hasScript(draft) },
@@ -643,18 +653,13 @@ export function VideoModal({
 
         {activeTab === "performance" && performanceVisible && (
           <section className="grid gap-4">
-            <div className="grid gap-4 sm:grid-cols-3">
-              <Field label="Views Studio">
-                <TextInput type="number" min="0" value={draft.studioViews} onChange={(event) => setField("studioViews", event.target.value)} />
-              </Field>
-              <Field label="Views em 24h">
+            {/* Núcleo manual — o que vale anotar à mão */}
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field label="Views (24h)">
                 <TextInput type="number" min="0" value={draft.views24h} onChange={(event) => setField("views24h", event.target.value)} />
               </Field>
               <Field label="CTR (%)">
                 <TextInput type="number" min="0" step="0.1" value={draft.ctr} onChange={(event) => setField("ctr", event.target.value)} />
-              </Field>
-              <Field label="Impressoes">
-                <TextInput type="number" min="0" value={draft.studioImpressions} onChange={(event) => setField("studioImpressions", event.target.value)} />
               </Field>
               <Field label="Retencao media (%)">
                 <TextInput type="number" min="0" step="0.1" value={draft.studioRetention} onChange={(event) => setField("studioRetention", event.target.value)} />
@@ -662,28 +667,48 @@ export function VideoModal({
               <Field label="Duracao media">
                 <TextInput value={draft.avgDuration} onChange={(event) => setField("avgDuration", event.target.value)} placeholder="Ex: 4:32" />
               </Field>
-              <Field label="Watch time (h)">
-                <TextInput type="number" min="0" step="0.1" value={draft.studioWatchTimeHours} onChange={(event) => setField("studioWatchTimeHours", event.target.value)} />
-              </Field>
-              <Field label="Inscritos ganhos">
-                <TextInput type="number" value={draft.studioSubscribers} onChange={(event) => setField("studioSubscribers", event.target.value)} />
-              </Field>
-              <Field label="Horario publicado">
-                <TextInput type="time" value={draft.studioPublishedHour} onChange={(event) => setField("studioPublishedHour", event.target.value)} />
-              </Field>
-              <Field label="Tipo">
-                <TextInput value={draft.contentType} onChange={(event) => setField("contentType", event.target.value)} placeholder="Shorts ou Longo" />
-              </Field>
-              <Field label="Periodo sync">
-                <TextInput value={draft.studioSyncPeriod} onChange={(event) => setField("studioSyncPeriod", event.target.value)} placeholder="YouTube API 90d" />
-              </Field>
             </div>
+
             <Field label="O que funcionou">
-              <TextArea rows={4} value={draft.performanceNotes} onChange={(event) => setField("performanceNotes", event.target.value)} placeholder="Gancho, tema, thumbnail, retencao, comentarios" />
+              <TextArea rows={4} value={draft.performanceNotes} onChange={(event) => setField("performanceNotes", event.target.value)} placeholder="Gancho, tema, retencao, comentarios" />
             </Field>
             <Field label="Licoes para o proximo video">
               <TextArea rows={4} value={draft.lessons} onChange={(event) => setField("lessons", event.target.value)} placeholder="O que repetir, ajustar ou evitar" />
             </Field>
+
+            {/* Dados do sync — só aparecem quando o YouTube preencheu algo */}
+            {hasStudioSyncData ? (
+              <details className="rounded-xl border border-slate-700/45 bg-black/18 p-4">
+                <summary className="cursor-pointer list-none text-sm font-black text-white">
+                  Dados do YouTube (sync automático)
+                </summary>
+                <div className="mt-4 grid gap-4 sm:grid-cols-3">
+                  <Field label="Views Studio">
+                    <TextInput type="number" min="0" value={draft.studioViews} onChange={(event) => setField("studioViews", event.target.value)} />
+                  </Field>
+                  <Field label="Impressoes">
+                    <TextInput type="number" min="0" value={draft.studioImpressions} onChange={(event) => setField("studioImpressions", event.target.value)} />
+                  </Field>
+                  <Field label="Watch time (h)">
+                    <TextInput type="number" min="0" step="0.1" value={draft.studioWatchTimeHours} onChange={(event) => setField("studioWatchTimeHours", event.target.value)} />
+                  </Field>
+                  <Field label="Inscritos ganhos">
+                    <TextInput type="number" value={draft.studioSubscribers} onChange={(event) => setField("studioSubscribers", event.target.value)} />
+                  </Field>
+                  <Field label="Horario publicado">
+                    <TextInput type="time" value={draft.studioPublishedHour} onChange={(event) => setField("studioPublishedHour", event.target.value)} />
+                  </Field>
+                  <Field label="Tipo">
+                    <TextInput value={draft.contentType} onChange={(event) => setField("contentType", event.target.value)} placeholder="Shorts ou Longo" />
+                  </Field>
+                </div>
+              </details>
+            ) : (
+              <p className="rounded-xl border border-slate-700/45 bg-black/18 p-4 text-sm leading-6 text-slate-500">
+                Conecte o canal na aba <strong className="text-slate-300">Canais</strong> para puxar views, impressões e
+                watch time automaticamente do YouTube.
+              </p>
+            )}
           </section>
         )}
           </div>

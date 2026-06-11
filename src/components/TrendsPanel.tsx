@@ -1,4 +1,5 @@
 import { useMemo, useState, type FormEvent } from "react";
+import { Crosshair } from "lucide-react";
 import type { Trend, TrendDraft, VideoDraft } from "../types";
 import { EMPTY_TREND, normalizeTrendDraft, trendToVideoDraft } from "../lib/trend";
 import { Button, Field, Pill, TextArea, TextInput } from "./ui";
@@ -8,6 +9,7 @@ type TrendsPanelProps = {
   onSave: (draft: TrendDraft) => void;
   onDelete: (id: string) => void;
   onCreateIdea: (draft: VideoDraft) => void;
+  onHuntSimilar?: (trend: Trend) => void;
 };
 
 function blankDraft(): TrendDraft {
@@ -32,7 +34,7 @@ function formatRelativeDate(value: string) {
   }).format(new Date(value));
 }
 
-export function TrendsPanel({ trends, onSave, onDelete, onCreateIdea }: TrendsPanelProps) {
+export function TrendsPanel({ trends, onSave, onDelete, onCreateIdea, onHuntSimilar }: TrendsPanelProps) {
   const [draft, setDraft] = useState<TrendDraft>(() => blankDraft());
   const [editorOpen, setEditorOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -203,6 +205,14 @@ export function TrendsPanel({ trends, onSave, onDelete, onCreateIdea }: TrendsPa
                       Editar
                     </Button>
                   </div>
+                  {onHuntSimilar && (
+                    <Button
+                      className="mt-2 min-h-9 w-full px-3 text-xs"
+                      onClick={() => onHuntSimilar(trend)}
+                    >
+                      <Crosshair className="size-3.5" /> Caçar ideias parecidas
+                    </Button>
+                  )}
                   <div className="mt-2 grid grid-cols-2 gap-2">
                     {trend.url ? (
                       <a className="btn btn-ghost min-h-9 px-3 text-center text-xs" href={trend.url} target="_blank" rel="noreferrer">

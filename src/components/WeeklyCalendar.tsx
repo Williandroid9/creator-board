@@ -27,17 +27,31 @@ const priorityLabel: Record<VideoPriority, string> = {
   Baixa: "text-slate-400",
 };
 
-function VideoCard({ video, onOpen }: { video: Video; onOpen: (v: Video) => void }) {
+function VideoCard({
+  video,
+  onOpen,
+  draggable = false,
+}: {
+  video: Video;
+  onOpen: (v: Video) => void;
+  draggable?: boolean;
+}) {
   const overdue = isOverdue(video);
 
   return (
     <button
       type="button"
       onClick={() => onOpen(video)}
+      draggable={draggable}
+      onDragStart={(e) => {
+        e.dataTransfer.setData("text/plain", video.id);
+        e.dataTransfer.effectAllowed = "move";
+      }}
       className={cx(
         "group block w-full rounded-lg ring-1 bg-white/[0.045] p-2 text-left transition hover:bg-white/[0.075]",
         priorityRing[video.priority],
         overdue && "ring-amber-400/50 bg-amber-400/5",
+        draggable && "cursor-grab active:cursor-grabbing",
       )}
     >
       <div className="flex items-start gap-1.5">
@@ -59,8 +73,17 @@ function VideoCard({ video, onOpen }: { video: Video; onOpen: (v: Video) => void
   );
 }
 
-export function WeeklyCalendar({ videos, onOpen }: { videos: Video[]; onOpen: (video: Video) => void }) {
+export function WeeklyCalendar({
+  videos,
+  onOpen,
+  onReschedule,
+}: {
+  videos: Video[];
+  onOpen: (video: Video) => void;
+  onReschedule?: (video: Video, date: string) => void;
+}) {
   const [weekOffset, setWeekOffset] = useState(0);
+  const [dragOverDay, setDragOverDay] = useState<string | null>(null);
   const weekStart = useMemo(() => addDays(startOfWeek(new Date()), weekOffset * 7), [weekOffset]);
   const days = useMemo(() => Array.from({ length: 7 }, (_, i) => addDays(weekStart, i)), [weekStart]);
   const dayFormatter = new Intl.DateTimeFormat("pt-BR", { weekday: "short", day: "2-digit", month: "2-digit" });
@@ -83,6 +106,7 @@ export function WeeklyCalendar({ videos, onOpen }: { videos: Video[]; onOpen: (v
           </h2>
           <p className="mt-0.5 text-xs font-semibold text-slate-500">
             {totalScheduled} vídeo{totalScheduled !== 1 ? "s" : ""} agendado{totalScheduled !== 1 ? "s" : ""} nesta semana
+            {onReschedule ? " · arraste um card para reagendar" : ""}
           </p>
         </div>
         <div className="flex gap-2">
@@ -121,11 +145,30 @@ export function WeeklyCalendar({ videos, onOpen }: { videos: Video[]; onOpen: (v
           return (
             <article
               key={key}
+              onDragOver={(e) => {
+                if (!onReschedule) return;
+                e.preventDefault();
+                e.dataTransfer.dropEffect = "move";
+                if (dragOverDay !== key) setDragOverDay(key);
+              }}
+              onDragLeave={(e) => {
+                if (e.currentTarget.contains(e.relatedTarget as Node)) return;
+                setDragOverDay((d) => (d === key ? null : d));
+              }}
+              onDrop={(e) => {
+                e.preventDefault();
+                setDragOverDay(null);
+                if (!onReschedule) return;
+                const id = e.dataTransfer.getData("text/plain");
+                const video = videos.find((v) => v.id === id);
+                if (video && video.plannedDate !== key) onReschedule(video, key);
+              }}
               className={cx(
                 "min-h-[9rem] rounded-xl p-3 transition",
                 isToday
                   ? "bg-aqua/5 ring-1 ring-aqua/40"
                   : "bg-black/18",
+                dragOverDay === key && "bg-aqua/10 ring-2 ring-aqua/60",
               )}
             >
               <div className={cx(
@@ -143,7 +186,12 @@ export function WeeklyCalendar({ videos, onOpen }: { videos: Video[]; onOpen: (v
               {dayVideos.length ? (
                 <div className="space-y-1.5">
                   {dayVideos.map((v) => (
-                    <VideoCard key={v.id} video={v} onOpen={onOpen} />
+                    <VideoCard
+                      key={v.id}
+                      video={v}
+                      onOpen={onOpen}
+                      draggable={Boolean(onReschedule) && v.status !== "Publicado"}
+                    />
                   ))}
                 </div>
               ) : (

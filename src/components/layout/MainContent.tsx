@@ -23,8 +23,10 @@ import { SmartWeeklyPlanner } from "../SmartWeeklyPlanner";
 import { TodayPanel } from "../TodayPanel";
 import { TrendsPanel } from "../TrendsPanel";
 import { WeeklyCalendar } from "../WeeklyCalendar";
+import { formatDate } from "../../lib/date";
+import { setScoutSeed } from "../../lib/ideaScout";
 import { makeId } from "../../lib/video";
-import { exportCsv, exportJson } from "../../lib/export";
+import { buildBackupExtras, exportCsv, exportJson } from "../../lib/export";
 
 export function MainContent() {
   const {
@@ -52,6 +54,7 @@ export function MainContent() {
     openCreate,
     openVideo,
     createVideo,
+    updateVideo,
     moveVideo,
     duplicateVideo,
     toggleArchiveVideo,
@@ -228,12 +231,27 @@ export function MainContent() {
           onSave={saveTrend}
           onDelete={deleteTrend}
           onCreateIdea={createVideo}
+          onHuntSimilar={(trend) => {
+            const context = [trend.title, trend.ideaAngle, trend.opportunityReason]
+              .filter(Boolean)
+              .join(" — ");
+            setScoutSeed(`Foque a caçada em ângulos parecidos com esta oportunidade do meu Banco de Ideias: ${context}`);
+            setActiveView("radar");
+            setToast("Semente enviada ao Caçador de Ideias.");
+          }}
         />
       )}
 
       {/* ── Calendar ──────────────────────────────────────────────────────── */}
       {activeView === "calendar" && (
-        <WeeklyCalendar videos={searchedVideos} onOpen={openVideo} />
+        <WeeklyCalendar
+          videos={searchedVideos}
+          onOpen={openVideo}
+          onReschedule={(video, date) => {
+            updateVideo({ ...video, plannedDate: date }, "autosave");
+            setToast(`"${video.title}" reagendado para ${formatDate(date)}.`);
+          }}
+        />
       )}
 
       {/* ── References ────────────────────────────────────────────────────── */}
@@ -282,8 +300,8 @@ export function MainContent() {
           backupSnapshots={backupSnapshots}
           syncHistory={data.syncHistory}
           onExportJson={() => {
-            exportJson(data);
-            setToast("Backup JSON exportado.");
+            exportJson(data, buildBackupExtras());
+            setToast("Backup JSON exportado (com progresso e Caçador).");
           }}
           onExportSheet={() => {
             exportCsv(data.videos);

@@ -30,20 +30,23 @@ import {
   checkNewAchievements,
   computeXp,
   loadProgress,
+  normalizeProgress,
   saveProgress,
 } from "../lib/achievements";
 import {
   generateSmartNotification,
   getLastShownDate,
   loadNotifPrefs,
+  normalizeNotifPrefs,
   type NotificationPrefs,
   registerPeriodicSync,
   saveNotifPrefs,
   scheduleDailyNotification,
   syncPayloadToSW,
 } from "../lib/notifications";
+import { normalizeScoutState, saveScoutState } from "../lib/ideaScout";
 import { isToday, localDateKey } from "../lib/date";
-import { exportJson } from "../lib/export";
+import { buildBackupExtras, exportJson } from "../lib/export";
 import { loadAppData, parseImportedData, saveAppData } from "../lib/storage";
 import {
   createBackupSnapshot,
@@ -867,20 +870,26 @@ export function AppProvider({ children }: { children: ReactNode }) {
     (id: string) => {
       const channel = data.channels.find((c) => c.id === id);
       const linkedCount = data.videos.filter((v) => v.channelId === id).length;
-      const msg = linkedCount
-        ? `Excluir "${channel?.name || "este canal"}" e desvincular ${linkedCount} video${linkedCount === 1 ? "" : "s"}?`
-        : `Excluir "${channel?.name || "este canal"}"?`;
-      if (!window.confirm(msg)) return;
-      setData((current) =>
-        stampData({
-          ...current,
-          channels: current.channels.filter((c) => c.id !== id),
-          videos: current.videos.map((v) =>
-            v.channelId === id ? normalizeVideo({ ...v, channelId: "", channel: "", updatedAt: new Date().toISOString() }) : v,
-          ),
-        }),
-      );
-      setToast("Canal excluido.");
+      setConfirmDialog({
+        title: `Excluir "${channel?.name || "este canal"}"?`,
+        message: linkedCount
+          ? `${linkedCount} video${linkedCount === 1 ? "" : "s"} vinculado${linkedCount === 1 ? "" : "s"} ser${linkedCount === 1 ? "á" : "ão"} desvinculado${linkedCount === 1 ? "" : "s"} (os cards são mantidos).`
+          : "Esta ação não pode ser desfeita.",
+        confirmLabel: "Excluir canal",
+        onConfirm: () => {
+          setData((current) =>
+            stampData({
+              ...current,
+              channels: current.channels.filter((c) => c.id !== id),
+              videos: current.videos.map((v) =>
+                v.channelId === id ? normalizeVideo({ ...v, channelId: "", channel: "", updatedAt: new Date().toISOString() }) : v,
+              ),
+            }),
+          );
+          setToast("Canal excluido.");
+          setConfirmDialog(null);
+        },
+      });
     },
     [data.channels, data.videos],
   );
@@ -888,19 +897,26 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const disconnectChannel = useCallback(
     (id: string) => {
       const channel = data.channels.find((c) => c.id === id);
-      if (!window.confirm(`Desconectar "${channel?.name || "este canal"}" da conta online? Os cards e dados salvos serao mantidos.`)) return;
-      setData((current) =>
-        stampData({
-          ...current,
-          channels: current.channels.map((c) =>
-            c.id === id
-              ? normalizeChannel({ ...c, youtubeChannelId: "", lastSyncedAt: "", lastSyncSource: "", updatedAt: new Date().toISOString() })
-              : c,
-          ),
-          settings: current.settings.defaultChannel === id ? { ...current.settings, defaultChannel: "" } : current.settings,
-        }),
-      );
-      setToast("Canal desconectado. Os dados locais foram mantidos.");
+      setConfirmDialog({
+        title: `Desconectar "${channel?.name || "este canal"}" da conta online?`,
+        message: "Os cards e dados salvos serão mantidos. Você pode reconectar quando quiser.",
+        confirmLabel: "Desconectar",
+        onConfirm: () => {
+          setData((current) =>
+            stampData({
+              ...current,
+              channels: current.channels.map((c) =>
+                c.id === id
+                  ? normalizeChannel({ ...c, youtubeChannelId: "", lastSyncedAt: "", lastSyncSource: "", updatedAt: new Date().toISOString() })
+                  : c,
+              ),
+              settings: current.settings.defaultChannel === id ? { ...current.settings, defaultChannel: "" } : current.settings,
+            }),
+          );
+          setToast("Canal desconectado. Os dados locais foram mantidos.");
+          setConfirmDialog(null);
+        },
+      });
     },
     [data.channels],
   );
@@ -1110,75 +1126,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [data.videos],
   );
 
-  // ── Data / backup actions ─────────────────────────────────────────────────
-
-  const handleImport = useCallback(
-    (event: ChangeEvent<HTMLInputElement>) => {
-      const [file] = event.target.files || [];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.addEventListener("load", () => {
-        try {
-          const parsed = JSON.parse(String(reader.result));
-          setBackupSnapshots((current) =>
-            createBackupSnapshot(data, current, "import", `Antes de importar ${file.name || "backup externo"}`),
-          );
-          setData((current) => parseImportedData(parsed, current));
-          setToast("Backup importado.");
-        } catch (error) {
-          console.error(error);
-          setToast("Não foi possível importar este arquivo.");
-        } finally {
-          event.target.value = "";
-        }
-      });
-      reader.readAsText(file);
-    },
-    [data],
-  );
-
-  const handleCreateRestorePoint = useCallback(() => {
-    const label = `Ponto manual ${new Date().toLocaleString("pt-BR")}`;
-    setBackupSnapshots((current) => createBackupSnapshot(data, current, "manual", label));
-    setToast("Ponto de restauracao criado.");
-  }, [data]);
-
-  const handleRestoreSnapshot = useCallback(
-    (id: string) => {
-      const snapshot = backupSnapshots.find((s) => s.id === id);
-      if (!snapshot) { setToast("Ponto de restauracao nao encontrado."); return; }
-      if (
-        !window.confirm(
-          `Restaurar "${snapshot.label}"?\n\nOs dados atuais serao substituidos, mas um ponto de seguranca sera criado antes da restauracao.`,
-        )
-      ) return;
-      setBackupSnapshots((current) => createBackupSnapshot(data, current, "restore", `Antes de restaurar ${snapshot.label}`));
-      setData((current) => parseImportedData({ data: snapshot.data }, current));
-      setToast("Backup restaurado.");
-    },
-    [backupSnapshots, data],
-  );
-
-  const handleDeleteSnapshot = useCallback(
-    (id: string) => {
-      const snapshot = backupSnapshots.find((s) => s.id === id);
-      if (!window.confirm(`Excluir o ponto de restauracao "${snapshot?.label || "selecionado"}"?`)) return;
-      setBackupSnapshots((current) => deleteBackupSnapshot(id, current));
-      setToast("Ponto de restauracao excluido.");
-    },
-    [backupSnapshots],
-  );
-
-  const handleDownloadSnapshot = useCallback(
-    (id: string) => {
-      const snapshot = backupSnapshots.find((s) => s.id === id);
-      if (!snapshot) { setToast("Ponto de restauracao nao encontrado."); return; }
-      exportJson(snapshot.data);
-      setToast("Backup do ponto baixado.");
-    },
-    [backupSnapshots],
-  );
-
   // ── Notification prefs ───────────────────────────────────────────────────
 
   const saveNotifPrefsAndReschedule = useCallback((prefs: NotificationPrefs) => {
@@ -1193,6 +1140,99 @@ export function AppProvider({ children }: { children: ReactNode }) {
       registerPeriodicSync();
     }
   }, []);
+
+  // ── Data / backup actions ─────────────────────────────────────────────────
+
+  const handleImport = useCallback(
+    (event: ChangeEvent<HTMLInputElement>) => {
+      const [file] = event.target.files || [];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.addEventListener("load", () => {
+        try {
+          const parsed = JSON.parse(String(reader.result));
+          setBackupSnapshots((current) =>
+            createBackupSnapshot(data, current, "import", `Antes de importar ${file.name || "backup externo"}`),
+          );
+          setData((current) => parseImportedData(parsed, current));
+
+          // Backups novos carregam XP/conquistas, Caçador e notificações junto
+          const extras = (parsed as { extras?: { progress?: unknown; scout?: unknown; notifPrefs?: unknown } })?.extras;
+          if (extras && typeof extras === "object") {
+            if (extras.progress) {
+              const restored = normalizeProgress(extras.progress);
+              setProgress(restored);
+              saveProgress(restored);
+            }
+            if (extras.scout) saveScoutState(normalizeScoutState(extras.scout));
+            if (extras.notifPrefs) saveNotifPrefsAndReschedule(normalizeNotifPrefs(extras.notifPrefs));
+            setToast("Backup importado com progresso, Caçador e notificações.");
+          } else {
+            setToast("Backup importado.");
+          }
+        } catch (error) {
+          console.error(error);
+          setToast("Não foi possível importar este arquivo.");
+        } finally {
+          event.target.value = "";
+        }
+      });
+      reader.readAsText(file);
+    },
+    [data, saveNotifPrefsAndReschedule],
+  );
+
+  const handleCreateRestorePoint = useCallback(() => {
+    const label = `Ponto manual ${new Date().toLocaleString("pt-BR")}`;
+    setBackupSnapshots((current) => createBackupSnapshot(data, current, "manual", label));
+    setToast("Ponto de restauracao criado.");
+  }, [data]);
+
+  const handleRestoreSnapshot = useCallback(
+    (id: string) => {
+      const snapshot = backupSnapshots.find((s) => s.id === id);
+      if (!snapshot) { setToast("Ponto de restauracao nao encontrado."); return; }
+      setConfirmDialog({
+        title: `Restaurar "${snapshot.label}"?`,
+        message: "Os dados atuais serão substituídos, mas um ponto de segurança será criado antes da restauração.",
+        confirmLabel: "Restaurar",
+        onConfirm: () => {
+          setBackupSnapshots((current) => createBackupSnapshot(data, current, "restore", `Antes de restaurar ${snapshot.label}`));
+          setData((current) => parseImportedData({ data: snapshot.data }, current));
+          setToast("Backup restaurado.");
+          setConfirmDialog(null);
+        },
+      });
+    },
+    [backupSnapshots, data],
+  );
+
+  const handleDeleteSnapshot = useCallback(
+    (id: string) => {
+      const snapshot = backupSnapshots.find((s) => s.id === id);
+      setConfirmDialog({
+        title: `Excluir o ponto "${snapshot?.label || "selecionado"}"?`,
+        message: "O ponto de restauração será removido permanentemente.",
+        confirmLabel: "Excluir",
+        onConfirm: () => {
+          setBackupSnapshots((current) => deleteBackupSnapshot(id, current));
+          setToast("Ponto de restauracao excluido.");
+          setConfirmDialog(null);
+        },
+      });
+    },
+    [backupSnapshots],
+  );
+
+  const handleDownloadSnapshot = useCallback(
+    (id: string) => {
+      const snapshot = backupSnapshots.find((s) => s.id === id);
+      if (!snapshot) { setToast("Ponto de restauracao nao encontrado."); return; }
+      exportJson(snapshot.data, buildBackupExtras());
+      setToast("Backup do ponto baixado.");
+    },
+    [backupSnapshots],
+  );
 
   // ── Keyboard shortcuts ────────────────────────────────────────────────────
 

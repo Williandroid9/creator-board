@@ -227,16 +227,20 @@ export function checkNewAchievements(
 
 // ─── localStorage helpers ─────────────────────────────────────────────────────
 
+export function normalizeProgress(raw: unknown): CreatorProgress {
+  const parsed = (raw ?? {}) as Partial<CreatorProgress>;
+  return {
+    achievements: Array.isArray(parsed.achievements)
+      ? parsed.achievements.filter((a) => a?.id && a?.unlockedAt)
+      : [],
+  };
+}
+
 export function loadProgress(): CreatorProgress {
   try {
     const raw = localStorage.getItem(PROGRESS_KEY);
     if (!raw) return { achievements: [] };
-    const parsed = JSON.parse(raw) as Partial<CreatorProgress>;
-    return {
-      achievements: Array.isArray(parsed.achievements)
-        ? parsed.achievements.filter((a) => a?.id && a?.unlockedAt)
-        : [],
-    };
+    return normalizeProgress(JSON.parse(raw));
   } catch {
     return { achievements: [] };
   }
