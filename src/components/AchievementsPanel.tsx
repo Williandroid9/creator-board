@@ -7,16 +7,20 @@ import { cx } from "./ui";
 type Props = {
   videos: Video[];
   unlockedAchievements: UnlockedAchievement[];
+  xpFloor?: number;
   ctx: AchievementContext;
 };
 
-export function AchievementsPanel({ videos, unlockedAchievements, ctx }: Props) {
+export function AchievementsPanel({ videos, unlockedAchievements, xpFloor = 0, ctx }: Props) {
   const unlockedIds = useMemo(
     () => new Set(unlockedAchievements.map((a) => a.id)),
     [unlockedAchievements],
   );
 
-  const xp = useMemo(() => computeXp(videos, unlockedAchievements), [videos, unlockedAchievements]);
+  const xp = useMemo(
+    () => Math.max(computeXp(videos, unlockedAchievements), xpFloor),
+    [videos, unlockedAchievements, xpFloor],
+  );
   const info = getLevelInfo(xp);
 
   const xpInLevel = xp - info.xpStart;

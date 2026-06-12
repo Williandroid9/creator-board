@@ -233,7 +233,14 @@ export function normalizeProgress(raw: unknown): CreatorProgress {
     achievements: Array.isArray(parsed.achievements)
       ? parsed.achievements.filter((a) => a?.id && a?.unlockedAt)
       : [],
+    xpFloor: typeof parsed.xpFloor === "number" && parsed.xpFloor > 0 ? parsed.xpFloor : 0,
   };
+}
+
+// XP exibido ao usuário: o cálculo determinístico, mas nunca abaixo da
+// marca-d'água já alcançada. Apagar um vídeo não tira XP/nível conquistado.
+export function getDisplayXp(videos: Video[], progress: CreatorProgress): number {
+  return Math.max(computeXp(videos, progress.achievements), progress.xpFloor ?? 0);
 }
 
 export function loadProgress(): CreatorProgress {

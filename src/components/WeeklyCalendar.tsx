@@ -5,14 +5,15 @@ import { addDays, localDateKey, startOfWeek } from "../lib/date";
 import { isOverdue, sortByPriorityAndDate } from "../lib/video";
 import { Button, cx } from "./ui";
 
+// Mesma rampa coesa do Kanban: cinza → aqua → verde (Publicado).
 const statusDot: Record<VideoStatus, string> = {
   Ideia: "bg-slate-500",
-  Roteiro: "bg-sky-400",
-  Gravacao: "bg-violet-400",
-  Edicao: "bg-fuchsia-400",
-  SEO: "bg-amber-300",
-  Agendado: "bg-teal-400",
-  Publicado: "bg-[#14b8a6]",
+  Roteiro: "bg-slate-400",
+  Gravacao: "bg-aqua/60",
+  Edicao: "bg-aqua/80",
+  SEO: "bg-aqua",
+  Agendado: "bg-teal-300",
+  Publicado: "bg-emerald-400",
 };
 
 const priorityRing: Record<VideoPriority, string> = {

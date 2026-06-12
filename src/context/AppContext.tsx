@@ -406,17 +406,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const newly = checkNewAchievements(data.videos, achievementCtx, progress.achievements);
-    if (newly.length === 0) return;
-    const now = new Date().toISOString();
-    const updated: CreatorProgress = {
-      achievements: [
-        ...progress.achievements,
-        ...newly.map((a) => ({ id: a.id, unlockedAt: now })),
-      ],
-    };
+    const nextAchievements = newly.length
+      ? [...progress.achievements, ...newly.map((a) => ({ id: a.id, unlockedAt: new Date().toISOString() }))]
+      : progress.achievements;
+
+    // Marca-d'água monotônica: XP exibido nunca cai (apagar vídeo não tira nível).
+    const currentXp = computeXp(data.videos, nextAchievements);
+    const nextFloor = Math.max(progress.xpFloor ?? 0, currentXp);
+
+    const floorChanged = nextFloor !== (progress.xpFloor ?? 0);
+    if (newly.length === 0 && !floorChanged) return;
+
+    const updated: CreatorProgress = { achievements: nextAchievements, xpFloor: nextFloor };
     setProgress(updated);
     saveProgress(updated);
-    setNewAchievements((prev) => [...prev, ...newly]);
+    if (newly.length) setNewAchievements((prev) => [...prev, ...newly]);
   }, [data, achievementCtx]);
 
   // ── Notification scheduling ───────────────────────────────────────────────

@@ -288,6 +288,7 @@ export function MainContent() {
           <AchievementsPanel
             videos={data.videos}
             unlockedAchievements={progress.achievements}
+            xpFloor={progress.xpFloor ?? 0}
             ctx={achievementCtx}
           />
         </div>

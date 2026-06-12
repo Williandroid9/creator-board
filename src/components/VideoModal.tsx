@@ -591,8 +591,7 @@ export function VideoModal({
                 </div>
               </div>
 
-              {advancedMode ? (
-                <>
+              {/* SEO — sempre visível: é etapa essencial do vídeo, não item "avançado" */}
               <div className="rounded-xl border border-slate-700/45 bg-black/18 p-4">
                 <p className="mb-3 text-xs font-black uppercase text-slate-500">SEO</p>
                 <div className="grid gap-4">
@@ -609,6 +608,8 @@ export function VideoModal({
                 </div>
               </div>
 
+              {advancedMode ? (
+                <>
             <details className="rounded-xl border border-slate-700/45 bg-black/18 p-4">
               <summary className="cursor-pointer list-none text-sm font-black text-white">
                 Ferramentas de análise e brief
@@ -809,18 +810,14 @@ export function VideoModal({
               <Button className="w-full" onClick={advanceStage} disabled={!nextStage}>
                 {nextStage ? `Avancar para ${nextStage}` : "Finalizado"}
               </Button>
+              <Button className="w-full" onClick={() => setActiveTab("publishing")}>
+                Publicação & revisão
+              </Button>
               {draft.publishedLink ? (
                 <a className={cx("btn btn-ghost w-full text-sm")} href={draft.publishedLink} target="_blank" rel="noreferrer">
                   Abrir publicado
                 </a>
-              ) : (
-                <Button className="w-full" onClick={() => setActiveTab("publishing")}>
-                  Publicação
-                </Button>
-              )}
-              <Button className="w-full" onClick={() => setActiveTab("publishing")}>
-                Revisão final
-              </Button>
+              ) : null}
               {draft.id ? (
                 <details className="rounded-xl border border-slate-700/45 bg-black/18 p-3">
                   <summary className="cursor-pointer list-none text-sm font-black text-slate-300">Mais acoes</summary>

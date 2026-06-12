@@ -314,6 +314,9 @@ export type UnlockedAchievement = {
 
 export type CreatorProgress = {
   achievements: UnlockedAchievement[];
+  // Marca-d'água de XP: o XP exibido nunca cai abaixo disso, mesmo que o
+  // usuário apague vídeos. Progresso de jogo não regride.
+  xpFloor?: number;
 };
 
 export type AchievementDef = {

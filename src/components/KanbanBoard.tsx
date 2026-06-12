@@ -19,14 +19,17 @@ const priorityBorder: Record<VideoPriority, string> = {
   Baixa: "border-l-slate-600/40",
 };
 
+// Rampa coesa: cinza nas etapas iniciais → aqua ganhando intensidade conforme
+// avança → verde para Publicado (conclusão). Cor saturada = sinal de progresso,
+// não decoração aleatória. Âmbar fica reservado para "atrasado".
 const statusAccent: Record<string, string> = {
   Ideia: "text-slate-400",
-  Roteiro: "text-sky-400",
-  Gravacao: "text-violet-400",
-  Edicao: "text-fuchsia-400",
-  SEO: "text-amber-300",
-  Agendado: "text-teal-400",
-  Publicado: "text-aqua",
+  Roteiro: "text-slate-300",
+  Gravacao: "text-aqua/60",
+  Edicao: "text-aqua/80",
+  SEO: "text-aqua",
+  Agendado: "text-teal-300",
+  Publicado: "text-emerald-400",
 };
 
 function KanbanCard({

@@ -10,6 +10,18 @@
   background: #0b0f14;
 }
 
+@layer base {
+  /* Voz tipográfica: títulos em Space Grotesk; corpo segue Inter.
+     tracking levemente fechado dá ar editorial sem perder legibilidade. */
+  h1,
+  h2,
+  h3,
+  .font-display {
+    font-family: "Space Grotesk", Inter, ui-sans-serif, system-ui, sans-serif;
+    letter-spacing: -0.015em;
+  }
+}
+
 * {
   box-sizing: border-box;
 }

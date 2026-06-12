@@ -3,6 +3,10 @@ export default {
   content: ["./index.html", "./src/**/*.{ts,tsx}"],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ["Inter", "ui-sans-serif", "system-ui", "-apple-system", "Segoe UI", "sans-serif"],
+        display: ["Space Grotesk", "Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+      },
       colors: {
         ink: "#0b0f14",
         panel: "#101720",

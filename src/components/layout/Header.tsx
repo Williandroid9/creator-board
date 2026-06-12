@@ -17,7 +17,7 @@ export function Header({ onOpenSidebar }: HeaderProps) {
   const viewLabels: Record<string, string> = {
     production: "Dashboard",
     calendar: "Calendário",
-    radar: "Radar",
+    radar: "Caçador de Ideias",
     insights: "Insights",
     performance: "Performance",
     trends: "Banco de Ideias",

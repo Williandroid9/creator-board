@@ -17,7 +17,7 @@ import {
   X,
   Zap,
 } from "lucide-react";
-import { computeXp, getLevelInfo } from "../../lib/achievements";
+import { getDisplayXp, getLevelInfo } from "../../lib/achievements";
 import { type AppView, useApp } from "../../context/AppContext";
 import { NotificationSetup } from "../NotificationSetup";
 import { cx } from "../ui";
@@ -166,7 +166,7 @@ function NavLink({ item, onClick }: { item: NavItem; onClick?: () => void }) {
 
 function XpBadge() {
   const { data, progress, setActiveView } = useApp();
-  const xp = computeXp(data.videos, progress.achievements);
+  const xp = getDisplayXp(data.videos, progress);
   const info = getLevelInfo(xp);
   const xpInLevel = xp - info.xpStart;
   const xpNeeded = info.xpEnd - info.xpStart;
