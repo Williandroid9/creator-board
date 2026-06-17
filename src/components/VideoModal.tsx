@@ -10,6 +10,7 @@ import {
   type VideoStatus,
 } from "../types";
 import { localDateKey } from "../lib/date";
+import { compareVideoToBenchmarks, getChannelBenchmarks } from "../lib/performance";
 import { SCRIPT_TEMPLATES } from "../lib/scriptTemplates";
 import { NEW_VIDEO_DRAFT_KEY, readJson } from "../lib/storage";
 import { EMPTY_VIDEO, hasPerformance, hasScript, hasSeo, nextStatus, normalizeVideoDraft } from "../lib/video";
@@ -114,6 +115,14 @@ export function VideoModal({
     { label: "Data", done: Boolean(draft.plannedDate) },
   ];
   const doneCount = summaryItems.filter((item) => item.done).length;
+
+  // Loop de aprendizado: este vídeo vs a média do canal (só publicados com dado).
+  const benchmarkComparison = useMemo(() => {
+    if (draft.status !== "Publicado") return [];
+    const benchmarks = getChannelBenchmarks(videos, draft.id);
+    if (benchmarks.sampleSize < 2) return []; // precisa de histórico para comparar
+    return compareVideoToBenchmarks(draft as Video, benchmarks);
+  }, [draft, videos]);
 
   const tabs = useMemo<Tab[]>(() => {
     const base: Tab[] = [
@@ -654,6 +663,33 @@ export function VideoModal({
 
         {activeTab === "performance" && performanceVisible && (
           <section className="grid gap-4">
+            {/* Comparação com a média do canal — o coração do loop de aprendizado */}
+            {benchmarkComparison.length > 0 && (
+              <div className="rounded-xl border border-aqua/20 bg-aqua/[0.04] p-4">
+                <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-aqua">Este vídeo vs sua média</p>
+                <div className="grid gap-3 sm:grid-cols-3">
+                  {benchmarkComparison.map((c) => {
+                    const tone =
+                      c.direction === "up" ? "text-emerald-300" : c.direction === "down" ? "text-amber-300" : "text-slate-300";
+                    const arrow = c.direction === "up" ? "▲" : c.direction === "down" ? "▼" : "—";
+                    return (
+                      <div key={c.key} className="rounded-lg bg-black/20 p-3">
+                        <p className="text-[0.65rem] font-semibold uppercase tracking-wide text-slate-500">{c.label}</p>
+                        <p className="mt-1 text-2xl font-extrabold text-white">{c.display}</p>
+                        <p className={cx("mt-1 text-xs font-bold", tone)}>
+                          {arrow} {Math.abs(c.deltaPct) < 5 ? "na média" : `${c.deltaPct > 0 ? "+" : ""}${c.deltaPct.toFixed(0)}% vs média`}
+                        </p>
+                        <p className="text-[0.65rem] font-semibold text-slate-600">média {c.averageDisplay}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+                <p className="mt-3 text-xs leading-relaxed text-slate-400">
+                  Anote em <strong className="text-slate-300">"Lições"</strong> o que explica esse resultado — é o que melhora o próximo vídeo.
+                </p>
+              </div>
+            )}
+
             {/* Núcleo manual — o que vale anotar à mão */}
             <div className="grid gap-4 sm:grid-cols-2">
               <Field label="Views (24h)">

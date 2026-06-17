@@ -25,6 +25,7 @@ import { TrendsPanel } from "../TrendsPanel";
 import { WeeklyCalendar } from "../WeeklyCalendar";
 import { formatDate } from "../../lib/date";
 import { setScoutSeed } from "../../lib/ideaScout";
+import { getVideoAwaitingReview } from "../../lib/performance";
 import { makeId } from "../../lib/video";
 import { buildBackupExtras, exportCsv, exportJson } from "../../lib/export";
 
@@ -137,6 +138,32 @@ export function MainContent() {
             weeklyGoal={data.settings.weeklyGoal}
             onWeeklyGoalChange={setWeeklyGoal}
           />
+
+          {/* Loop de aprendizado: lembrete para revisar um vídeo recém-publicado */}
+          {(() => {
+            const review = getVideoAwaitingReview(scopedActiveVideos);
+            if (!review) return null;
+            return (
+              <button
+                type="button"
+                onClick={() => openVideo(review.video)}
+                className="flex w-full items-center gap-3 rounded-2xl border border-sky-400/20 bg-sky-500/[0.05] px-5 py-3.5 text-left transition hover:border-sky-400/40 hover:bg-sky-500/[0.08]"
+              >
+                <span className="shrink-0 text-lg">📊</span>
+                <span className="min-w-0 flex-1">
+                  <span className="text-[0.65rem] font-semibold uppercase tracking-wider text-sky-400">
+                    Aprenda com o último vídeo
+                  </span>
+                  <span className="block truncate text-sm font-bold text-white">
+                    "{review.video.title}" está no ar há {review.days} dias — como foi vs sua média?
+                  </span>
+                </span>
+                <span className="shrink-0 rounded-lg bg-sky-500/15 px-3 py-1.5 text-xs font-bold text-sky-300">
+                  Revisar →
+                </span>
+              </button>
+            );
+          })()}
 
           {/* Pipeline */}
           <section className="space-y-4">
