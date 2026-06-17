@@ -1,8 +1,7 @@
 import { useMemo } from "react";
 import { AlertTriangle, Flame, Target, Zap } from "lucide-react";
 import type { Video } from "../types";
-import { isOverdue, isReadyToPublish, hasScript } from "../lib/video";
-import { getOpportunityScore } from "../lib/opportunity";
+import { isOverdue } from "../lib/video";
 import { computeXp, getLevelInfo } from "../lib/achievements";
 import type { UnlockedAchievement } from "../types";
 import { cx } from "./ui";
@@ -54,69 +53,35 @@ function formatToday(): string {
   });
 }
 
-function getDailyMission(videos: Video[]): { action: string; title: string; emoji: string } | null {
-  const active = videos.filter((v) => !v.archived && v.status !== "Publicado");
-  if (!active.length) return null;
-
-  // 1. Overdue high-priority
-  const overdueHigh = active.filter((v) => isOverdue(v) && v.priority === "Alta");
-  if (overdueHigh.length > 0) {
-    return { action: "Desatrasado urgente", title: overdueHigh[0].title, emoji: "🚨" };
-  }
-
-  // 2. Ready to publish
-  const ready = active.filter(isReadyToPublish);
-  if (ready.length > 0) {
-    return { action: "Publique hoje", title: ready[0].title, emoji: "🚀" };
-  }
-
-  // 3. Video closest to having a script done (but missing it)
-  const noScript = active.filter((v) => !hasScript(v));
-  if (noScript.length > 0) {
-    const allVideos = videos;
-    const sorted = noScript.sort((a, b) => {
-      const sa = getOpportunityScore(a, allVideos).score;
-      const sb = getOpportunityScore(b, allVideos).score;
-      return sb - sa;
-    });
-    return { action: "Escreva o roteiro", title: sorted[0].title, emoji: "✍️" };
-  }
-
-  // 4. Highest opportunity score
-  const scored = active
-    .map((v) => ({ v, score: getOpportunityScore(v, videos).score }))
-    .sort((a, b) => b.score - a.score);
-  if (scored.length > 0) {
-    return { action: "Avance este vídeo", title: scored[0].v.title, emoji: "⚡" };
-  }
-
-  return null;
-}
-
 type DailyBriefProps = {
   videos: Video[];
   weeklyGoal: number;
   productionDays: string[];
   unlockedAchievements: UnlockedAchievement[];
+  xpFloor?: number;
 };
 
-export function DailyBrief({ videos, weeklyGoal, productionDays, unlockedAchievements }: DailyBriefProps) {
+// Barra compacta de stats do dia. A "missão de hoje" foi removida de propósito:
+// o TodayPanel logo abaixo já é o conselheiro único do dashboard.
+export function DailyBrief({ videos, weeklyGoal, productionDays, unlockedAchievements, xpFloor = 0 }: DailyBriefProps) {
   const streak = useMemo(() => getProductionStreak(productionDays), [productionDays]);
   const weeklyPublished = useMemo(() => getWeeklyPublished(videos), [videos]);
   const overdueCount = useMemo(() => videos.filter(isOverdue).length, [videos]);
   const dateStr = useMemo(() => formatToday(), []);
-  const mission = useMemo(() => getDailyMission(videos), [videos]);
   const goalMet = weeklyPublished >= weeklyGoal;
   const progress = Math.min(100, (weeklyPublished / Math.max(1, weeklyGoal)) * 100);
 
-  const xp = useMemo(() => computeXp(videos, unlockedAchievements), [videos, unlockedAchievements]);
+  const xp = useMemo(
+    () => Math.max(computeXp(videos, unlockedAchievements), xpFloor),
+    [videos, unlockedAchievements, xpFloor],
+  );
   const levelInfo = useMemo(() => getLevelInfo(xp), [xp]);
   const xpInLevel = xp - levelInfo.xpStart;
   const xpNeeded = levelInfo.xpEnd - levelInfo.xpStart;
   const levelProgress = Math.min(100, (xpInLevel / xpNeeded) * 100);
 
   return (
-    <div className="space-y-2">
+    <div>
       {/* Stats bar */}
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-2xl border border-slate-400/[0.06] bg-[#0d1218]/70 px-4 py-2.5">
         {/* Date */}
@@ -169,19 +134,6 @@ export function DailyBrief({ videos, weeklyGoal, productionDays, unlockedAchieve
           </div>
         )}
       </div>
-
-      {/* Daily mission */}
-      {mission && (
-        <div className="flex items-center gap-3 rounded-xl border border-sky-500/15 bg-sky-500/5 px-4 py-2.5">
-          <span className="shrink-0 text-lg">{mission.emoji}</span>
-          <div className="min-w-0">
-            <span className="text-[0.65rem] font-black uppercase tracking-wider text-sky-400">
-              Missão de hoje · {mission.action}
-            </span>
-            <p className="truncate text-sm font-black text-white">{mission.title}</p>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

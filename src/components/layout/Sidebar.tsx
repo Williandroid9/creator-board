@@ -1,5 +1,6 @@
 import { useState } from "react";
 import {
+  Activity,
   Archive,
   BarChart2,
   Bell,
@@ -51,6 +52,7 @@ const navGroups: Array<{ title: string; items: NavItem[] }> = [
         label: "Caçador de Ideias",
         icon: Crosshair,
       },
+      { key: "analysis", label: "Análise", icon: Activity },
       { key: "insights", label: "Insights", icon: TrendingUp },
       { key: "performance", label: "Performance", icon: BarChart2 },
     ],

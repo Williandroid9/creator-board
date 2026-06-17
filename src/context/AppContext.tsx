@@ -70,6 +70,7 @@ import { normalizeTrend } from "../lib/trend";
 
 export type AppView =
   | "production"
+  | "analysis"
   | "channels"
   | "insights"
   | "radar"
@@ -83,6 +84,7 @@ export type AppView =
 
 export const APP_VIEWS: AppView[] = [
   "production",
+  "analysis",
   "channels",
   "insights",
   "radar",

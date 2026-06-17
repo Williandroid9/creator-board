@@ -102,14 +102,17 @@ export function MainContent() {
       <ShortcutsModal open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
 
       {/* ── Production (Dashboard) ─────────────────────────────────────────── */}
+      {/* Enxuto de propósito: 1 decisão acima da dobra (TodayPanel) + o pipeline.
+          Diagnósticos e planejamento moraram aqui e viraram a aba "Análise". */}
       {activeView === "production" && (
         <>
-          {/* Daily Brief banner */}
+          {/* Barra compacta de stats (XP, streak, meta, atrasados) */}
           <DailyBrief
             videos={scopedActiveVideos}
             weeklyGoal={data.settings.weeklyGoal}
             productionDays={data.settings.productionDays}
             unlockedAchievements={progress.achievements}
+            xpFloor={progress.xpFloor ?? 0}
           />
 
           {(!data.channels.length || !scopedActiveVideos.length) && (
@@ -121,6 +124,7 @@ export function MainContent() {
             />
           )}
 
+          {/* A decisão do dia: próximo vídeo recomendado + tarefas + atrasados */}
           <TodayPanel
             videos={scopedActiveVideos}
             tasks={data.dailyChecklist.tasks}
@@ -133,8 +137,6 @@ export function MainContent() {
             weeklyGoal={data.settings.weeklyGoal}
             onWeeklyGoalChange={setWeeklyGoal}
           />
-
-          <ChannelPulsePanel channel={activeChannel} videos={scopedActiveVideos} />
 
           {/* Pipeline */}
           <section className="space-y-4">
@@ -151,39 +153,46 @@ export function MainContent() {
             />
           </section>
 
-          {/* Planning & diagnostics – always visible, no details/summary */}
-          <section className="clean-panel rounded-2xl p-4 sm:p-5">
-            <div className="mb-5">
-              <p className="mb-0.5 text-xs font-black uppercase tracking-wider text-slate-500">Ferramentas</p>
-              <h2 className="text-lg font-black text-white">Planejamento & Diagnósticos</h2>
-            </div>
-            <div className="grid gap-5 2xl:grid-cols-[340px_minmax(0,1fr)]">
-              <DailyChecklist
-                tasks={data.dailyChecklist.tasks}
-                onToggle={(id) =>
-                  updateTasks((tasks) => tasks.map((t) => (t.id === id ? { ...t, done: !t.done } : t)))
-                }
-                onRename={(id, title) =>
-                  updateTasks((tasks) => tasks.map((t) => (t.id === id ? { ...t, title } : t)))
-                }
-                onRemove={(id) => updateTasks((tasks) => tasks.filter((t) => t.id !== id))}
-                onAdd={(title) => updateTasks((tasks) => [...tasks, { id: makeId(), title, done: false }])}
-                onReset={() => updateTasks((tasks) => tasks.map((t) => ({ ...t, done: false })))}
-              />
-              <div className="space-y-5">
-                <MetricGrid videos={scopedActiveVideos} weeklyGoal={data.settings.weeklyGoal} />
-                <OpportunityPanel videos={scopedActiveVideos} onOpenVideo={openVideo} onCreate={openCreate} />
-                <SmartWeeklyPlanner
-                  videos={scopedActiveVideos}
-                  weeklyGoal={data.settings.weeklyGoal}
-                  onOpenVideo={openVideo}
-                  onApplyPlan={applyWeeklyPlan}
-                />
-                <BottleneckPanel videos={scopedActiveVideos} onOpenVideo={openVideo} />
-              </div>
-            </div>
-          </section>
+          {/* Atalho para os diagnósticos que saíram daqui */}
+          <button
+            type="button"
+            onClick={() => setActiveView("analysis")}
+            className="w-full rounded-2xl border border-dashed border-slate-400/15 bg-panel/40 px-5 py-4 text-left transition hover:border-aqua/30 hover:bg-aqua/[0.04]"
+          >
+            <span className="text-sm font-bold text-slate-300">
+              📊 Métricas, oportunidades, plano semanal e gargalos agora vivem na aba{" "}
+              <span className="text-aqua">Análise</span> →
+            </span>
+          </button>
         </>
+      )}
+
+      {/* ── Análise (diagnósticos e planejamento) ─────────────────────────── */}
+      {activeView === "analysis" && (
+        <div className="space-y-5">
+          <MetricGrid videos={scopedActiveVideos} weeklyGoal={data.settings.weeklyGoal} />
+          <ChannelPulsePanel channel={activeChannel} videos={scopedActiveVideos} />
+          <OpportunityPanel videos={scopedActiveVideos} onOpenVideo={openVideo} onCreate={openCreate} />
+          <SmartWeeklyPlanner
+            videos={scopedActiveVideos}
+            weeklyGoal={data.settings.weeklyGoal}
+            onOpenVideo={openVideo}
+            onApplyPlan={applyWeeklyPlan}
+          />
+          <BottleneckPanel videos={scopedActiveVideos} onOpenVideo={openVideo} />
+          <DailyChecklist
+            tasks={data.dailyChecklist.tasks}
+            onToggle={(id) =>
+              updateTasks((tasks) => tasks.map((t) => (t.id === id ? { ...t, done: !t.done } : t)))
+            }
+            onRename={(id, title) =>
+              updateTasks((tasks) => tasks.map((t) => (t.id === id ? { ...t, title } : t)))
+            }
+            onRemove={(id) => updateTasks((tasks) => tasks.filter((t) => t.id !== id))}
+            onAdd={(title) => updateTasks((tasks) => [...tasks, { id: makeId(), title, done: false }])}
+            onReset={() => updateTasks((tasks) => tasks.map((t) => ({ ...t, done: false })))}
+          />
+        </div>
       )}
 
       {/* ── Channels ──────────────────────────────────────────────────────── */}
