@@ -94,7 +94,7 @@ export function TrendsPanel({ trends, onSave, onDelete, onCreateIdea, onHuntSimi
       <div className="clean-panel rounded-2xl p-5">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <p className="mb-1 text-xs font-black uppercase text-aqua">Tendencias</p>
+            <p className="mb-1 text-xs font-semibold uppercase text-aqua">Tendencias</p>
             <h2 className="text-xl font-black text-white sm:text-2xl">Radar manual de oportunidades</h2>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-400">
               Salve temas, videos e canais que chamaram atencao. Depois transforme os melhores sinais em ideias.

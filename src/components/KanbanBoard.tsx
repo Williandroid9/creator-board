@@ -260,7 +260,7 @@ function PublishedColumn({
           ) : (
             <ChevronDown className="size-3.5 text-slate-500" />
           )}
-          <h3 className="text-xs font-black uppercase tracking-wider text-aqua">Publicado</h3>
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-aqua">Publicado</h3>
         </div>
         <span className="rounded-full bg-aqua/10 px-2 py-0.5 text-xs font-black text-aqua">
           {videos.length}
@@ -370,7 +370,7 @@ export function KanbanBoard({
     <section className="clean-panel rounded-2xl p-4 sm:p-5">
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="mb-1 text-xs font-black uppercase text-aqua">Kanban</p>
+          <p className="mb-1 text-xs font-semibold uppercase text-aqua">Kanban</p>
           <h2 className="text-xl font-black sm:text-2xl">Pipeline</h2>
         </div>
         <div className="flex flex-wrap items-center gap-3">
@@ -421,7 +421,7 @@ export function KanbanBoard({
               >
                 <div className="mb-3 flex items-center justify-between gap-3 px-1">
                   <div>
-                    <h3 className={cx("text-xs font-black uppercase tracking-wider", statusAccent[status] || "text-slate-400")}>
+                    <h3 className={cx("text-xs font-semibold uppercase tracking-wider", statusAccent[status] || "text-slate-400")}>
                       {status}
                     </h3>
                     {overLimit && <p className="text-[0.65rem] font-bold text-amber-300">WIP excedido</p>}

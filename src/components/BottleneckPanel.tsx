@@ -127,7 +127,7 @@ export function BottleneckPanel({ videos, onOpenVideo }: BottleneckPanelProps) {
     <section className="clean-panel rounded-2xl p-5">
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="mb-1 text-xs font-black uppercase text-aqua">Gargalos</p>
+          <p className="mb-1 text-xs font-semibold uppercase text-aqua">Gargalos</p>
           <h2 className="text-xl font-black sm:text-2xl">Saude do fluxo</h2>
         </div>
         <Pill className={toneClasses(insights.ready.length ? "good" : "neutral")}>

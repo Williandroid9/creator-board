@@ -59,7 +59,7 @@ export function FocusMode({ videos, tasks, onExit, onOpenVideo, onMove, onToggle
       <section className="glass-panel rounded-2xl p-6 sm:p-8">
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <p className="mb-2 text-xs font-black uppercase text-aqua">Modo Foco</p>
+            <p className="mb-2 text-xs font-semibold uppercase text-aqua">Modo Foco</p>
             <h2 className="text-2xl font-black sm:text-4xl">{recommendation.label}</h2>
             <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-300">{recommendation.detail}</p>
           </div>

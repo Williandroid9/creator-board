@@ -303,7 +303,7 @@ export function VideoModal({
           {/* Header */}
           <div className="mb-5 flex items-center justify-between gap-3">
             <div>
-              <p className="mb-0.5 text-xs font-black uppercase text-aqua">Nova ideia</p>
+              <p className="mb-0.5 text-xs font-semibold uppercase text-aqua">Nova ideia</p>
               <h2 className="text-xl font-black">Criação rápida</h2>
             </div>
             <Button onClick={closeModal}>Fechar</Button>
@@ -412,7 +412,7 @@ export function VideoModal({
       <form className="modal-card glass-panel w-full max-w-5xl rounded-2xl p-5 sm:p-6" onSubmit={submit}>
         <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <p className="mb-1 text-xs font-black uppercase text-aqua">{editing ? "Editar vídeo" : "Nova ideia"}</p>
+            <p className="mb-1 text-xs font-semibold uppercase text-aqua">{editing ? "Editar vídeo" : "Nova ideia"}</p>
             <h2 className="text-2xl font-black">{editing ? draft.title || "Editar vídeo" : "Cadastrar vídeo"}</h2>
             <p className="mt-2 text-xs font-bold text-slate-400">
               {saveState === "saving" && "Salvando..."}
@@ -530,7 +530,7 @@ export function VideoModal({
           <section className="grid gap-5">
             <div className="grid gap-4">
               <div>
-                <p className="mb-3 text-xs font-black uppercase text-slate-500">Conteúdo</p>
+                <p className="mb-3 text-xs font-semibold uppercase text-slate-500">Conteúdo</p>
                 <div className="grid gap-4">
                   <Field label="Roteiro">
                     <TextArea rows={8} value={draft.script} onChange={(event) => setField("script", event.target.value)} placeholder="Gancho, blocos principais, CTA e cortes importantes" />
@@ -548,7 +548,7 @@ export function VideoModal({
 
               {/* SEO — sempre visível: é etapa essencial do vídeo, não item "avançado" */}
               <div className="rounded-xl border border-slate-700/45 bg-black/18 p-4">
-                <p className="mb-3 text-xs font-black uppercase text-slate-500">SEO</p>
+                <p className="mb-3 text-xs font-semibold uppercase text-slate-500">SEO</p>
                 <div className="grid gap-4">
                   <TitleAnalyzer draft={draft} videos={videos} />
                   <Field label="Título SEO">
@@ -716,7 +716,7 @@ export function VideoModal({
 
           <aside className="rounded-xl border border-slate-700/45 bg-black/20 p-4">
             <div className="mb-4">
-              <p className="mb-1 text-xs font-black uppercase text-aqua">Resumo</p>
+              <p className="mb-1 text-xs font-semibold uppercase text-aqua">Resumo</p>
               <h3 className="line-clamp-2 text-lg font-black text-white">{draft.title || "Nova ideia"}</h3>
               <p className="mt-2 text-sm font-semibold text-slate-400">
                 {[draft.channel, draft.niche].filter(Boolean).join(" / ") || "Sem canal"}

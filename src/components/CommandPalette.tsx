@@ -156,7 +156,7 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
           ) : (
             Object.entries(groups).map(([group, cmds]) => (
               <div key={group} className="mb-1">
-                <p className="mb-1 px-3 pt-1 text-[0.6rem] font-black uppercase tracking-widest text-slate-600">
+                <p className="mb-1 px-3 pt-1 text-[0.6rem] font-semibold uppercase tracking-widest text-slate-600">
                   {group}
                 </p>
                 {cmds.map((cmd) => {

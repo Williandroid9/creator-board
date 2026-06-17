@@ -57,7 +57,7 @@ export function ShortcutsModal({ open, onClose }: { open: boolean; onClose: () =
         <div className="space-y-4 p-4">
           {SHORTCUTS.map((group) => (
             <div key={group.category}>
-              <p className="mb-2 px-1 text-[0.6rem] font-black uppercase tracking-widest text-slate-600">
+              <p className="mb-2 px-1 text-[0.6rem] font-semibold uppercase tracking-widest text-slate-600">
                 {group.category}
               </p>
               <div className="space-y-1">

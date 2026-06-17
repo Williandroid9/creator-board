@@ -35,7 +35,7 @@ function RecommendationCard({
   if (!item) {
     return (
       <article className="rounded-xl border border-dashed border-slate-700/70 p-4">
-        <p className="mb-2 text-xs font-black uppercase text-slate-500">{title}</p>
+        <p className="mb-2 text-xs font-semibold uppercase text-slate-500">{title}</p>
         <p className="text-sm font-semibold leading-6 text-slate-500">{emptyText}</p>
       </article>
     );
@@ -45,7 +45,7 @@ function RecommendationCard({
     <article className="rounded-xl border border-slate-700/40 bg-[#111722] p-4">
       <div className="mb-3 flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="mb-1 text-xs font-black uppercase text-slate-500">{title}</p>
+          <p className="mb-1 text-xs font-semibold uppercase text-slate-500">{title}</p>
           <h3 className="line-clamp-2 text-base font-black text-white">{item.video.title}</h3>
         </div>
         <Pill className={cx("shrink-0", toneClass(item.opportunity.tone))}>{item.opportunity.score}</Pill>
@@ -81,7 +81,7 @@ export function OpportunityPanel({ videos, onOpenVideo, onCreate }: OpportunityP
     <section className="clean-panel rounded-2xl p-5">
       <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <p className="mb-1 text-xs font-black uppercase text-aqua">Decisao rapida</p>
+          <p className="mb-1 text-xs font-semibold uppercase text-aqua">Decisao rapida</p>
           <h2 className="text-xl font-black text-white sm:text-2xl">O que gravar agora</h2>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-400">
             Score local por prioridade, preparo, data e historico do canal. Use como triagem, nao como regra fixa.

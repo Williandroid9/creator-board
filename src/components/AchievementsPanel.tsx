@@ -42,7 +42,7 @@ export function AchievementsPanel({ videos, unlockedAchievements, xpFloor = 0, c
       <div className="rounded-2xl border border-slate-400/10 bg-panel/75 p-5">
         <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="mb-0.5 text-xs font-black uppercase tracking-wider text-aqua">Nível do Criador</p>
+            <p className="mb-0.5 text-xs font-semibold uppercase tracking-wider text-aqua">Nível do Criador</p>
             <div className="flex items-center gap-3">
               <span className="text-4xl">{info.emoji}</span>
               <div>
@@ -56,11 +56,11 @@ export function AchievementsPanel({ videos, unlockedAchievements, xpFloor = 0, c
           <div className="flex gap-5 sm:text-right">
             <div>
               <p className="text-3xl font-black text-white">{unlockedCount}</p>
-              <p className="text-[0.65rem] font-bold uppercase tracking-wide text-slate-500">Conquistas</p>
+              <p className="text-[0.65rem] font-semibold uppercase tracking-wide text-slate-500">Conquistas</p>
             </div>
             <div>
               <p className="text-3xl font-black text-white">{totalCount - unlockedCount}</p>
-              <p className="text-[0.65rem] font-bold uppercase tracking-wide text-slate-500">Bloqueadas</p>
+              <p className="text-[0.65rem] font-semibold uppercase tracking-wide text-slate-500">Bloqueadas</p>
             </div>
           </div>
         </div>
@@ -107,7 +107,7 @@ export function AchievementsPanel({ videos, unlockedAchievements, xpFloor = 0, c
             },
           ].map((item) => (
             <div key={item.label} className="rounded-xl bg-white/[0.04] p-3">
-              <p className="text-[0.65rem] font-bold uppercase tracking-wide text-slate-500">{item.label}</p>
+              <p className="text-[0.65rem] font-semibold uppercase tracking-wide text-slate-500">{item.label}</p>
               <p className="mt-1 text-base font-black text-white">{item.value}</p>
               <p className="text-[0.65rem] text-slate-600">{item.sub}</p>
             </div>
@@ -118,7 +118,7 @@ export function AchievementsPanel({ videos, unlockedAchievements, xpFloor = 0, c
       {/* Achievements grid */}
       <div className="rounded-2xl border border-slate-400/10 bg-panel/75 p-5">
         <div className="mb-5">
-          <p className="mb-0.5 text-xs font-black uppercase tracking-wider text-aqua">Conquistas</p>
+          <p className="mb-0.5 text-xs font-semibold uppercase tracking-wider text-aqua">Conquistas</p>
           <h2 className="text-xl font-black">Sala de troféus</h2>
           <p className="mt-0.5 text-sm font-semibold text-slate-400">
             {unlockedCount} / {totalCount} desbloqueadas

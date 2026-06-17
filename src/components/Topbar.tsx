@@ -115,7 +115,7 @@ export function Topbar({
         <nav className="flex-1 space-y-6 overflow-y-auto pr-1">
           {viewGroups.map((group) => (
             <section key={group.title}>
-              <p className="mb-2 px-2 text-[0.68rem] font-black uppercase tracking-wide text-slate-600">
+              <p className="mb-2 px-2 text-[0.68rem] font-semibold uppercase tracking-wide text-slate-600">
                 {group.title}
               </p>
               <div className="space-y-1">
@@ -141,7 +141,7 @@ export function Topbar({
         </nav>
 
         <div className="mt-5 rounded-xl border border-slate-400/10 bg-white/[0.035] p-3">
-          <p className="text-[0.68rem] font-black uppercase text-slate-600">Canal ativo</p>
+          <p className="text-[0.68rem] font-semibold uppercase text-slate-600">Canal ativo</p>
           <p className="mt-1 truncate text-sm font-black text-white">{activeChannel?.name || "Todos os canais"}</p>
           <p className="mt-1 truncate text-xs font-bold text-slate-500">{statusLabel}</p>
         </div>
@@ -158,7 +158,7 @@ export function Topbar({
           </div>
 
           <div className="hidden min-w-0 lg:block">
-            <p className="text-xs font-black uppercase tracking-wide text-slate-600">Modulo atual</p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">Modulo atual</p>
             <h2 className="mt-1 text-2xl font-black text-white">{activeViewLabel}</h2>
           </div>
 
@@ -186,7 +186,7 @@ export function Topbar({
           </label>
 
           <label className="min-w-0 lg:w-72">
-            <span className="mb-1 block text-[0.68rem] font-black uppercase text-slate-500">Canal ativo</span>
+            <span className="mb-1 block text-[0.68rem] font-semibold uppercase text-slate-500">Canal ativo</span>
             <SelectInput
               className="h-[2.7rem]"
               value={activeChannelId || "all"}

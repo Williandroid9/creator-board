@@ -94,7 +94,7 @@ function ChannelSelector() {
 
   return (
     <div className="px-3 pb-2">
-      <label className="mb-1 block px-2 text-[0.65rem] font-bold uppercase tracking-widest text-slate-500">
+      <label className="mb-1 block px-2 text-[0.65rem] font-semibold uppercase tracking-widest text-slate-500">
         Canal ativo
       </label>
       <div className="relative">
@@ -253,7 +253,7 @@ export function Sidebar({ open, onClose }: SidebarProps) {
       <nav className="flex-1 overflow-y-auto px-3 py-2">
         {navGroups.map((group) => (
           <div key={group.title} className="mb-4">
-            <p className="mb-1 px-3 text-[0.6rem] font-bold uppercase tracking-widest text-slate-600">
+            <p className="mb-1 px-3 text-[0.6rem] font-semibold uppercase tracking-widest text-slate-600">
               {group.title}
             </p>
             <div className="space-y-0.5">

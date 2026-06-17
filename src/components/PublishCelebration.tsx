@@ -88,24 +88,24 @@ export function PublishCelebration({
           <div className="mb-5 flex justify-center gap-6">
             <div className="text-center">
               <p className="text-2xl font-black text-aqua">#{publishedCount}</p>
-              <p className="text-[0.65rem] font-bold uppercase tracking-wide text-slate-500">vídeo publicado</p>
+              <p className="text-[0.65rem] font-semibold uppercase tracking-wide text-slate-500">vídeo publicado</p>
             </div>
             <div className="h-10 w-px bg-slate-700" />
             <div className="text-center">
               <p className="text-2xl font-black text-amber-300">+{xpGained}</p>
-              <p className="text-[0.65rem] font-bold uppercase tracking-wide text-slate-500">XP ganho</p>
+              <p className="text-[0.65rem] font-semibold uppercase tracking-wide text-slate-500">XP ganho</p>
             </div>
             <div className="h-10 w-px bg-slate-700" />
             <div className="text-center">
               <p className="text-2xl font-black text-white">{xpDisplay.toLocaleString("pt-BR")}</p>
-              <p className="text-[0.65rem] font-bold uppercase tracking-wide text-slate-500">XP total</p>
+              <p className="text-[0.65rem] font-semibold uppercase tracking-wide text-slate-500">XP total</p>
             </div>
           </div>
 
           {/* Level up banner */}
           {leveledUp && (
             <div className="mb-4 rounded-2xl border border-amber-400/30 bg-amber-400/5 p-4">
-              <p className="text-xs font-bold uppercase tracking-wide text-amber-400">🏆 Level Up!</p>
+              <p className="text-xs font-semibold uppercase tracking-wide text-amber-400">🏆 Level Up!</p>
               <p className={cx("mt-1 text-xl font-black", levelAfter.color)}>
                 {levelAfter.emoji} {levelAfter.title}
               </p>
@@ -118,7 +118,7 @@ export function PublishCelebration({
           {/* New achievements */}
           {newAchievements.length > 0 && (
             <div className="mb-4 space-y-2">
-              <p className="text-xs font-bold uppercase tracking-wide text-amber-400">Nova conquista{newAchievements.length > 1 ? "s" : ""}!</p>
+              <p className="text-xs font-semibold uppercase tracking-wide text-amber-400">Nova conquista{newAchievements.length > 1 ? "s" : ""}!</p>
               {newAchievements.map((id) => {
                 const def = ACHIEVEMENTS.find((a) => a.id === id);
                 if (!def) return null;

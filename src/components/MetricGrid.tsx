@@ -47,7 +47,7 @@ export function MetricGrid({ videos, weeklyGoal }: { videos: Video[]; weeklyGoal
         return (
           <article key={metric.label} className="clean-panel rounded-2xl p-4">
             <p className={cx(
-              "mb-2 text-xs font-black uppercase",
+              "mb-2 text-xs font-semibold uppercase",
               isOverdue ? "text-amber-400" : isReady ? "text-emerald-500" : "text-slate-500",
             )}>
               {metric.label}

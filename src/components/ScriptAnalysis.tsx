@@ -114,7 +114,7 @@ export function ScriptAnalysis({ draft, onEditContent, onEditSeo }: ScriptAnalys
   return (
     <section className="grid gap-4">
       <div className={cx("rounded-xl border p-4", scoreTone)}>
-        <p className="text-xs font-black uppercase opacity-70">Analise local</p>
+        <p className="text-xs font-semibold uppercase opacity-70">Analise local</p>
         <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-4xl font-black">{analysis.score}%</p>

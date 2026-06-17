@@ -316,7 +316,7 @@ function buildRetentionGroups(videos: Video[]) {
 function StatCard({ label, value, detail }: { label: string; value: string; detail: string }) {
   return (
     <div className="rounded-xl border border-slate-700/35 bg-[#111722] p-4">
-      <p className="text-xs font-black uppercase text-slate-500">{label}</p>
+      <p className="text-xs font-semibold uppercase text-slate-500">{label}</p>
       <p className="mt-2 text-2xl font-black text-white">{value}</p>
       <p className="mt-1 text-xs font-semibold text-slate-500">{detail}</p>
     </div>
@@ -387,7 +387,7 @@ export function ChannelInsightsPanel({ channels, videos, onOpenVideo, onCreateId
   if (!channels.length) {
     return (
       <section className="clean-panel rounded-2xl p-6">
-        <p className="mb-1 text-xs font-black uppercase text-aqua">Insights</p>
+        <p className="mb-1 text-xs font-semibold uppercase text-aqua">Insights</p>
         <h2 className="text-xl font-black text-white sm:text-2xl">Cadastre um canal primeiro</h2>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">
           Os insights usam perfil do canal, ideias e videos publicados para sugerir temas e proximas apostas.
@@ -427,7 +427,7 @@ export function ChannelInsightsPanel({ channels, videos, onOpenVideo, onCreateId
       <div className="clean-panel rounded-2xl p-5">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <p className="mb-1 text-xs font-black uppercase text-aqua">Insights por canal</p>
+            <p className="mb-1 text-xs font-semibold uppercase text-aqua">Insights por canal</p>
             <h2 className="text-xl font-black text-white sm:text-2xl">Temas, sinais e proximas ideias</h2>
             <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-400">
               Uma leitura local dos seus dados salvos. Quanto mais videos publicados e metricas voce registrar, melhor ficam os sinais.
@@ -468,7 +468,7 @@ export function ChannelInsightsPanel({ channels, videos, onOpenVideo, onCreateId
           <section className="clean-panel rounded-2xl p-5">
             <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
               <div>
-                <p className="mb-1 text-xs font-black uppercase text-slate-500">Leitura estrategica</p>
+                <p className="mb-1 text-xs font-semibold uppercase text-slate-500">Leitura estrategica</p>
                 <h3 className="text-lg font-black text-white">O que os dados sugerem</h3>
               </div>
               <Pill className="border-slate-700/60 bg-white/[0.035] text-slate-300">{bestDay}</Pill>
@@ -476,15 +476,15 @@ export function ChannelInsightsPanel({ channels, videos, onOpenVideo, onCreateId
 
             <div className="grid gap-3 md:grid-cols-3">
               <div className="rounded-xl bg-white/[0.045] p-4">
-                <p className="text-xs font-black uppercase text-slate-500">Melhor dia</p>
+                <p className="text-xs font-semibold uppercase text-slate-500">Melhor dia</p>
                 <p className="mt-2 text-sm font-bold text-slate-200">{bestDay}</p>
               </div>
               <div className="rounded-xl bg-white/[0.045] p-4">
-                <p className="text-xs font-black uppercase text-slate-500">Melhor horario</p>
+                <p className="text-xs font-semibold uppercase text-slate-500">Melhor horario</p>
                 <p className="mt-2 text-sm font-bold text-slate-200">{bestHourLabel}</p>
               </div>
               <div className="rounded-xl bg-white/[0.045] p-4">
-                <p className="text-xs font-black uppercase text-slate-500">Retencao media</p>
+                <p className="text-xs font-semibold uppercase text-slate-500">Retencao media</p>
                 <p className="mt-2 text-sm font-bold text-slate-200">
                   {performance.averageRetention
                     ? formatDecimal(performance.averageRetention, "%")
@@ -494,7 +494,7 @@ export function ChannelInsightsPanel({ channels, videos, onOpenVideo, onCreateId
                 </p>
               </div>
               <div className="rounded-xl bg-white/[0.045] p-4 md:col-span-3">
-                <p className="text-xs font-black uppercase text-slate-500">Leitura rapida</p>
+                <p className="text-xs font-semibold uppercase text-slate-500">Leitura rapida</p>
                 <p className="mt-2 text-sm font-bold text-slate-200">
                   {performance.averageImpressions
                     ? `Media de ${formatNumber(performance.averageImpressions)} impressoes. Use temas com CTR acima da media e replique o angulo dos videos fortes.`
@@ -506,12 +506,12 @@ export function ChannelInsightsPanel({ channels, videos, onOpenVideo, onCreateId
 
           <section className="clean-panel rounded-2xl p-5">
             <div className="mb-4">
-              <p className="mb-1 text-xs font-black uppercase text-slate-500">Retencao e oportunidades</p>
+              <p className="mb-1 text-xs font-semibold uppercase text-slate-500">Retencao e oportunidades</p>
               <h3 className="text-lg font-black text-white">Diagnostico dos publicados</h3>
             </div>
             <div className="grid gap-3 lg:grid-cols-3">
               <article className="rounded-xl bg-white/[0.045] p-4">
-                <p className="text-xs font-black uppercase text-slate-500">Alta retencao</p>
+                <p className="text-xs font-semibold uppercase text-slate-500">Alta retencao</p>
                 <div className="mt-3 space-y-2">
                   {retentionGroups.highRetention.length ? retentionGroups.highRetention.map((video) => (
                     <button key={video.id} className="block w-full rounded-lg bg-black/20 p-2 text-left text-xs font-bold text-slate-300" onClick={() => onOpenVideo(video)}>
@@ -522,7 +522,7 @@ export function ChannelInsightsPanel({ channels, videos, onOpenVideo, onCreateId
                 </div>
               </article>
               <article className="rounded-xl bg-white/[0.045] p-4">
-                <p className="text-xs font-black uppercase text-slate-500">Tema bom, entrega fraca</p>
+                <p className="text-xs font-semibold uppercase text-slate-500">Tema bom, entrega fraca</p>
                 <div className="mt-3 space-y-2">
                   {retentionGroups.viewGoodRetentionWeak.length ? retentionGroups.viewGoodRetentionWeak.map((video) => (
                     <button key={video.id} className="block w-full rounded-lg bg-black/20 p-2 text-left text-xs font-bold text-slate-300" onClick={() => onOpenVideo(video)}>
@@ -533,7 +533,7 @@ export function ChannelInsightsPanel({ channels, videos, onOpenVideo, onCreateId
                 </div>
               </article>
               <article className="rounded-xl bg-white/[0.045] p-4">
-                <p className="text-xs font-black uppercase text-slate-500">Virar remake/parte 2</p>
+                <p className="text-xs font-semibold uppercase text-slate-500">Virar remake/parte 2</p>
                 <div className="mt-3 space-y-2">
                   {retentionGroups.remakeCandidates.length ? retentionGroups.remakeCandidates.map((video) => (
                     <button key={video.id} className="block w-full rounded-lg bg-black/20 p-2 text-left text-xs font-bold text-slate-300" onClick={() => onOpenVideo(video)}>
@@ -548,13 +548,13 @@ export function ChannelInsightsPanel({ channels, videos, onOpenVideo, onCreateId
 
           <section className="clean-panel rounded-2xl p-5">
             <div className="mb-4">
-              <p className="mb-1 text-xs font-black uppercase text-aqua">O que repetir</p>
+              <p className="mb-1 text-xs font-semibold uppercase text-aqua">O que repetir</p>
               <h3 className="text-lg font-black text-white">Padroes que merecem nova aposta</h3>
             </div>
             <div className="grid gap-3 md:grid-cols-3">
               {repeatSignals.map((signal) => (
                 <article key={signal.label} className="rounded-xl bg-white/[0.045] p-4">
-                  <p className="text-xs font-black uppercase text-slate-500">{signal.label}</p>
+                  <p className="text-xs font-semibold uppercase text-slate-500">{signal.label}</p>
                   <p className="mt-2 line-clamp-2 text-sm font-black text-white">{signal.value}</p>
                   <p className="mt-2 text-xs font-semibold leading-5 text-slate-500">{signal.detail}</p>
                 </article>
@@ -564,7 +564,7 @@ export function ChannelInsightsPanel({ channels, videos, onOpenVideo, onCreateId
 
           <section className="clean-panel rounded-2xl p-5">
             <div className="mb-4">
-              <p className="mb-1 text-xs font-black uppercase text-slate-500">Videos fortes</p>
+              <p className="mb-1 text-xs font-semibold uppercase text-slate-500">Videos fortes</p>
               <h3 className="text-lg font-black text-white">Use como referencia interna</h3>
             </div>
 
@@ -601,7 +601,7 @@ export function ChannelInsightsPanel({ channels, videos, onOpenVideo, onCreateId
         <aside className="space-y-5">
           <section className="clean-panel rounded-2xl p-5">
             <div className="mb-4">
-              <p className="mb-1 text-xs font-black uppercase text-slate-500">Temas recorrentes</p>
+              <p className="mb-1 text-xs font-semibold uppercase text-slate-500">Temas recorrentes</p>
               <h3 className="text-lg font-black text-white">Termos que aparecem mais</h3>
             </div>
             {terms.length ? (
@@ -619,7 +619,7 @@ export function ChannelInsightsPanel({ channels, videos, onOpenVideo, onCreateId
 
           <section className="clean-panel rounded-2xl p-5">
             <div className="mb-4">
-              <p className="mb-1 text-xs font-black uppercase text-aqua">Planejador</p>
+              <p className="mb-1 text-xs font-semibold uppercase text-aqua">Planejador</p>
               <h3 className="text-lg font-black text-white">Ideias baseadas no canal</h3>
             </div>
             <div className="grid gap-2">
@@ -641,13 +641,13 @@ export function ChannelInsightsPanel({ channels, videos, onOpenVideo, onCreateId
 
           <section className="clean-panel rounded-2xl p-5">
             <div className="mb-4">
-              <p className="mb-1 text-xs font-black uppercase text-aqua">Proximo mes</p>
+              <p className="mb-1 text-xs font-semibold uppercase text-aqua">Proximo mes</p>
               <h3 className="text-lg font-black text-white">Rascunho editorial</h3>
             </div>
             <div className="grid gap-2">
               {ideas.slice(0, 4).map((idea, index) => (
                 <div key={`month-${idea.title}`} className="rounded-xl bg-white/[0.045] p-3">
-                  <p className="text-xs font-black uppercase text-slate-500">Semana {index + 1}</p>
+                  <p className="text-xs font-semibold uppercase text-slate-500">Semana {index + 1}</p>
                   <p className="mt-1 line-clamp-2 text-sm font-black text-white">{idea.title}</p>
                   <p className="mt-1 text-xs font-semibold text-slate-500">{idea.keyword}</p>
                   <Button className="mt-3 min-h-9 w-full px-3 text-xs" onClick={() => createIdea(idea)}>

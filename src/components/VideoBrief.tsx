@@ -18,7 +18,7 @@ export function VideoBrief({ draft, onEditPlanning, onEditContent, onEditSeo, on
   return (
     <section className="grid gap-4">
       <div className="rounded-xl border border-aqua/20 bg-aqua/10 p-4">
-        <p className="text-xs font-black uppercase text-aqua">Brief automatico</p>
+        <p className="text-xs font-semibold uppercase text-aqua">Brief automatico</p>
         <h3 className="mt-2 text-xl font-black text-white">{draft.title || "Video sem titulo"}</h3>
         <p className="mt-2 text-sm font-semibold leading-6 text-slate-300">
           Um resumo editavel do plano do video para gravar, revisar ou transformar em pauta.
@@ -42,7 +42,7 @@ export function VideoBrief({ draft, onEditPlanning, onEditContent, onEditSeo, on
       <div className="grid gap-3 sm:grid-cols-2">
         {blocks.map((block) => (
           <article key={block.title} className="rounded-xl border border-slate-700/45 bg-black/20 p-4">
-            <p className="mb-2 text-xs font-black uppercase text-slate-500">{block.title}</p>
+            <p className="mb-2 text-xs font-semibold uppercase text-slate-500">{block.title}</p>
             <p className="text-sm font-semibold leading-6 text-slate-300">{block.body}</p>
           </article>
         ))}

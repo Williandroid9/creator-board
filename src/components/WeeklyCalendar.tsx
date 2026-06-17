@@ -60,7 +60,7 @@ function VideoCard({
         <span className="line-clamp-2 text-xs font-bold leading-snug text-white">{video.title}</span>
       </div>
       <div className="mt-1.5 flex items-center gap-2 pl-3.5">
-        <span className={cx("text-[0.65rem] font-black uppercase tracking-wide", priorityLabel[video.priority])}>
+        <span className={cx("text-[0.65rem] font-semibold uppercase tracking-wide", priorityLabel[video.priority])}>
           {video.priority}
         </span>
         {overdue && (
@@ -101,7 +101,7 @@ export function WeeklyCalendar({
       {/* Header */}
       <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="mb-0.5 text-xs font-black uppercase tracking-wider text-aqua">Calendário</p>
+          <p className="mb-0.5 text-xs font-semibold uppercase tracking-wider text-aqua">Calendário</p>
           <h2 className="text-xl font-black capitalize sm:text-2xl">
             {monthFormatter.format(weekStart)}
           </h2>

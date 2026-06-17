@@ -58,7 +58,7 @@ import { cx } from "./ui";
 function SectionTitle({ kicker, title }: { kicker: string; title: string }) {
   return (
     <div>
-      <p className="mb-0.5 text-xs font-black uppercase tracking-wider text-aqua">{kicker}</p>
+      <p className="mb-0.5 text-xs font-semibold uppercase tracking-wider text-aqua">{kicker}</p>
       <h2 className="text-xl font-black text-white">{title}</h2>
     </div>
   );
@@ -139,16 +139,16 @@ function IdeaCard({
       {expanded && (
         <div className="space-y-3 border-t border-slate-400/[0.08] p-4 pt-3">
           <div>
-            <p className="text-[0.65rem] font-black uppercase tracking-wider text-sky-400">Ângulo / Hook</p>
+            <p className="text-[0.65rem] font-semibold uppercase tracking-wider text-sky-400">Ângulo / Hook</p>
             <p className="mt-0.5 text-sm leading-relaxed text-slate-200">{idea.angle_hook}</p>
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
             <div className="rounded-xl border border-emerald-400/10 bg-emerald-500/5 p-3">
-              <p className="text-[0.65rem] font-black uppercase tracking-wider text-emerald-400">Por que pode bombar</p>
+              <p className="text-[0.65rem] font-semibold uppercase tracking-wider text-emerald-400">Por que pode bombar</p>
               <p className="mt-1 text-xs leading-relaxed text-slate-300">{idea.why_can_pop}</p>
             </div>
             <div className="rounded-xl border border-red-400/10 bg-red-500/5 p-3">
-              <p className="text-[0.65rem] font-black uppercase tracking-wider text-red-400">Riscos / por que pode flopar</p>
+              <p className="text-[0.65rem] font-semibold uppercase tracking-wider text-red-400">Riscos / por que pode flopar</p>
               <p className="mt-1 text-xs leading-relaxed text-slate-300">{idea.risks}</p>
             </div>
           </div>
@@ -168,7 +168,7 @@ function IdeaCard({
           {/* Evidence */}
           {idea.evidence.length > 0 && (
             <div>
-              <p className="text-[0.65rem] font-black uppercase tracking-wider text-slate-500">Evidências da pesquisa</p>
+              <p className="text-[0.65rem] font-semibold uppercase tracking-wider text-slate-500">Evidências da pesquisa</p>
               <ul className="mt-1 space-y-1">
                 {idea.evidence.map((e, i) => (
                   <li key={i} className="flex gap-1.5 text-xs leading-relaxed text-slate-400">
@@ -508,7 +508,7 @@ export function IdeaScoutPanel() {
           className="flex w-full items-center justify-between gap-3 p-5 text-left"
         >
           <div>
-            <p className="mb-0.5 text-xs font-black uppercase tracking-wider text-slate-500">Contexto</p>
+            <p className="mb-0.5 text-xs font-semibold uppercase tracking-wider text-slate-500">Contexto</p>
             <h3 className="text-base font-black text-white">
               DNA do canal {activeChannel ? `— ${activeChannel.name}` : "(todos os canais)"}
             </h3>
@@ -678,7 +678,7 @@ export function IdeaScoutPanel() {
               <p key={i} className="pl-5 text-xs font-semibold text-slate-500">{line}</p>
             ))}
             {progress.searchCount > 0 && (
-              <p className="pl-5 pt-1 text-[0.65rem] font-bold uppercase tracking-wide text-slate-600">
+              <p className="pl-5 pt-1 text-[0.65rem] font-semibold uppercase tracking-wide text-slate-600">
                 {progress.searchCount} busca{progress.searchCount > 1 ? "s" : ""} na web até agora
               </p>
             )}
@@ -701,7 +701,7 @@ export function IdeaScoutPanel() {
             <div className="flex items-start gap-3">
               <Sparkles className="mt-0.5 size-4 shrink-0 text-amber-300" />
               <div className="min-w-0">
-                <p className="text-[0.65rem] font-black uppercase tracking-wider text-slate-500">DNA usado como filtro</p>
+                <p className="text-[0.65rem] font-semibold uppercase tracking-wider text-slate-500">DNA usado como filtro</p>
                 <p className="mt-0.5 text-sm font-bold leading-relaxed text-white">{currentRun.report.dna}</p>
                 {currentRun.report.market_summary && (
                   <p className="mt-2 text-xs leading-relaxed text-slate-400">{currentRun.report.market_summary}</p>

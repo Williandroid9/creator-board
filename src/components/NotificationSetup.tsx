@@ -305,7 +305,7 @@ export function NotificationSetup({ open, onClose }: Props) {
                 <>
                   {/* Time */}
                   <div>
-                    <label className="mb-2 flex items-center gap-1.5 text-[0.7rem] font-bold uppercase tracking-wider text-slate-500">
+                    <label className="mb-2 flex items-center gap-1.5 text-[0.7rem] font-semibold uppercase tracking-wider text-slate-500">
                       <Clock className="size-3" />
                       Horário do lembrete
                     </label>
@@ -319,7 +319,7 @@ export function NotificationSetup({ open, onClose }: Props) {
 
                   {/* Days */}
                   <div>
-                    <p className="mb-2 text-[0.7rem] font-bold uppercase tracking-wider text-slate-500">
+                    <p className="mb-2 text-[0.7rem] font-semibold uppercase tracking-wider text-slate-500">
                       Dias da semana
                     </p>
                     <div className="flex gap-1.5">
@@ -349,7 +349,7 @@ export function NotificationSetup({ open, onClose }: Props) {
 
                   {/* Types */}
                   <div>
-                    <p className="mb-2 text-[0.7rem] font-bold uppercase tracking-wider text-slate-500">
+                    <p className="mb-2 text-[0.7rem] font-semibold uppercase tracking-wider text-slate-500">
                       O que receber
                     </p>
                     <div className="space-y-1.5">

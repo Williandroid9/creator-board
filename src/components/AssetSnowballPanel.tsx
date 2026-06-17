@@ -201,7 +201,7 @@ export function AssetSnowballPanel({ videos, channels = [], weeklyGoal = 2, comp
         <div className="min-w-0">
           <div className="mb-5">
             <div>
-              <p className="mb-1 text-xs font-black uppercase text-aqua">Seu Acervo de Ativos</p>
+              <p className="mb-1 text-xs font-semibold uppercase text-aqua">Seu Acervo de Ativos</p>
               <h2 className="text-xl font-black text-white sm:text-2xl">Efeito Bola de Neve</h2>
               <p className="mt-2 max-w-3xl text-sm font-semibold leading-6 text-slate-500">
                 Cada video publicado vira um ativo trabalhando 24h por dia. O foco e crescer o acervo, nao sofrer pelo resultado isolado do ultimo post.
@@ -226,7 +226,7 @@ export function AssetSnowballPanel({ videos, channels = [], weeklyGoal = 2, comp
           <div className="mt-5 rounded-xl border border-slate-800/80 bg-black/16 p-4">
             <div className="mb-3 flex items-center justify-between gap-3">
               <div>
-                <p className="text-xs font-black uppercase text-slate-500">Acervo acumulado</p>
+                <p className="text-xs font-semibold uppercase text-slate-500">Acervo acumulado</p>
                 <p className="mt-1 text-sm font-bold text-slate-300">
                   Mantendo o ritmo, seu acervo chega a {formatHours(projectedHours)} em 3 meses.
                 </p>
@@ -256,7 +256,7 @@ export function AssetSnowballPanel({ videos, channels = [], weeklyGoal = 2, comp
               {rank.mark}
             </div>
             <div className="min-w-0">
-              <p className="text-xs font-black uppercase text-slate-500">Status de creator</p>
+              <p className="text-xs font-semibold uppercase text-slate-500">Status de creator</p>
               <h3 className="mt-1 text-lg font-black text-white">{rank.title}</h3>
               <p className="mt-1 text-xs font-semibold leading-5 text-slate-500">{rank.description}</p>
             </div>
@@ -264,7 +264,7 @@ export function AssetSnowballPanel({ videos, channels = [], weeklyGoal = 2, comp
 
           <div className="mt-5">
             <div className="mb-2 flex items-center justify-between gap-3">
-              <p className="text-xs font-black uppercase text-slate-500">{rank.nextAt ? `Proxima patente: ${rank.nextTitle}` : "Patente maxima"}</p>
+              <p className="text-xs font-semibold uppercase text-slate-500">{rank.nextAt ? `Proxima patente: ${rank.nextTitle}` : "Patente maxima"}</p>
               <span className="text-xs font-black text-white">{rankProgress}%</span>
             </div>
             <div className="h-2 overflow-hidden rounded-full bg-slate-800">
@@ -299,7 +299,7 @@ export function AssetSnowballPanel({ videos, channels = [], weeklyGoal = 2, comp
 function AssetStat({ label, value, detail }: { label: string; value: string; detail: string }) {
   return (
     <article className="rounded-xl border border-slate-800/80 bg-black/16 p-4">
-      <p className="text-xs font-black uppercase text-slate-500">{label}</p>
+      <p className="text-xs font-semibold uppercase text-slate-500">{label}</p>
       <strong className="mt-2 block whitespace-nowrap text-xl font-black text-white sm:text-2xl">{value}</strong>
       <p className="mt-1 text-xs font-semibold text-slate-500">{detail}</p>
     </article>

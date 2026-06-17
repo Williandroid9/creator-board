@@ -61,7 +61,7 @@ export function PublishReview({
   return (
     <section className="grid gap-4">
       <div className={cx("rounded-xl border p-4", scoreTone(review.scheduleScore))}>
-        <p className="text-xs font-black uppercase opacity-70">Revisao antes de publicar</p>
+        <p className="text-xs font-semibold uppercase opacity-70">Revisao antes de publicar</p>
         <div className="mt-2 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="text-4xl font-black">{review.scheduleScore}%</p>

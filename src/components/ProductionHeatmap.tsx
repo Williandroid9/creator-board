@@ -143,22 +143,22 @@ export function ProductionHeatmap({ videos, productionDays }: Props) {
       {/* Header */}
       <div className="mb-4 flex flex-wrap items-start justify-between gap-4">
         <div>
-          <p className="mb-0.5 text-xs font-black uppercase tracking-wider text-aqua">Heatmap</p>
+          <p className="mb-0.5 text-xs font-semibold uppercase tracking-wider text-aqua">Heatmap</p>
           <h2 className="text-xl font-black">Histórico de produção</h2>
           <p className="mt-0.5 text-xs font-semibold text-slate-500">Últimos 365 dias</p>
         </div>
         <div className="flex gap-4">
           <div className="text-center">
             <p className="text-2xl font-black text-white">{totalPublished}</p>
-            <p className="text-[0.65rem] font-bold uppercase tracking-wide text-slate-500">Publicados</p>
+            <p className="text-[0.65rem] font-semibold uppercase tracking-wide text-slate-500">Publicados</p>
           </div>
           <div className="text-center">
             <p className="text-2xl font-black text-white">{totalProduced}</p>
-            <p className="text-[0.65rem] font-bold uppercase tracking-wide text-slate-500">Dias ativos</p>
+            <p className="text-[0.65rem] font-semibold uppercase tracking-wide text-slate-500">Dias ativos</p>
           </div>
           <div className="text-center">
             <p className="text-2xl font-black text-white">{longestStreak}</p>
-            <p className="text-[0.65rem] font-bold uppercase tracking-wide text-slate-500">Maior streak</p>
+            <p className="text-[0.65rem] font-semibold uppercase tracking-wide text-slate-500">Maior streak</p>
           </div>
         </div>
       </div>

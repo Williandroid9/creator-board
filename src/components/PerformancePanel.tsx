@@ -319,7 +319,7 @@ export function PerformancePanel({ videos, onOpen }: { videos: Video[]; onOpen: 
       <div className="clean-panel rounded-2xl p-5">
         <div className="flex flex-col gap-4 2xl:flex-row 2xl:items-end 2xl:justify-between">
           <div>
-            <p className="mb-1 text-xs font-black uppercase text-aqua">Publicados</p>
+            <p className="mb-1 text-xs font-semibold uppercase text-aqua">Publicados</p>
             <h2 className="text-xl font-black sm:text-2xl">Performance dos videos</h2>
             <p className="mt-2 max-w-2xl text-sm font-semibold leading-6 text-slate-500">
               Filtre por periodo e ordene pelos sinais que realmente ajudam a decidir o proximo video.
@@ -337,10 +337,10 @@ export function PerformancePanel({ videos, onOpen }: { videos: Video[]; onOpen: 
       <section className="clean-panel rounded-2xl p-4 sm:p-5">
         <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="mb-1 text-xs font-black uppercase text-aqua">Leitura do periodo</p>
+            <p className="mb-1 text-xs font-semibold uppercase text-aqua">Leitura do periodo</p>
             <h3 className="text-lg font-black text-white">O que os publicados estao dizendo</h3>
           </div>
-          <p className="text-xs font-black uppercase tracking-wide text-slate-600">
+          <p className="text-xs font-semibold uppercase tracking-wide text-slate-600">
             Media {formatCompactNumber(insights.averageViews)} views / {formatPercent(insights.averageCtr)} CTR
           </p>
         </div>
@@ -412,7 +412,7 @@ export function PerformancePanel({ videos, onOpen }: { videos: Video[]; onOpen: 
 
         {visiblePublished.length ? (
           <div className="overflow-hidden rounded-xl border border-slate-800/90 bg-black/12">
-            <div className="hidden grid-cols-[minmax(0,1.6fr)_7rem_6rem_5rem_6rem_6rem] gap-3 border-b border-slate-800/80 bg-white/[0.025] px-4 py-3 text-xs font-black uppercase text-slate-500 lg:grid">
+            <div className="hidden grid-cols-[minmax(0,1.6fr)_7rem_6rem_5rem_6rem_6rem] gap-3 border-b border-slate-800/80 bg-white/[0.025] px-4 py-3 text-xs font-semibold uppercase text-slate-500 lg:grid">
               <span>Video</span>
               <span>Data</span>
               <span>Views</span>
@@ -541,7 +541,7 @@ function CompactRanking({ items }: { items: Array<{ detail: string; label: strin
 function SummaryCard({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-xl border border-slate-800/80 bg-black/16 p-3">
-      <p className="text-xs font-black uppercase text-slate-500">{label}</p>
+      <p className="text-xs font-semibold uppercase text-slate-500">{label}</p>
       <strong className="mt-1 block text-lg font-black text-white">{value}</strong>
     </div>
   );
@@ -550,7 +550,7 @@ function SummaryCard({ label, value }: { label: string; value: string }) {
 function MetricCell({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between gap-3 rounded-lg bg-white/[0.025] px-3 py-2 text-sm font-black text-slate-200 lg:block lg:bg-transparent lg:px-0 lg:py-0">
-      <span className="text-xs font-black uppercase text-slate-600 lg:hidden">{label}</span>
+      <span className="text-xs font-semibold uppercase text-slate-600 lg:hidden">{label}</span>
       <span className="truncate">{value}</span>
     </div>
   );

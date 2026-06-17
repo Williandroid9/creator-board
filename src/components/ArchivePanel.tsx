@@ -18,7 +18,7 @@ export function ArchivePanel({ videos, onOpen, onRestore, onDuplicate }: Archive
     <section className="clean-panel rounded-2xl p-5">
       <div className="mb-5 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="mb-1 text-xs font-black uppercase text-aqua">Arquivo</p>
+          <p className="mb-1 text-xs font-semibold uppercase text-aqua">Arquivo</p>
           <h2 className="text-xl font-black sm:text-2xl">Videos arquivados</h2>
         </div>
         <p className="text-sm font-bold text-slate-500">{sorted.length} item{sorted.length === 1 ? "" : "s"}</p>

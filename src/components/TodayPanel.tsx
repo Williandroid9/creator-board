@@ -43,7 +43,7 @@ export function TodayPanel({
     <section className="clean-panel rounded-2xl p-5 sm:p-6">
       <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="mb-1 text-xs font-black uppercase text-aqua">Hoje</p>
+          <p className="mb-1 text-xs font-semibold uppercase text-aqua">Hoje</p>
           <h2 className="text-xl font-black sm:text-2xl">Proximo video recomendado</h2>
         </div>
         <Button variant="primary" onClick={onEnterFocus}>
@@ -57,7 +57,7 @@ export function TodayPanel({
             <>
               <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div className="min-w-0">
-                  <p className="mb-2 text-xs font-black uppercase text-aqua">{recommendation.opportunity.nextAction}</p>
+                  <p className="mb-2 text-xs font-semibold uppercase text-aqua">{recommendation.opportunity.nextAction}</p>
                   <h3 className="line-clamp-2 text-xl font-black leading-tight text-white">{recommendedVideo.title}</h3>
                   <p className="mt-2 text-sm font-semibold leading-6 text-slate-300">
                     {recommendation.opportunity.reasons.length
@@ -66,7 +66,7 @@ export function TodayPanel({
                   </p>
                 </div>
                 <div className={cx("shrink-0 rounded-xl border px-4 py-3 text-center", scoreTone(displayScore))}>
-                  <p className="text-[0.68rem] font-black uppercase">Score</p>
+                  <p className="text-[0.68rem] font-semibold uppercase">Score</p>
                   <strong className="block text-2xl font-black">{displayScore}</strong>
                   {taskBonus ? <span className="text-[0.68rem] font-black">+{taskBonus} rotina</span> : null}
                 </div>
@@ -159,7 +159,7 @@ export function TodayPanel({
           )}
           <div className="mt-4 rounded-lg border border-slate-800/80 bg-black/16 p-3">
             <div className="flex items-center justify-between gap-3">
-              <p className="text-xs font-black uppercase text-slate-500">Streak</p>
+              <p className="text-xs font-semibold uppercase text-slate-500">Streak</p>
               <span className="text-sm font-black text-white">{streak.current} dia(s)</span>
             </div>
             <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-800">
@@ -258,7 +258,7 @@ function scoreTone(score: number) {
 function MiniInfo({ label, value }: { label: string; value: string }) {
   return (
     <div className="min-w-0 rounded-lg bg-black/18 px-3 py-2">
-      <p className="text-[0.68rem] font-black uppercase text-slate-500">{label}</p>
+      <p className="text-[0.68rem] font-semibold uppercase text-slate-500">{label}</p>
       <p className="mt-1 truncate text-xs font-black text-slate-100">{value}</p>
     </div>
   );

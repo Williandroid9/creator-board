@@ -72,7 +72,7 @@ export function InspirationBank({ inspirations, onSave, onDelete }: InspirationB
     <section className="clean-panel rounded-2xl p-5">
       <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <p className="mb-1 text-xs font-black uppercase text-aqua">Inspiracoes</p>
+          <p className="mb-1 text-xs font-semibold uppercase text-aqua">Inspiracoes</p>
           <h2 className="text-xl font-black sm:text-2xl">Banco de referencias</h2>
         </div>
         <div className="flex flex-wrap gap-2">

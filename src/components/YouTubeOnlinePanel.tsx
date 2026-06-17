@@ -323,7 +323,7 @@ export function YouTubeOnlinePanel({ channels, videos, preferredChannelId, onSyn
     <section className="clean-panel rounded-2xl p-5">
       <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
           <div className="max-w-3xl">
-          <p className="mb-1 text-xs font-black uppercase text-aqua">Conexao online</p>
+          <p className="mb-1 text-xs font-semibold uppercase text-aqua">Conexao online</p>
           <h2 className="text-xl font-black sm:text-2xl">Conectar canal do YouTube</h2>
           <p className="mt-2 text-sm leading-6 text-slate-400">
             Use o login do Google para buscar metricas do YouTube Analytics e atualizar o canal ativo sem planilhas.
@@ -427,7 +427,7 @@ export function YouTubeOnlinePanel({ channels, videos, preferredChannelId, onSyn
             <div className="rounded-xl border border-slate-700/45 bg-black/18 p-4">
               <div className="mb-3 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
-                  <p className="text-xs font-black uppercase text-aqua">Revisao antes de importar</p>
+                  <p className="text-xs font-semibold uppercase text-aqua">Revisao antes de importar</p>
                   <h3 className="mt-1 text-base font-black text-white">{preview.items.length} videos encontrados</h3>
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -477,7 +477,7 @@ export function YouTubeOnlinePanel({ channels, videos, preferredChannelId, onSyn
           ) : null}
 
           <div className="rounded-xl border border-slate-700/45 bg-black/18 p-4">
-            <p className="text-xs font-black uppercase text-slate-500">Limpeza online</p>
+            <p className="text-xs font-semibold uppercase text-slate-500">Limpeza online</p>
             <h3 className="mt-1 text-base font-black text-white">Apagar dados da API deste canal</h3>
             <div className="mt-3 flex flex-wrap gap-2">
               <Pill className="border-slate-700/60 bg-white/[0.04] text-slate-300">
@@ -513,7 +513,7 @@ export function YouTubeOnlinePanel({ channels, videos, preferredChannelId, onSyn
         </div>
 
         <div className="rounded-xl bg-black/18 p-4">
-          <p className="text-xs font-black uppercase text-slate-500">Status da conexao</p>
+          <p className="text-xs font-semibold uppercase text-slate-500">Status da conexao</p>
           <div className="mt-3 grid gap-3 text-sm leading-6 text-slate-400">
             <p>
               Conecte um canal, busque uma previa e aplique apenas os videos que deseja trazer para o Creator Board.
@@ -523,7 +523,7 @@ export function YouTubeOnlinePanel({ channels, videos, preferredChannelId, onSyn
             </p>
             {syncData?.channel ? (
               <div className="rounded-lg bg-white/[0.045] p-3">
-                <p className="text-xs font-black uppercase text-slate-500">Canal autorizado</p>
+                <p className="text-xs font-semibold uppercase text-slate-500">Canal autorizado</p>
                 <p className="mt-1 font-black text-slate-100">{syncData.channel.title}</p>
                 <p className="mt-1 text-xs font-bold text-slate-500">
                   {syncData.channel.subscribers || "-"} inscritos / {syncData.channel.videoCount || "-"} videos / {googleChannelId}
@@ -532,7 +532,7 @@ export function YouTubeOnlinePanel({ channels, videos, preferredChannelId, onSyn
             ) : null}
             {syncData?.videos.length ? (
               <div className="rounded-lg bg-white/[0.045] p-3">
-                <p className="text-xs font-black uppercase text-slate-500">Ultima sincronizacao</p>
+                <p className="text-xs font-semibold uppercase text-slate-500">Ultima sincronizacao</p>
                 <p className="mt-1 font-black text-slate-100">{syncData.videos.length} videos importados da API</p>
               </div>
             ) : null}
