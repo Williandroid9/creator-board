@@ -100,12 +100,16 @@ export function DailyBrief({ videos, weeklyGoal, productionDays, unlockedAchieve
           </div>
         </div>
 
-        {/* Streak */}
+        {/* Streak — 0 vira convite, não fracasso em destaque */}
         <div className="flex items-center gap-1.5">
           <Flame className={cx("size-3.5", streak >= 7 ? "text-orange-400" : streak >= 3 ? "text-amber-400" : "text-slate-600")} />
-          <span className={cx("text-sm font-black", streak >= 7 ? "text-orange-300" : streak >= 3 ? "text-amber-300" : "text-slate-500")}>
-            {streak} dia{streak !== 1 ? "s" : ""}
-          </span>
+          {streak > 0 ? (
+            <span className={cx("text-sm font-black", streak >= 7 ? "text-orange-300" : streak >= 3 ? "text-amber-300" : "text-slate-300")}>
+              {streak} dia{streak !== 1 ? "s" : ""} seguidos
+            </span>
+          ) : (
+            <span className="text-sm font-semibold text-slate-500">Comece sua sequência hoje</span>
+          )}
         </div>
 
         {/* Weekly goal */}

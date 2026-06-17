@@ -209,13 +209,19 @@ export function getTopOpportunities(videos: Video[]) {
     .map((video) => ({ video, opportunity: getOpportunityScore(video, videos) }))
     .sort((a, b) => b.opportunity.score - a.opportunity.score || b.video.updatedAt.localeCompare(a.video.updatedAt));
 
-  const recordNow = scored.find(({ video }) => hasScript(video) && ["Ideia", "Roteiro", "Gravacao"].includes(video.status));
-  const quickWin = scored.find(({ video }) => hasScript(video) && hasSeo(video));
+  // Os três cards (melhor aposta / para gravar / publicação rápida) devem mostrar
+  // vídeos DIFERENTES. Cada seleção exclui os já escolhidos; sem candidato distinto,
+  // retorna null e o card mostra seu estado vazio em vez de repetir o mesmo vídeo.
+  const top = scored[0] || null;
+  const used = new Set<string>();
+  if (top) used.add(top.video.id);
 
-  return {
-    top: scored[0] || null,
-    recordNow: recordNow || scored[0] || null,
-    quickWin: quickWin || scored.find(({ opportunity }) => opportunity.nextAction !== "Escrever roteiro") || scored[0] || null,
-    ranked: scored,
-  };
+  const recordNow =
+    scored.find(({ video }) => !used.has(video.id) && hasScript(video) && ["Ideia", "Roteiro", "Gravacao"].includes(video.status)) || null;
+  if (recordNow) used.add(recordNow.video.id);
+
+  const quickWin =
+    scored.find(({ video }) => !used.has(video.id) && hasScript(video) && hasSeo(video)) || null;
+
+  return { top, recordNow, quickWin, ranked: scored };
 }

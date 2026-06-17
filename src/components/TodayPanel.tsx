@@ -27,7 +27,8 @@ export function TodayPanel({
   onWeeklyGoalChange,
 }: TodayPanelProps) {
   const opportunities = useMemo(() => getTopOpportunities(videos), [videos]);
-  const recommendation = opportunities.quickWin || opportunities.recordNow || opportunities.top;
+  // O herói do dashboard é a melhor aposta (maior score) — não um secundário distinto.
+  const recommendation = opportunities.top || opportunities.recordNow || opportunities.quickWin;
   const overdueVideos = useMemo(() => sortByPriorityAndDate(videos.filter(isOverdue)), [videos]);
   const pendingTasks = tasks.filter((task) => !task.done);
   const completedTasks = tasks.length - pendingTasks.length;
@@ -36,7 +37,6 @@ export function TodayPanel({
   const taskBonus = Math.min(18, completedTasks * 3);
   const displayScore = Math.min(100, recommendedScore + taskBonus);
   const missingItems = recommendedVideo ? getMissingItems(recommendedVideo) : [];
-  const productionProgress = recommendedVideo ? getProductionProgress(recommendedVideo) : null;
   const streak = useMemo(() => getProductionStreak(productionDays), [productionDays]);
 
   return (
@@ -79,8 +79,6 @@ export function TodayPanel({
                 <MiniInfo label="Canal" value={recommendedVideo.channel || "Sem canal"} />
               </div>
 
-              {productionProgress ? <ProductionProgress progress={productionProgress} /> : null}
-
               <div className="mb-4 flex flex-wrap gap-2">
                 {getReadinessItems(recommendedVideo).map((item) => (
                   <span
@@ -109,7 +107,6 @@ export function TodayPanel({
                 <Button variant="primary" onClick={() => onOpenVideo(recommendedVideo)}>
                   Trabalhar agora
                 </Button>
-                <Button onClick={onEnterFocus}>Entrar em foco</Button>
               </div>
             </>
           ) : (
@@ -209,59 +206,6 @@ export function TodayPanel({
         </article>
       </div>
     </section>
-  );
-}
-
-type ProductionProgress = {
-  percent: number;
-  currentIndex: number;
-};
-
-const PRODUCTION_STAGES = ["Ideia", "Roteiro", "Locucao", "Edicao", "SEO", "Postado"];
-
-function getProductionProgress(video: Video): ProductionProgress {
-  const currentIndexByStatus: Record<Video["status"], number> = {
-    Ideia: 0,
-    Roteiro: 1,
-    Gravacao: 2,
-    Edicao: 3,
-    SEO: 4,
-    Agendado: 4,
-    Publicado: 5,
-  };
-  const currentIndex = currentIndexByStatus[video.status] ?? 0;
-
-  return {
-    currentIndex,
-    percent: Math.round((currentIndex / (PRODUCTION_STAGES.length - 1)) * 100),
-  };
-}
-
-function ProductionProgress({ progress }: { progress: ProductionProgress }) {
-  return (
-    <div className="mb-4 rounded-xl border border-slate-700/35 bg-black/18 p-3">
-      <div className="mb-2 flex items-center justify-between gap-3">
-        <p className="text-xs font-black uppercase text-slate-500">Conclusao de conteudo</p>
-        <span className="text-xs font-black text-white">{progress.percent}%</span>
-      </div>
-      <div className="h-2 overflow-hidden rounded-full bg-slate-800">
-        <div className="h-full rounded-full bg-aqua transition-all" style={{ width: `${progress.percent}%` }} />
-      </div>
-      <div className="mt-3 grid grid-cols-6 gap-1">
-        {PRODUCTION_STAGES.map((stage, index) => (
-          <span
-            key={stage}
-            className={cx(
-              "truncate rounded-md px-1.5 py-1 text-center text-[0.62rem] font-black",
-              index <= progress.currentIndex ? "bg-aqua/10 text-aqua" : "bg-white/[0.04] text-slate-600",
-            )}
-            title={stage}
-          >
-            {stage}
-          </span>
-        ))}
-      </div>
-    </div>
   );
 }
 

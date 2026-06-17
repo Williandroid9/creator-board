@@ -49,19 +49,25 @@ export function readJson<T>(key: string, fallback: T): T {
   }
 }
 
+// Tarefas-padrão que foram aposentadas e devem ser removidas de checklists
+// já salvas (ex.: "Criar thumbnail", depois que o fluxo de thumbnail saiu).
+const RETIRED_DEFAULT_TASKS = new Set(["criar thumbnail"]);
+
 function normalizeTasks(tasks: unknown): DailyTask[] {
   if (!Array.isArray(tasks) || tasks.length === 0) {
     return DEFAULT_TASKS.map((title) => ({ id: makeId(), title, done: false }));
   }
 
-  return tasks.map((task) => {
-    const item = task as Partial<DailyTask>;
-    return {
-      id: text(item.id) || makeId(),
-      title: text(item.title).trim() || "Tarefa",
-      done: Boolean(item.done),
-    };
-  });
+  return tasks
+    .map((task) => {
+      const item = task as Partial<DailyTask>;
+      return {
+        id: text(item.id) || makeId(),
+        title: text(item.title).trim() || "Tarefa",
+        done: Boolean(item.done),
+      };
+    })
+    .filter((task) => !RETIRED_DEFAULT_TASKS.has(task.title.toLowerCase()));
 }
 
 function normalizeChecklist(raw: unknown): DailyChecklist {

@@ -10,8 +10,6 @@ import {
   type VideoStatus,
 } from "../types";
 import { localDateKey } from "../lib/date";
-import { loadScoutState } from "../lib/ideaScout";
-import { buildScriptPrompt, copyPrompt, copyPromptAndOpenClaude } from "../lib/scriptPrompt";
 import { SCRIPT_TEMPLATES } from "../lib/scriptTemplates";
 import { NEW_VIDEO_DRAFT_KEY, readJson } from "../lib/storage";
 import { EMPTY_VIDEO, hasPerformance, hasScript, hasSeo, nextStatus, normalizeVideoDraft } from "../lib/video";
@@ -97,7 +95,6 @@ export function VideoModal({
   const [dirty, setDirty] = useState(false);
   const [saveState, setSaveState] = useState<SaveState>("idle");
   const [advancedMode, setAdvancedMode] = useState(false);
-  const [promptCopied, setPromptCopied] = useState(false);
   const editing = Boolean(draft.id);
   const performanceVisible = draft.status === "Publicado" || hasPerformance(draft);
   const hasStudioSyncData = Boolean(
@@ -117,12 +114,6 @@ export function VideoModal({
     { label: "Data", done: Boolean(draft.plannedDate) },
   ];
   const doneCount = summaryItems.filter((item) => item.done).length;
-
-  // Perfil do Caçador deste canal (ou o geral) — dá tom de voz e DNA ao prompt.
-  const scriptProfile = useMemo(() => {
-    const { profiles } = loadScoutState();
-    return profiles[draft.channelId] || profiles.all || null;
-  }, [draft.channelId, open]);
 
   const tabs = useMemo<Tab[]>(() => {
     const base: Tab[] = [
@@ -537,42 +528,6 @@ export function VideoModal({
 
         {activeTab === "production" && (
           <section className="grid gap-5">
-            {/* Roteiro com Claude — gera o prompt e abre o claude.ai (zero tokens da API) */}
-            <div className="rounded-xl border border-aqua/20 bg-aqua/[0.04] p-4">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                <div className="min-w-0">
-                  <p className="text-xs font-black uppercase tracking-wide text-aqua">Roteiro com Claude</p>
-                  <p className="mt-1 text-sm font-semibold leading-6 text-slate-300">
-                    Gera um prompt completo (DNA do canal{scriptProfile ? "" : " — preencha na aba Caçador"} + dados deste vídeo) e abre o Claude.
-                    Cole lá, gere o roteiro com seu controle total e traga de volta.
-                  </p>
-                </div>
-                <div className="flex shrink-0 flex-wrap gap-2">
-                  <Button
-                    className="min-h-9 px-3 text-xs"
-                    onClick={async () => {
-                      const ok = await copyPrompt(buildScriptPrompt(draft, scriptProfile));
-                      setPromptCopied(ok);
-                      if (ok) window.setTimeout(() => setPromptCopied(false), 2500);
-                    }}
-                  >
-                    {promptCopied ? "Copiado ✓" : "Copiar prompt"}
-                  </Button>
-                  <Button
-                    className="min-h-9 px-3 text-xs"
-                    variant="primary"
-                    onClick={async () => {
-                      const ok = await copyPromptAndOpenClaude(buildScriptPrompt(draft, scriptProfile));
-                      setPromptCopied(ok);
-                      if (ok) window.setTimeout(() => setPromptCopied(false), 2500);
-                    }}
-                  >
-                    Copiar e abrir Claude →
-                  </Button>
-                </div>
-              </div>
-            </div>
-
             <div className="grid gap-4">
               <div>
                 <p className="mb-3 text-xs font-black uppercase text-slate-500">Conteúdo</p>

@@ -94,13 +94,23 @@ export function ChannelPulsePanel({ channel, videos }: { channel: Channel | null
         </div>
       </div>
 
-      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-6">
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+        {/* Contadores sempre presentes */}
         <PulseItem label="Publicados" value={String(published.length)} detail={`${videos.length} videos ativos`} />
         <PulseItem label="Em producao" value={String(inProduction)} detail="Fora de ideia/publicado" />
-        <PulseItem label="Media views" value={formatNumber(averageViews)} detail="Studio ou 24h manual" />
-        <PulseItem label="Media CTR" value={formatPercent(averageCtr)} detail="Videos com CTR" />
-        <PulseItem label="Formato forte" value={strongFormat?.value || "-"} detail={strongFormat ? `${formatNumber(strongFormat.averageViews)} views media` : "Sem dados"} />
-        <PulseItem label="Melhor hora" value={bestHour?.value || "-"} detail={bestHour ? `${formatNumber(bestHour.averageViews)} views media` : "Sem horario"} />
+        {/* Métricas só aparecem quando há dado — nada de placeholders "-" */}
+        {averageViews > 0 && (
+          <PulseItem label="Media views" value={formatNumber(averageViews)} detail="Studio ou 24h manual" />
+        )}
+        {averageCtr > 0 && (
+          <PulseItem label="Media CTR" value={formatPercent(averageCtr)} detail="Videos com CTR" />
+        )}
+        {strongFormat && (
+          <PulseItem label="Formato forte" value={strongFormat.value} detail={`${formatNumber(strongFormat.averageViews)} views media`} />
+        )}
+        {bestHour && (
+          <PulseItem label="Melhor hora" value={bestHour.value} detail={`${formatNumber(bestHour.averageViews)} views media`} />
+        )}
       </div>
 
       {topVideo ? (

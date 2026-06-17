@@ -5,7 +5,6 @@ import {
   ChevronDown,
   Crosshair,
   ExternalLink,
-  FileText,
   Globe,
   History,
   Key,
@@ -50,7 +49,6 @@ import {
   YOUTUBE_CLIENT_ID_KEY,
   type YouTubeMarketScan,
 } from "../lib/youtubeApi";
-import { buildScriptPromptFromIdea, copyPromptAndOpenClaude } from "../lib/scriptPrompt";
 import { EMPTY_VIDEO, makeId } from "../lib/video";
 import { Button, Field, SelectInput, TextArea, TextInput } from "./ui";
 import { cx } from "./ui";
@@ -90,12 +88,10 @@ function IdeaCard({
   idea,
   onSaveAsVideo,
   onSaveAsTrend,
-  onCopyScript,
 }: {
   idea: ScoutIdea;
   onSaveAsVideo: (idea: ScoutIdea) => void;
   onSaveAsTrend: (idea: ScoutIdea) => void;
-  onCopyScript: (idea: ScoutIdea) => void;
 }) {
   const [expanded, setExpanded] = useState(idea.rank <= 3);
   const meta = VERDICT_META[idea.verdict];
@@ -188,9 +184,6 @@ function IdeaCard({
           <div className="flex flex-wrap gap-2 pt-1">
             <Button variant="primary" onClick={() => onSaveAsVideo(idea)}>
               <Plus className="size-3.5" /> Criar ideia no Kanban
-            </Button>
-            <Button variant="ghost" onClick={() => onCopyScript(idea)}>
-              <FileText className="size-3.5" /> Roteiro com Claude
             </Button>
             <Button variant="ghost" onClick={() => onSaveAsTrend(idea)}>
               <Lightbulb className="size-3.5" /> Salvar no Banco de Ideias
@@ -428,17 +421,6 @@ export function IdeaScoutPanel() {
       ideaAngle: idea.angle_hook,
       notes: `Caçador de Ideias — ${VERDICT_META[idea.verdict].label}. Riscos: ${idea.risks}`,
     });
-  }
-
-  async function handleCopyScript(idea: ScoutIdea) {
-    const prompt = buildScriptPromptFromIdea(
-      idea,
-      profile,
-      activeChannel?.name || profile.channelName,
-      activeChannel?.niche || profile.niche,
-    );
-    const ok = await copyPromptAndOpenClaude(prompt);
-    setToast(ok ? "Prompt do roteiro copiado — cole no Claude." : "Abri o Claude; copie o prompt manualmente.");
   }
 
   // ── Render ──
@@ -754,7 +736,6 @@ export function IdeaScoutPanel() {
                 idea={idea}
                 onSaveAsVideo={handleSaveAsVideo}
                 onSaveAsTrend={handleSaveAsTrend}
-                onCopyScript={handleCopyScript}
               />
             ))}
           </section>

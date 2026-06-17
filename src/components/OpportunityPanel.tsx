@@ -29,7 +29,7 @@ function RecommendationCard({
 }: {
   title: string;
   emptyText: string;
-  item: ReturnType<typeof getTopOpportunities>["top"];
+  item: ReturnType<typeof getTopOpportunities>["recordNow"];
   onOpenVideo: (video: Video) => void;
 }) {
   if (!item) {
