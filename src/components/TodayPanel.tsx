@@ -67,7 +67,7 @@ export function TodayPanel({
                 </div>
                 <div className={cx("shrink-0 rounded-xl border px-4 py-3 text-center", scoreTone(displayScore))}>
                   <p className="text-[0.68rem] font-semibold uppercase">Score</p>
-                  <strong className="block text-2xl font-black">{displayScore}</strong>
+                  <strong className="block text-2xl font-extrabold">{displayScore}</strong>
                   {taskBonus ? <span className="text-[0.68rem] font-black">+{taskBonus} rotina</span> : null}
                 </div>
               </div>

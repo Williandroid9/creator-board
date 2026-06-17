@@ -149,15 +149,15 @@ export function ProductionHeatmap({ videos, productionDays }: Props) {
         </div>
         <div className="flex gap-4">
           <div className="text-center">
-            <p className="text-2xl font-black text-white">{totalPublished}</p>
+            <p className="text-2xl font-extrabold text-white">{totalPublished}</p>
             <p className="text-[0.65rem] font-semibold uppercase tracking-wide text-slate-500">Publicados</p>
           </div>
           <div className="text-center">
-            <p className="text-2xl font-black text-white">{totalProduced}</p>
+            <p className="text-2xl font-extrabold text-white">{totalProduced}</p>
             <p className="text-[0.65rem] font-semibold uppercase tracking-wide text-slate-500">Dias ativos</p>
           </div>
           <div className="text-center">
-            <p className="text-2xl font-black text-white">{longestStreak}</p>
+            <p className="text-2xl font-extrabold text-white">{longestStreak}</p>
             <p className="text-[0.65rem] font-semibold uppercase tracking-wide text-slate-500">Maior streak</p>
           </div>
         </div>

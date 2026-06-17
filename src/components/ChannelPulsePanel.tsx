@@ -88,7 +88,7 @@ export function ChannelPulsePanel({ channel, videos }: { channel: Channel | null
         </div>
         <div className="rounded-xl border border-slate-800/80 bg-black/16 px-4 py-3">
           <p className="text-xs font-semibold uppercase text-slate-500">Meta semanal</p>
-          <strong className="mt-1 block text-xl font-black text-white">
+          <strong className="mt-1 block text-xl font-extrabold text-white">
             {publishedThisWeek}/{goal}
           </strong>
         </div>
@@ -130,7 +130,7 @@ function PulseItem({ label, value, detail }: { label: string; value: string; det
   return (
     <article className="rounded-xl border border-slate-800/80 bg-black/16 p-4">
       <p className="text-xs font-semibold uppercase text-slate-500">{label}</p>
-      <strong className="mt-2 block truncate text-2xl font-black text-white">{value}</strong>
+      <strong className="mt-2 block truncate text-2xl font-extrabold text-white">{value}</strong>
       <p className="mt-1 truncate text-xs font-semibold text-slate-500">{detail}</p>
     </article>
   );

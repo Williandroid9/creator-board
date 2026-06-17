@@ -55,11 +55,11 @@ export function AchievementsPanel({ videos, unlockedAchievements, xpFloor = 0, c
           </div>
           <div className="flex gap-5 sm:text-right">
             <div>
-              <p className="text-3xl font-black text-white">{unlockedCount}</p>
+              <p className="text-3xl font-extrabold text-white">{unlockedCount}</p>
               <p className="text-[0.65rem] font-semibold uppercase tracking-wide text-slate-500">Conquistas</p>
             </div>
             <div>
-              <p className="text-3xl font-black text-white">{totalCount - unlockedCount}</p>
+              <p className="text-3xl font-extrabold text-white">{totalCount - unlockedCount}</p>
               <p className="text-[0.65rem] font-semibold uppercase tracking-wide text-slate-500">Bloqueadas</p>
             </div>
           </div>

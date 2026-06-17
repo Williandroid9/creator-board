@@ -53,7 +53,7 @@ export function MetricGrid({ videos, weeklyGoal }: { videos: Video[]; weeklyGoal
               {metric.label}
             </p>
             <strong className={cx(
-              "text-3xl font-black tracking-normal",
+              "text-3xl font-extrabold tracking-normal",
               isOverdue ? "text-amber-300" : isReady ? "text-emerald-300" : "text-white",
             )}>
               {metric.value}
