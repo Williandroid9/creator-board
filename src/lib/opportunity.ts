@@ -1,6 +1,7 @@
 import type { Video, VideoStatus } from "../types";
 import { isToday, parseDate } from "./date";
 import { hasScript, hasSeo, isOverdue, nextStatus } from "./video";
+import { hasProductionTracking, nextProductionStep } from "./productionSteps";
 
 export type OpportunityScore = {
   score: number;
@@ -112,6 +113,12 @@ function readinessSignal(video: Video) {
 }
 
 export function getNextAction(video: Video) {
+  // Se o criador usa o fluxo de produção, o próximo passo segue a ORDEM dele.
+  if (hasProductionTracking(video)) {
+    const step = nextProductionStep(video);
+    if (step) return step.label;
+  }
+
   if (!hasScript(video)) {
     return "Escrever roteiro";
   }

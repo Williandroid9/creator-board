@@ -1,4 +1,5 @@
 import { isSameMonth, isSameWeek, isToday, localDateKey, parseDate } from "./date";
+import { normalizeProductionSteps } from "./productionSteps";
 import {
   PRIORITIES,
   STATUSES,
@@ -58,6 +59,7 @@ export const EMPTY_VIDEO: VideoDraft = {
   archived: false,
   linkedInspirationIds: [],
   tags: [],
+  productionSteps: [],
 };
 
 export const WIP_LIMITS: Partial<Record<VideoStatus, number>> = {
@@ -234,6 +236,7 @@ export function normalizeVideo(raw: Partial<VideoDraft | Video>): Video {
       ? raw.linkedInspirationIds.map((id) => text(id)).filter(Boolean)
       : [],
     tags: Array.isArray(raw.tags) ? raw.tags.map((t) => text(t).trim()).filter(Boolean) : [],
+    productionSteps: normalizeProductionSteps(raw.productionSteps),
     createdAt: text(raw.createdAt) || now,
     updatedAt: text(raw.updatedAt) || now,
   };

@@ -11,6 +11,7 @@ import {
 } from "../types";
 import { localDateKey } from "../lib/date";
 import { compareVideoToBenchmarks, getChannelBenchmarks } from "../lib/performance";
+import { PRODUCTION_STEPS, productionProgress } from "../lib/productionSteps";
 import { SCRIPT_TEMPLATES } from "../lib/scriptTemplates";
 import { NEW_VIDEO_DRAFT_KEY, readJson } from "../lib/storage";
 import { EMPTY_VIDEO, hasPerformance, hasScript, hasSeo, nextStatus, normalizeVideoDraft } from "../lib/video";
@@ -237,6 +238,16 @@ export function VideoModal({
     if (nextStage) {
       setField("status", nextStage);
     }
+  }
+
+  function toggleProductionStep(id: string) {
+    const current = new Set(draft.productionSteps ?? []);
+    if (current.has(id)) {
+      current.delete(id);
+    } else {
+      current.add(id);
+    }
+    setField("productionSteps", [...current]);
   }
 
   function toggleInspiration(id: string) {
@@ -537,6 +548,55 @@ export function VideoModal({
 
         {activeTab === "production" && (
           <section className="grid gap-5">
+            {/* Fluxo de produção do criador — preparo (qualquer ordem) + pós (sequencial) */}
+            {(() => {
+              const prog = productionProgress(draft);
+              const done = new Set(draft.productionSteps ?? []);
+              const prep = PRODUCTION_STEPS.filter((s) => s.phase === "prep");
+              const pos = PRODUCTION_STEPS.filter((s) => s.phase === "pos");
+              const StepBtn = (step: (typeof PRODUCTION_STEPS)[number]) => {
+                const isDone = done.has(step.id);
+                return (
+                  <button
+                    key={step.id}
+                    type="button"
+                    onClick={() => toggleProductionStep(step.id)}
+                    className={cx(
+                      "flex items-center gap-2.5 rounded-lg border px-3 py-2 text-left text-sm transition",
+                      isDone
+                        ? "border-aqua/30 bg-aqua/[0.08] text-aqua"
+                        : "border-slate-700/50 bg-black/15 text-slate-300 hover:border-slate-600/70",
+                    )}
+                  >
+                    <span
+                      className={cx(
+                        "flex size-4 shrink-0 items-center justify-center rounded border",
+                        isDone ? "border-aqua bg-aqua text-ink" : "border-slate-600",
+                      )}
+                    >
+                      {isDone ? "✓" : ""}
+                    </span>
+                    <span className={cx("font-bold", isDone && "line-through opacity-80")}>{step.label}</span>
+                  </button>
+                );
+              };
+              return (
+                <div className="rounded-xl border border-aqua/15 bg-aqua/[0.04] p-4">
+                  <div className="mb-3 flex items-center justify-between gap-3">
+                    <p className="text-xs font-semibold uppercase tracking-wide text-aqua">Fluxo de produção</p>
+                    <span className="text-sm font-extrabold text-white">{prog.completed}/{prog.total}</span>
+                  </div>
+                  <div className="mb-3 h-1.5 overflow-hidden rounded-full bg-white/10">
+                    <div className="h-full rounded-full bg-aqua transition-all" style={{ width: `${prog.percent}%` }} />
+                  </div>
+                  <p className="mb-2 text-[0.7rem] font-semibold text-slate-400">Preparo · em qualquer ordem</p>
+                  <div className="grid gap-2 sm:grid-cols-3">{prep.map(StepBtn)}</div>
+                  <p className="mb-2 mt-3 text-[0.7rem] font-semibold text-slate-400">Depois · em sequência</p>
+                  <div className="grid gap-2 sm:grid-cols-2">{pos.map(StepBtn)}</div>
+                </div>
+              );
+            })()}
+
             <div className="grid gap-4">
               <div>
                 <p className="mb-3 text-xs font-semibold uppercase text-slate-500">Conteúdo</p>
@@ -772,6 +832,14 @@ export function VideoModal({
                 <span className="font-bold text-slate-400">Checklist</span>
                 <strong className="text-white">{doneCount}/{summaryItems.length}</strong>
               </div>
+              <button
+                type="button"
+                onClick={() => setActiveTab("production")}
+                className="flex items-center justify-between gap-3 rounded-lg bg-aqua/[0.06] px-3 py-2 text-left transition hover:bg-aqua/[0.12]"
+              >
+                <span className="font-bold text-aqua">Fluxo de produção</span>
+                <strong className="text-aqua">{productionProgress(draft).completed}/{productionProgress(draft).total}</strong>
+              </button>
             </div>
 
             <div className="mt-4 space-y-2">
