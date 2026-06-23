@@ -203,7 +203,7 @@ function KanbanCard({
       </div>
 
       {!compact && (
-        <div className="mt-2 grid grid-cols-2 gap-2 opacity-100 transition sm:opacity-0 sm:group-hover:opacity-100 sm:focus-within:opacity-100">
+        <div className="mt-2 grid grid-cols-2 gap-2">
           <Button className="min-h-8 px-3 text-xs" onClick={() => onDuplicate(video.id)}>
             Duplicar
           </Button>

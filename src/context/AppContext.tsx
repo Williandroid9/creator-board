@@ -662,7 +662,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       }, 200);
     } else if (prevStatus) {
       const captured = prevStatus;
-      setUndoAction(() => {
+      setUndoAction(() => () => {
         setData((current) =>
           stampData({
             ...current,
@@ -708,7 +708,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       );
       setToast(nextArchived ? "Vídeo arquivado." : "Vídeo restaurado.");
       // Undo support
-      setUndoAction(() => {
+      setUndoAction(() => () => {
         setData((current) =>
           stampData({
             ...current,
