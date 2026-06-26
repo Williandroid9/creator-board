@@ -408,7 +408,7 @@ export function KanbanBoard({
           Nenhum vídeo encontrado. Ajuste os filtros ou crie uma nova ideia.
         </div>
       ) : (
-        <div className="grid gap-4 [grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr))]">
+        <div className="flex items-start gap-4 overflow-x-auto pb-2">
           {activeStatuses.map((status) => {
             const columnVideos = sortByPriorityAndDate(videos.filter((v) => v.status === status));
             const limit = WIP_LIMITS[status];
@@ -417,7 +417,7 @@ export function KanbanBoard({
             return (
               <section
                 key={status}
-                className={cx("min-h-[17rem] rounded-xl bg-black/18 p-3", overLimit && "ring-1 ring-amber-300/40")}
+                className={cx("w-[17rem] shrink-0 min-h-[17rem] rounded-xl bg-black/18 p-3", overLimit && "ring-1 ring-amber-300/40")}
               >
                 <div className="mb-3 flex items-center justify-between gap-3 px-1">
                   <div>
@@ -473,20 +473,22 @@ export function KanbanBoard({
           })}
 
           {/* Published column — collapsed by default */}
-          <PublishedColumn
-            videos={sortByPriorityAndDate(videos.filter((v) => v.status === "Publicado"))}
-            allVideos={allVideos}
-            compact={compact}
-            selectMode={selectMode}
-            selectedIds={selectedIds}
-            onSelect={toggleSelect}
-            onOpen={onOpen}
-            onMove={onMove}
-            onDuplicate={onDuplicate}
-            onArchive={onArchive}
-            dragOver={dragOver}
-            setDragOver={setDragOver}
-          />
+          <div className="w-[17rem] shrink-0">
+            <PublishedColumn
+              videos={sortByPriorityAndDate(videos.filter((v) => v.status === "Publicado"))}
+              allVideos={allVideos}
+              compact={compact}
+              selectMode={selectMode}
+              selectedIds={selectedIds}
+              onSelect={toggleSelect}
+              onOpen={onOpen}
+              onMove={onMove}
+              onDuplicate={onDuplicate}
+              onArchive={onArchive}
+              dragOver={dragOver}
+              setDragOver={setDragOver}
+            />
+          </div>
         </div>
       )}
 
