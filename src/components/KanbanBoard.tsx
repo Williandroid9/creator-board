@@ -270,7 +270,7 @@ function PublishedColumn({
       {!collapsed && (
         <div
           className={cx(
-            "grid max-h-[28rem] min-h-[4rem] content-start gap-3 overflow-y-auto rounded-lg p-1 pr-2",
+            "grid max-h-[32rem] min-h-[4rem] content-start gap-3 overflow-y-auto rounded-lg p-1 pr-2 [grid-template-columns:repeat(auto-fit,minmax(16rem,1fr))]",
             dragOver === "Publicado" && "drag-over",
           )}
           onDragOver={(e) => { e.preventDefault(); setDragOver("Publicado"); }}
@@ -408,48 +408,50 @@ export function KanbanBoard({
           Nenhum vídeo encontrado. Ajuste os filtros ou crie uma nova ideia.
         </div>
       ) : (
-        <div className="flex items-start gap-4 overflow-x-auto pb-2">
+        <div className="space-y-3">
           {activeStatuses.map((status) => {
             const columnVideos = sortByPriorityAndDate(videos.filter((v) => v.status === status));
             const limit = WIP_LIMITS[status];
             const overLimit = typeof limit === "number" && columnVideos.length > limit;
+            const isEmpty = columnVideos.length === 0;
 
             return (
               <section
                 key={status}
-                className={cx("w-[17rem] shrink-0 min-h-[17rem] rounded-xl bg-black/18 p-3", overLimit && "ring-1 ring-amber-300/40")}
+                className={cx(
+                  "rounded-xl bg-black/18 p-3 transition",
+                  overLimit && "ring-1 ring-amber-300/40",
+                  dragOver === status && "drag-over",
+                )}
+                onDragOver={(e) => { e.preventDefault(); setDragOver(status); }}
+                onDragLeave={() => setDragOver("")}
+                onDrop={(e) => {
+                  e.preventDefault();
+                  setDragOver("");
+                  const id = e.dataTransfer.getData("text/plain");
+                  if (id) onMove(id, status);
+                }}
               >
-                <div className="mb-3 flex items-center justify-between gap-3 px-1">
-                  <div>
-                    <h3 className={cx("text-xs font-semibold uppercase tracking-wider", statusAccent[status] || "text-slate-400")}>
-                      {status}
-                    </h3>
-                    {overLimit && <p className="text-[0.65rem] font-bold text-amber-300">WIP excedido</p>}
-                  </div>
+                <div className="mb-3 flex flex-wrap items-center gap-2 px-1">
+                  <h3 className={cx("text-xs font-semibold uppercase tracking-wider", statusAccent[status] || "text-slate-400")}>
+                    {status}
+                  </h3>
                   <span className={cx(
                     "rounded-full px-2 py-0.5 text-xs font-black",
                     overLimit ? "bg-amber-300/10 text-amber-200" : "bg-white/[0.06] text-slate-400",
                   )}>
                     {columnVideos.length}{limit ? `/${limit}` : ""}
                   </span>
+                  {overLimit && <span className="text-[0.65rem] font-bold text-amber-300">WIP excedido</span>}
+                  {isEmpty && (
+                    <span className="text-[0.7rem] font-semibold text-slate-600">· vazio — arraste um card aqui ou use Avançar</span>
+                  )}
                 </div>
 
-                <div
-                  className={cx(
-                    "grid max-h-[38rem] min-h-[13rem] content-start gap-3 overflow-y-auto rounded-lg p-1 pr-2",
-                    dragOver === status && "drag-over",
-                  )}
-                  onDragOver={(e) => { e.preventDefault(); setDragOver(status); }}
-                  onDragLeave={() => setDragOver("")}
-                  onDrop={(e) => {
-                    e.preventDefault();
-                    setDragOver("");
-                    const id = e.dataTransfer.getData("text/plain");
-                    if (id) onMove(id, status);
-                  }}
-                >
-                  {columnVideos.length ? (
-                    columnVideos.map((video) => (
+                {/* Cards preenchem a largura e quebram em grade — sem rolagem horizontal */}
+                {!isEmpty && (
+                  <div className="grid gap-3 [grid-template-columns:repeat(auto-fit,minmax(16rem,1fr))]">
+                    {columnVideos.map((video) => (
                       <KanbanCard
                         key={video.id}
                         video={video}
@@ -463,32 +465,28 @@ export function KanbanBoard({
                         onDuplicate={onDuplicate}
                         onArchive={onArchive}
                       />
-                    ))
-                  ) : (
-                    <p className="rounded-lg border border-dashed border-slate-700/60 p-3 text-sm text-slate-600">Vazio</p>
-                  )}
-                </div>
+                    ))}
+                  </div>
+                )}
               </section>
             );
           })}
 
-          {/* Published column — collapsed by default */}
-          <div className="w-[17rem] shrink-0">
-            <PublishedColumn
-              videos={sortByPriorityAndDate(videos.filter((v) => v.status === "Publicado"))}
-              allVideos={allVideos}
-              compact={compact}
-              selectMode={selectMode}
-              selectedIds={selectedIds}
-              onSelect={toggleSelect}
-              onOpen={onOpen}
-              onMove={onMove}
-              onDuplicate={onDuplicate}
-              onArchive={onArchive}
-              dragOver={dragOver}
-              setDragOver={setDragOver}
-            />
-          </div>
+          {/* Published — collapsed by default */}
+          <PublishedColumn
+            videos={sortByPriorityAndDate(videos.filter((v) => v.status === "Publicado"))}
+            allVideos={allVideos}
+            compact={compact}
+            selectMode={selectMode}
+            selectedIds={selectedIds}
+            onSelect={toggleSelect}
+            onOpen={onOpen}
+            onMove={onMove}
+            onDuplicate={onDuplicate}
+            onArchive={onArchive}
+            dragOver={dragOver}
+            setDragOver={setDragOver}
+          />
         </div>
       )}
 
