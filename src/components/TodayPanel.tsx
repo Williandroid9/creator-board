@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import type { DailyTask, Video } from "../types";
 import { formatDate } from "../lib/date";
 import { getTopOpportunities } from "../lib/opportunity";
-import { hasScript, hasSeo, isOverdue, sortByPriorityAndDate } from "../lib/video";
+import { hasScript, hasSeo, isOverdue, isReadyToPublish, sortByPriorityAndDate } from "../lib/video";
 import { Button, cx } from "./ui";
 
 type TodayPanelProps = {
@@ -93,13 +93,18 @@ export function TodayPanel({
                 ))}
               </div>
 
-              {missingItems.length ? (
+              {/* Mensagem coerente com o STATUS real, não só com o preparo preenchido */}
+              {isReadyToPublish(recommendedVideo) ? (
+                <p className="mb-4 text-sm font-semibold leading-6 text-aqua">
+                  Pronto para publicar — só falta agendar ou subir.
+                </p>
+              ) : missingItems.length ? (
                 <p className="mb-4 text-sm font-semibold leading-6 text-slate-400">
                   Para destravar: {missingItems.slice(0, 2).join(" e ")}.
                 </p>
               ) : (
-                <p className="mb-4 text-sm font-semibold leading-6 text-aqua">
-                  Este video esta pronto para virar publicacao ou entrar em revisao final.
+                <p className="mb-4 text-sm font-semibold leading-6 text-slate-300">
+                  Preparo pronto. Próximo passo: {recommendation.opportunity.nextAction.toLowerCase()}.
                 </p>
               )}
 
