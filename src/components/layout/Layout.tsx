@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useApp } from "../../context/AppContext";
 import { CommandPalette } from "../CommandPalette";
 import { PublishCelebration } from "../PublishCelebration";
@@ -9,7 +8,6 @@ import { MainContent } from "./MainContent";
 import { Sidebar } from "./Sidebar";
 
 export function Layout() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const {
     modalOpen,
     editingVideo,
@@ -36,15 +34,12 @@ export function Layout() {
 
   return (
     <div className="flex min-h-screen">
-      {/* Desktop sidebar — fixed, always visible */}
+      {/* Sidebar — fixa, sempre visível (app focado em PC) */}
       <Sidebar />
 
-      {/* Mobile sidebar — drawer */}
-      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-
       {/* Main area */}
-      <div className="flex min-w-0 flex-1 flex-col lg:pl-[17rem]">
-        <Header onOpenSidebar={() => setSidebarOpen(true)} />
+      <div className="flex min-w-0 flex-1 flex-col pl-[17rem]">
+        <Header />
         <MainContent />
       </div>
 

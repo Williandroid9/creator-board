@@ -10,6 +10,7 @@ import {
   Key,
   Lightbulb,
   Loader2,
+  Lock,
   Play,
   Plus,
   MonitorPlay,
@@ -485,6 +486,15 @@ export function IdeaScoutPanel() {
             </SelectInput>
           </Field>
         </div>
+
+        {/* Nota de privacidade da chave (C4 da auditoria) */}
+        <p className="mt-2 flex items-start gap-1.5 text-[0.7rem] leading-relaxed text-slate-500">
+          <Lock className="mt-0.5 size-3 shrink-0 text-slate-500" />
+          <span>
+            A chave é guardada só neste navegador (localStorage) e vai direto para a API da Anthropic —
+            nunca passa por nenhum servidor do Creator Board. Evite usar em computadores compartilhados.
+          </span>
+        </p>
 
         {!hasKey && (
           <div className="mt-3 flex items-start gap-2 rounded-xl border border-amber-500/15 bg-amber-500/5 px-3 py-2.5">

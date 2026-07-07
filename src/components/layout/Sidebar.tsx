@@ -15,7 +15,6 @@ import {
   Trophy,
   TrendingUp,
   Tv2,
-  X,
   Zap,
 } from "lucide-react";
 import { getDisplayXp, getLevelInfo } from "../../lib/achievements";
@@ -204,27 +203,17 @@ function XpBadge() {
 
 // ─── Sidebar ──────────────────────────────────────────────────────────────────
 
-type SidebarProps = {
-  open?: boolean;
-  onClose?: () => void;
-};
-
-export function Sidebar({ open, onClose }: SidebarProps) {
+// App focado em PC: sidebar fixa, sempre visível. O antigo drawer mobile
+// (backdrop + translate) foi removido na Fase 2 da auditoria.
+export function Sidebar() {
   const { openCreate, notifPrefs } = useApp();
   const [notifSetupOpen, setNotifSetupOpen] = useState(false);
 
-  const isMobile = onClose !== undefined;
-
-  const content = (
-    <aside
-      className={cx(
-        "flex h-full flex-col bg-[#0d1218] border-r border-slate-400/[0.06]",
-        isMobile ? "w-72" : "w-full",
-      )}
-    >
-      {/* Logo */}
-      <div className="flex items-center justify-between px-4 py-5">
-        <div className="flex items-center gap-3">
+  return (
+    <>
+      <aside className="fixed inset-y-0 left-0 z-30 flex w-[17rem] flex-col border-r border-slate-400/[0.06] bg-[#0d1218]">
+        {/* Logo */}
+        <div className="flex items-center gap-3 px-4 py-5">
           <div className="flex size-8 shrink-0 items-center justify-center rounded-xl bg-brand shadow-lg shadow-brand/25">
             <span className="text-xs font-black text-white">CB</span>
           </div>
@@ -233,114 +222,69 @@ export function Sidebar({ open, onClose }: SidebarProps) {
             <p className="text-[0.6rem] text-slate-500">Production OS</p>
           </div>
         </div>
-        {isMobile && (
+
+        {/* Channel selector */}
+        <ChannelSelector />
+
+        <div className="mx-3 my-1 h-px bg-slate-400/[0.06]" />
+
+        {/* Navigation */}
+        <nav className="flex-1 overflow-y-auto px-3 py-2">
+          {navGroups.map((group) => (
+            <div key={group.title} className="mb-4">
+              <p className="mb-1 px-3 text-[0.6rem] font-semibold uppercase tracking-widest text-slate-600">
+                {group.title}
+              </p>
+              <div className="space-y-0.5">
+                {group.items.map((item) => (
+                  <NavLink key={item.key} item={item} />
+                ))}
+              </div>
+            </div>
+          ))}
+        </nav>
+
+        <div className="mx-3 my-1 h-px bg-slate-400/[0.06]" />
+
+        {/* XP / Level badge */}
+        <XpBadge />
+
+        {/* Notifications button */}
+        <div className="px-3 pb-2">
           <button
             type="button"
-            onClick={onClose}
-            className="rounded-lg p-1.5 text-slate-500 hover:bg-white/[0.05] hover:text-slate-300"
+            onClick={() => setNotifSetupOpen(true)}
+            className="flex w-full items-center gap-2.5 rounded-xl border border-slate-400/[0.08] bg-white/[0.02] px-3 py-2 text-left transition hover:bg-white/[0.06]"
           >
-            <X className="size-4" />
-          </button>
-        )}
-      </div>
-
-      {/* Channel selector */}
-      <ChannelSelector />
-
-      <div className="mx-3 my-1 h-px bg-slate-400/[0.06]" />
-
-      {/* Navigation */}
-      <nav className="flex-1 overflow-y-auto px-3 py-2">
-        {navGroups.map((group) => (
-          <div key={group.title} className="mb-4">
-            <p className="mb-1 px-3 text-[0.6rem] font-semibold uppercase tracking-widest text-slate-600">
-              {group.title}
-            </p>
-            <div className="space-y-0.5">
-              {group.items.map((item) => (
-                <NavLink key={item.key} item={item} onClick={isMobile ? onClose : undefined} />
-              ))}
+            <div className="relative">
+              <Bell className={cx("size-4", notifPrefs.enabled ? "text-aqua" : "text-slate-500")} />
+              {!notifPrefs.enabled && (
+                <span className="absolute -right-0.5 -top-0.5 size-2 rounded-full bg-brand" />
+              )}
             </div>
-          </div>
-        ))}
-      </nav>
-
-      <div className="mx-3 my-1 h-px bg-slate-400/[0.06]" />
-
-      {/* XP / Level badge */}
-      <XpBadge />
-
-      {/* Notifications button */}
-      <div className="px-3 pb-2">
-        <button
-          type="button"
-          onClick={() => setNotifSetupOpen(true)}
-          className="flex w-full items-center gap-2.5 rounded-xl border border-slate-400/[0.08] bg-white/[0.02] px-3 py-2 text-left transition hover:bg-white/[0.06]"
-        >
-          <div className="relative">
-            <Bell className={cx("size-4", notifPrefs.enabled ? "text-aqua" : "text-slate-500")} />
-            {!notifPrefs.enabled && (
-              <span className="absolute -right-0.5 -top-0.5 size-2 rounded-full bg-brand" />
+            <span className={cx("flex-1 text-xs font-semibold", notifPrefs.enabled ? "text-slate-300" : "text-slate-500")}>
+              {notifPrefs.enabled ? `Notificações às ${notifPrefs.time}` : "Ativar notificações"}
+            </span>
+            {notifPrefs.enabled && (
+              <span className="size-1.5 shrink-0 rounded-full bg-aqua" />
             )}
-          </div>
-          <span className={cx("flex-1 text-xs font-semibold", notifPrefs.enabled ? "text-slate-300" : "text-slate-500")}>
-            {notifPrefs.enabled ? `Notificações às ${notifPrefs.time}` : "Ativar notificações"}
-          </span>
-          {notifPrefs.enabled && (
-            <span className="size-1.5 shrink-0 rounded-full bg-aqua" />
-          )}
-        </button>
-      </div>
-
-      {/* Create button */}
-      <div className="p-3 pt-0">
-        <button
-          type="button"
-          onClick={() => {
-            openCreate();
-            onClose?.();
-          }}
-          className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-brand/20 transition hover:bg-[#f0444d] active:scale-[0.98]"
-        >
-          <Plus className="size-4" />
-          Nova ideia
-        </button>
-      </div>
-    </aside>
-  );
-
-  const modal = (
-    <NotificationSetup open={notifSetupOpen} onClose={() => setNotifSetupOpen(false)} />
-  );
-
-  if (isMobile) {
-    return (
-      <>
-        {open && (
-          <div
-            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden"
-            onClick={onClose}
-          />
-        )}
-        <div
-          className={cx(
-            "fixed inset-y-0 left-0 z-50 transform transition-transform duration-250 lg:hidden",
-            open ? "translate-x-0" : "-translate-x-full",
-          )}
-        >
-          {content}
+          </button>
         </div>
-        {modal}
-      </>
-    );
-  }
 
-  return (
-    <>
-      <div className="fixed inset-y-0 left-0 hidden w-[17rem] lg:block">
-        {content}
-      </div>
-      {modal}
+        {/* Create button */}
+        <div className="p-3 pt-0">
+          <button
+            type="button"
+            onClick={openCreate}
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-brand px-4 py-2.5 text-sm font-bold text-white shadow-lg shadow-brand/20 transition hover:bg-[#f0444d] active:scale-[0.98]"
+          >
+            <Plus className="size-4" />
+            Nova ideia
+          </button>
+        </div>
+      </aside>
+
+      <NotificationSetup open={notifSetupOpen} onClose={() => setNotifSetupOpen(false)} />
     </>
   );
 }

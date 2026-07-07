@@ -1,12 +1,7 @@
-import { Command, Menu, Plus, Search, X } from "lucide-react";
+import { Command, Plus, Search, X } from "lucide-react";
 import { useApp } from "../../context/AppContext";
-import { cx } from "../ui";
 
-type HeaderProps = {
-  onOpenSidebar: () => void;
-};
-
-export function Header({ onOpenSidebar }: HeaderProps) {
+export function Header() {
   const {
     filters,
     setFilters,
@@ -29,33 +24,15 @@ export function Header({ onOpenSidebar }: HeaderProps) {
   };
 
   return (
-    <header className="sticky top-0 z-30 border-b border-slate-400/[0.06] bg-[#0b0f14]/90 backdrop-blur-xl lg:bg-transparent lg:backdrop-blur-none">
-      <div className="flex items-center gap-3 px-4 py-3 lg:px-6 lg:py-4">
-        {/* Mobile hamburger */}
-        <button
-          type="button"
-          onClick={onOpenSidebar}
-          className="shrink-0 rounded-lg p-2 text-slate-400 hover:bg-white/[0.06] hover:text-slate-200 lg:hidden"
-          aria-label="Abrir menu"
-        >
-          <Menu className="size-5" />
-        </button>
-
-        {/* Page title (desktop) */}
-        <div className="hidden lg:block">
+    <header className="sticky top-0 z-30 border-b border-slate-400/[0.06] bg-transparent">
+      <div className="flex items-center gap-3 px-6 py-4">
+        {/* Page title */}
+        <div>
           <h1 className="text-lg font-black text-white">{viewLabels[activeView] || "Creator Board"}</h1>
         </div>
 
-        {/* Logo (mobile only) */}
-        <div className="flex items-center gap-2 lg:hidden">
-          <div className="flex size-7 items-center justify-center rounded-lg bg-brand">
-            <span className="text-[0.6rem] font-black text-white">CB</span>
-          </div>
-          <span className="text-sm font-black text-white">Creator Board</span>
-        </div>
-
         {/* Search */}
-        <div className="relative flex flex-1 items-center lg:max-w-sm">
+        <div className="relative ml-auto flex flex-1 items-center lg:max-w-sm">
           <Search className="pointer-events-none absolute left-3 size-3.5 text-slate-500" />
           <input
             id="global-search-input"
