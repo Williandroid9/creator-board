@@ -57,8 +57,6 @@ export type Video = {
   archived: boolean;
   linkedInspirationIds: string[];
   tags: string[];
-  // Fluxo de produção do criador (ids de passos concluídos) — independente do Kanban.
-  productionSteps: string[];
   createdAt: string;
   updatedAt: string;
 };
