@@ -1,4 +1,5 @@
 import type { AppData, Video } from "../types";
+import { getProductionStreak, localDateKey, weekStartKey } from "./date";
 import { isOverdue, isReadyToPublish, hasScript } from "./video";
 import { getOpportunityScore } from "./opportunity";
 
@@ -40,8 +41,10 @@ export const DEFAULT_NOTIF_PREFS: NotificationPrefs = {
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
+// Data local (YYYY-MM-DD) — alinha com productionDays/publishedAt, que são
+// gravados em local. Antes usava UTC e divergia em fusos negativos (BRT).
 function todayKey(): string {
-  return new Date().toISOString().slice(0, 10);
+  return localDateKey();
 }
 
 function daysBetween(isoA: string, isoB: string): number {
@@ -50,25 +53,8 @@ function daysBetween(isoA: string, isoB: string): number {
   return Math.round(Math.abs(b.getTime() - a.getTime()) / 86_400_000);
 }
 
-function getWeekStart(): string {
-  const now = new Date();
-  const d = now.getDay();
-  const dToMon = d === 0 ? 6 : d - 1;
-  const mon = new Date(now);
-  mon.setDate(now.getDate() - dToMon);
-  return mon.toISOString().slice(0, 10);
-}
-
-function getStreak(productionDays: string[]): number {
-  const unique = new Set(productionDays.filter(Boolean));
-  let count = 0;
-  const cursor = new Date();
-  while (unique.has(cursor.toISOString().slice(0, 10))) {
-    count++;
-    cursor.setDate(cursor.getDate() - 1);
-  }
-  return count;
-}
+const getWeekStart = (): string => weekStartKey();
+const getStreak = (productionDays: string[]): number => getProductionStreak(productionDays);
 
 function appPublished(videos: Video[]): Video[] {
   return videos.filter(
@@ -235,7 +221,7 @@ const streakRiskGenerator: Generator = (data, types) => {
 
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
-  const yesterdayKey = yesterday.toISOString().slice(0, 10);
+  const yesterdayKey = localDateKey(yesterday);
   const producedYesterday = (data.settings.productionDays || []).includes(yesterdayKey);
 
   if (streak >= 5 && !producedYesterday) {
@@ -468,7 +454,7 @@ export function scheduleDailyNotification(
   const msUntil = target.getTime() - now.getTime();
 
   scheduledTimer = setTimeout(async () => {
-    const today = new Date().toISOString().slice(0, 10);
+    const today = localDateKey();
     const lastShown = getLastShownDate();
     if (lastShown !== today) {
       const data = getData();

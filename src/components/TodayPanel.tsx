@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import type { DailyTask, Video } from "../types";
-import { formatDate } from "../lib/date";
+import { formatDate, getProductionStreak } from "../lib/date";
 import { getTopOpportunities } from "../lib/opportunity";
 import { hasScript, hasSeo, isOverdue, isReadyToPublish, sortByPriorityAndDate } from "../lib/video";
 import { Button, cx } from "./ui";
@@ -165,13 +165,13 @@ export function TodayPanel({
           <div className="mt-4 rounded-lg border border-slate-800/80 bg-black/16 p-3">
             <div className="flex items-center justify-between gap-3">
               <p className="text-xs font-semibold uppercase text-slate-500">Streak</p>
-              <span className="text-sm font-black text-white">{streak.current} dia(s)</span>
+              <span className="text-sm font-black text-white">{streak} dia(s)</span>
             </div>
             <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-800">
-              <div className="h-full rounded-full bg-aqua transition-all" style={{ width: `${Math.min(100, (streak.current / 7) * 100)}%` }} />
+              <div className="h-full rounded-full bg-aqua transition-all" style={{ width: `${Math.min(100, (streak / 7) * 100)}%` }} />
             </div>
             <p className="mt-2 text-xs font-semibold text-slate-500">
-              {streak.current >= 7 ? "Multiplicador de consistencia ativo." : `${Math.max(0, 7 - streak.current)} dia(s) para ativar o multiplicador.`}
+              {streak >= 7 ? "Multiplicador de consistencia ativo." : `${Math.max(0, 7 - streak)} dia(s) para ativar o multiplicador.`}
             </p>
           </div>
         </article>
@@ -212,26 +212,6 @@ export function TodayPanel({
       </div>
     </section>
   );
-}
-
-function getProductionStreak(days: string[]) {
-  const unique = new Set(days.filter(Boolean));
-  let current = 0;
-  const cursor = new Date();
-
-  while (unique.has(toDateKey(cursor))) {
-    current += 1;
-    cursor.setDate(cursor.getDate() - 1);
-  }
-
-  return { current };
-}
-
-function toDateKey(date: Date) {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
 }
 
 function getReadinessItems(video: Video) {

@@ -45,7 +45,7 @@ import {
   syncPayloadToSW,
 } from "../lib/notifications";
 import { normalizeScoutState, saveScoutState } from "../lib/ideaScout";
-import { isToday, localDateKey } from "../lib/date";
+import { getProductionStreak, isToday, localDateKey, weekStartKey } from "../lib/date";
 import { buildBackupExtras, exportJson } from "../lib/export";
 import { loadAppData, parseImportedData, saveAppData } from "../lib/storage";
 import {
@@ -343,13 +343,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
   } | null>(null);
   const [notifPrefs, setNotifPrefsState] = useState<NotificationPrefs>(() => loadNotifPrefs());
 
-  // Stable ref so notification callbacks never hold stale data
+  // Stable refs so timeouts/callbacks never hold stale data ou progresso
   const dataRef = useRef(data);
   useEffect(() => { dataRef.current = data; }, [data]);
+  const progressRef = useRef(progress);
+  useEffect(() => { progressRef.current = progress; }, [progress]);
 
-  // Persist data
+  // Persist data — avisa uma vez se o armazenamento do navegador encher (C5)
+  const quotaWarnedRef = useRef(false);
   useEffect(() => {
-    saveAppData(data);
+    const result = saveAppData(data);
+    if (result.ok) {
+      quotaWarnedRef.current = false;
+    } else if (result.quotaExceeded && !quotaWarnedRef.current) {
+      quotaWarnedRef.current = true;
+      setToast("Armazenamento do navegador cheio — exporte um backup em Dados para não perder trabalho.");
+    }
     setBackupSnapshots((current) => maybeCreateDailyBackup(data, current));
   }, [data]);
 
@@ -381,22 +390,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // ── Achievement & XP check ────────────────────────────────────────────────
 
   const achievementCtx = useMemo((): AchievementContext => {
-    const days = data.settings.productionDays || [];
-    const unique = new Set(days.filter(Boolean));
-    let streak = 0;
-    const cursor = new Date();
-    while (unique.has(cursor.toISOString().slice(0, 10))) {
-      streak++;
-      cursor.setDate(cursor.getDate() - 1);
-    }
-    const weekStart = (() => {
-      const now = new Date();
-      const d = now.getDay();
-      const dToMon = d === 0 ? 6 : d - 1;
-      const mon = new Date(now);
-      mon.setDate(now.getDate() - dToMon);
-      return mon.toISOString().slice(0, 10);
-    })();
+    const streak = getProductionStreak(data.settings.productionDays || []);
+    const weekStart = weekStartKey();
     const weeklyPublished = data.videos.filter(
       (v) => v.status === "Publicado" && !v.studioCreatedFromOnline && !v.studioCreatedFromCsv && v.publishedAt >= weekStart,
     ).length;
@@ -639,26 +634,23 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setCelebrate(true);
       window.setTimeout(() => setCelebrate(false), 3000);
       setUndoAction(null);
-      // Trigger full-screen celebration with XP info (computed after state update settles)
+      // Depois que o setData assenta, lê estado fresco via refs — SEM aninhar
+      // setState dentro de setState (o StrictMode invoca updaters 2x, o que
+      // duplicaria a contagem de XP / a celebração). C3 da auditoria.
       window.setTimeout(() => {
-        setData((current) => {
-          const publishedVid = current.videos.find((v) => v.id === id);
-          const publishedCount = current.videos.filter(
-            (v) => v.status === "Publicado" && !v.studioCreatedFromOnline && !v.studioCreatedFromCsv,
-          ).length;
-          setProgress((prev) => {
-            const xpBefore = computeXp(current.videos.filter((v) => v.id !== id || v.status !== "Publicado"), prev.achievements);
-            const xpAfter = computeXp(current.videos, prev.achievements);
-            const newAch = checkNewAchievements(current.videos, {
-              streak: 0, weeklyPublished: 0, weeklyGoal: current.settings.weeklyGoal, publishedCount,
-            }, prev.achievements).map((a) => a.id);
-            if (publishedVid) {
-              setPublishCelebration({ video: publishedVid, xpBefore, xpAfter, newAchievements: newAch });
-            }
-            return prev;
-          });
-          return current;
-        });
+        const current = dataRef.current;
+        const prev = progressRef.current;
+        const publishedVid = current.videos.find((v) => v.id === id);
+        if (!publishedVid) return;
+        const publishedCount = current.videos.filter(
+          (v) => v.status === "Publicado" && !v.studioCreatedFromOnline && !v.studioCreatedFromCsv,
+        ).length;
+        const xpBefore = computeXp(current.videos.filter((v) => v.id !== id || v.status !== "Publicado"), prev.achievements);
+        const xpAfter = computeXp(current.videos, prev.achievements);
+        const newAch = checkNewAchievements(current.videos, {
+          streak: 0, weeklyPublished: 0, weeklyGoal: current.settings.weeklyGoal, publishedCount,
+        }, prev.achievements).map((a) => a.id);
+        setPublishCelebration({ video: publishedVid, xpBefore, xpAfter, newAchievements: newAch });
       }, 200);
     } else if (prevStatus) {
       const captured = prevStatus;

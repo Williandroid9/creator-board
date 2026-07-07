@@ -22,7 +22,6 @@ export type BackupStats = {
   videos: number;
   activeVideos: number;
   publishedVideos: number;
-  radarIdeas: number;
   inspirations: number;
   trends: number;
 };
@@ -33,7 +32,6 @@ export function getBackupStats(data: AppData): BackupStats {
     videos: data.videos.length,
     activeVideos: data.videos.filter((video) => !video.archived).length,
     publishedVideos: data.videos.filter((video) => video.status === "Publicado").length,
-    radarIdeas: data.radar.ideas.length,
     inspirations: data.inspirations.length,
     trends: data.trends.length,
   };

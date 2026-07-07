@@ -2,40 +2,13 @@ import { useMemo } from "react";
 import { AlertTriangle, Flame, Target, Zap } from "lucide-react";
 import type { Video } from "../types";
 import { isOverdue } from "../lib/video";
+import { getProductionStreak, weekStartKey } from "../lib/date";
 import { computeXp, getLevelInfo } from "../lib/achievements";
 import type { UnlockedAchievement } from "../types";
 import { cx } from "./ui";
 
-function toDateKey(date: Date): string {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, "0");
-  const d = String(date.getDate()).padStart(2, "0");
-  return `${y}-${m}-${d}`;
-}
-
-function getProductionStreak(productionDays: string[]): number {
-  const unique = new Set(productionDays.filter(Boolean));
-  let count = 0;
-  const cursor = new Date();
-  while (unique.has(toDateKey(cursor))) {
-    count++;
-    cursor.setDate(cursor.getDate() - 1);
-  }
-  return count;
-}
-
-function getWeekStart(): string {
-  const now = new Date();
-  const day = now.getDay();
-  const daysToMon = day === 0 ? 6 : day - 1;
-  const mon = new Date(now);
-  mon.setDate(now.getDate() - daysToMon);
-  mon.setHours(0, 0, 0, 0);
-  return toDateKey(mon);
-}
-
 function getWeeklyPublished(videos: Video[]): number {
-  const weekStart = getWeekStart();
+  const weekStart = weekStartKey();
   return videos.filter(
     (v) =>
       v.status === "Publicado" &&

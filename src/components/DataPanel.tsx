@@ -112,8 +112,8 @@ export function DataPanel({
             detail="Perfis, metas e conexoes do YouTube"
           />
           <StatCard
-            label="Radar"
-            value={String(dataStats.radarIdeas)}
+            label="Biblioteca"
+            value={String(dataStats.trends)}
             detail={`${dataStats.trends} temas / ${dataStats.inspirations} referencias`}
           />
           <StatCard
@@ -169,7 +169,7 @@ export function DataPanel({
                   <span className="rounded-lg bg-black/18 px-3 py-2">{snapshot.stats.videos} videos</span>
                   <span className="rounded-lg bg-black/18 px-3 py-2">{snapshot.stats.channels} canais</span>
                   <span className="rounded-lg bg-black/18 px-3 py-2">{snapshot.stats.publishedVideos} publicados</span>
-                  <span className="rounded-lg bg-black/18 px-3 py-2">{snapshot.stats.radarIdeas} ideias radar</span>
+                  <span className="rounded-lg bg-black/18 px-3 py-2">{snapshot.stats.trends} ideias</span>
                 </div>
               </article>
             ))}
