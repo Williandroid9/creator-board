@@ -59,6 +59,7 @@ import {
 } from "../lib/backup";
 import type { YouTubeOnlineVideo } from "../lib/youtubeApi";
 import { isYouTubeApiSource } from "../lib/dataSource";
+import { cleanDecimalMetric, cleanIntegerMetric, cleanPercentMetric } from "../lib/metrics";
 import { normalizeChannel, normalizeChannelName } from "../lib/channel";
 import { extractYouTubeId, normalizeTitleKey } from "../lib/onlineSync";
 import { getRecommendation, hasScript, isOverdue, isReadyToPublish, makeId, normalizeVideo } from "../lib/video";
@@ -126,25 +127,6 @@ function prepareDraftForSave(draft: VideoDraft): VideoDraft {
     publishedAt:
       draft.status === "Publicado" && !draft.publishedAt ? localDateKey() : draft.publishedAt,
   };
-}
-
-function cleanIntegerMetric(value: string) {
-  return String(value || "").replace(/[^\d]/g, "");
-}
-
-function cleanPercentMetric(value: string) {
-  return String(value || "")
-    .trim()
-    .replace("%", "")
-    .replace(",", ".")
-    .replace(/[^\d.]/g, "");
-}
-
-function cleanDecimalMetric(value: string) {
-  return String(value || "")
-    .trim()
-    .replace(",", ".")
-    .replace(/[^\d.]/g, "");
 }
 
 function loadActiveView(): AppView {

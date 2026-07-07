@@ -1,13 +1,9 @@
 import type { Video } from "../types";
 import { getPublishDate } from "./video";
+import { parseMetric as num } from "./metrics";
 
 // Fecha o loop publicar → aprender → melhorar: compara um vídeo com a média do
 // canal e identifica o vídeo recém-publicado que ainda não foi refletido.
-
-function num(value: string): number {
-  const n = Number(String(value || "").replace(",", ".").replace(/[^\d.]/g, ""));
-  return Number.isFinite(n) ? n : 0;
-}
 
 export function videoViews(v: Video): number {
   return num(v.studioViews || v.views24h);

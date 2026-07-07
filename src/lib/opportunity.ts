@@ -1,5 +1,6 @@
 import type { Video, VideoStatus } from "../types";
 import { isToday, parseDate } from "./date";
+import { parseMetric as numericMetric } from "./metrics";
 import { hasScript, hasSeo, isOverdue, nextStatus } from "./video";
 
 export type OpportunityScore = {
@@ -19,12 +20,6 @@ const STATUS_WEIGHT: Record<VideoStatus, number> = {
   Agendado: 24,
   Publicado: 0,
 };
-
-function numericMetric(value: string) {
-  const normalized = String(value || "").replace(",", ".").replace(/[^\d.]/g, "");
-  const parsed = Number(normalized);
-  return Number.isFinite(parsed) ? parsed : 0;
-}
 
 function average(values: number[]) {
   const valid = values.filter((value) => value > 0);
