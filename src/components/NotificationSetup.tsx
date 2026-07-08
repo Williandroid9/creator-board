@@ -17,6 +17,7 @@ import {
   type NotificationPrefs,
 } from "../lib/notifications";
 import { cx } from "./ui";
+import { useFocusTrap } from "../lib/useFocusTrap";
 
 // ─── Notification type definitions ────────────────────────────────────────────
 
@@ -181,6 +182,8 @@ export function NotificationSetup({ open, onClose }: Props) {
     }
   }
 
+  const trapRef = useFocusTrap<HTMLDivElement>(open, onClose);
+
   if (!open) return null;
 
   return (
@@ -189,7 +192,14 @@ export function NotificationSetup({ open, onClose }: Props) {
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
 
       {/* Panel */}
-      <div className="relative z-10 max-h-[92dvh] w-full overflow-y-auto rounded-t-2xl border border-slate-400/10 bg-[#0d1218] shadow-2xl sm:max-w-[480px] sm:rounded-2xl">
+      <div
+        ref={trapRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Configurar notificações"
+        tabIndex={-1}
+        className="relative z-10 max-h-[92dvh] w-full overflow-y-auto rounded-t-2xl border border-slate-400/10 bg-[#0d1218] shadow-2xl outline-none sm:max-w-[480px] sm:rounded-2xl"
+      >
 
         {/* Header */}
         <div className="sticky top-0 z-10 flex items-start justify-between gap-3 border-b border-slate-400/[0.08] bg-[#0d1218] px-5 py-4">

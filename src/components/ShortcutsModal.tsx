@@ -1,4 +1,5 @@
 import { Command, X } from "lucide-react";
+import { useFocusTrap } from "../lib/useFocusTrap";
 import { cx } from "./ui";
 
 const SHORTCUTS = [
@@ -12,7 +13,7 @@ const SHORTCUTS = [
   {
     category: "Navegação",
     items: [
-      { keys: ["R"], description: "Ir para Radar" },
+      { keys: ["R"], description: "Ir para Caçador de Ideias" },
       { keys: ["/"], description: "Focar na busca" },
     ],
   },
@@ -27,6 +28,7 @@ const SHORTCUTS = [
 ];
 
 export function ShortcutsModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const trapRef = useFocusTrap<HTMLDivElement>(open, onClose);
   if (!open) return null;
 
   return (
@@ -35,7 +37,12 @@ export function ShortcutsModal({ open, onClose }: { open: boolean; onClose: () =
       onClick={onClose}
     >
       <div
-        className="animate-palette-in w-full max-w-[360px] overflow-hidden rounded-2xl border border-slate-700/60 bg-[#0d1218] shadow-2xl"
+        ref={trapRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Atalhos de teclado"
+        tabIndex={-1}
+        className="animate-palette-in w-full max-w-[360px] overflow-hidden rounded-2xl border border-slate-700/60 bg-[#0d1218] shadow-2xl outline-none"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}

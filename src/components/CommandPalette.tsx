@@ -129,6 +129,9 @@ export function CommandPalette({ open, onClose }: { open: boolean; onClose: () =
       onClick={onClose}
     >
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-label="Paleta de comandos"
         className="animate-palette-in mx-4 w-full max-w-[560px] overflow-hidden rounded-2xl border border-slate-700/60 bg-[#0d1218] shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >

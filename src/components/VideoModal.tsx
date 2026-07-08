@@ -300,6 +300,9 @@ export function VideoModal({
         onMouseDown={(event) => event.target === event.currentTarget && closeModal()}
       >
         <form
+          role="dialog"
+          aria-modal="true"
+          aria-label="Nova ideia"
           className="modal-card glass-panel w-full max-w-lg rounded-2xl p-5 sm:p-6"
           onSubmit={submit}
         >
@@ -412,7 +415,13 @@ export function VideoModal({
       className="modal-backdrop fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-black/70 p-3 sm:p-5"
       onMouseDown={(event) => event.target === event.currentTarget && closeModal()}
     >
-      <form className="modal-card glass-panel w-full max-w-5xl rounded-2xl p-5 sm:p-6" onSubmit={submit}>
+      <form
+        role="dialog"
+        aria-modal="true"
+        aria-label={editing ? "Editar vídeo" : "Cadastrar vídeo"}
+        className="modal-card glass-panel w-full max-w-5xl rounded-2xl p-5 sm:p-6"
+        onSubmit={submit}
+      >
         <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <p className="mb-1 text-xs font-semibold uppercase text-aqua">{editing ? "Editar vídeo" : "Nova ideia"}</p>

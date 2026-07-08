@@ -9,6 +9,7 @@ import {
   useState,
 } from "react";
 import { AlertCircle, CheckCircle2, Info } from "lucide-react";
+import { useFocusTrap } from "../lib/useFocusTrap";
 
 // ─── Utility ──────────────────────────────────────────────────────────────────
 
@@ -219,6 +220,7 @@ export function ConfirmDialog({
   onCancel: () => void;
   danger?: boolean;
 }) {
+  const trapRef = useFocusTrap<HTMLDivElement>(open, onCancel);
   if (!open) return null;
 
   return (
@@ -227,7 +229,12 @@ export function ConfirmDialog({
       onClick={onCancel}
     >
       <div
-        className="animate-palette-in w-full max-w-sm overflow-hidden rounded-2xl border border-slate-700/60 bg-[#0d1218] shadow-2xl"
+        ref={trapRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label={title}
+        tabIndex={-1}
+        className="animate-palette-in w-full max-w-sm overflow-hidden rounded-2xl border border-slate-700/60 bg-[#0d1218] shadow-2xl outline-none"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="p-5">
