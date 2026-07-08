@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { memo, useCallback, useState } from "react";
 import { CheckSquare, ChevronDown, ChevronRight, Square, X } from "lucide-react";
 import { STATUSES, type Video, type VideoPriority, type VideoStatus } from "../types";
 import { getDataSourceLabel } from "../lib/dataSource";
@@ -32,7 +32,7 @@ const statusAccent: Record<string, string> = {
   Publicado: "text-emerald-400",
 };
 
-function KanbanCard({
+const KanbanCard = memo(function KanbanCard({
   video,
   allVideos,
   compact,
@@ -214,7 +214,7 @@ function KanbanCard({
       )}
     </article>
   );
-}
+});
 
 // ─── Published column ─────────────────────────────────────────────────────────
 
@@ -339,13 +339,13 @@ export function KanbanBoard({
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const activeStatuses = STATUSES.filter((s) => s !== "Publicado");
 
-  function toggleSelect(id: string) {
+  const toggleSelect = useCallback((id: string) => {
     setSelectedIds((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id); else next.add(id);
       return next;
     });
-  }
+  }, []);
 
   function handleSelectAll() {
     setSelectedIds(new Set(videos.map((v) => v.id)));

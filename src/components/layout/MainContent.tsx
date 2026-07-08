@@ -1,33 +1,46 @@
+import { Suspense, lazy } from "react";
 import { useApp } from "../../context/AppContext";
-import { ArchivePanel } from "../ArchivePanel";
-import { BottleneckPanel } from "../BottleneckPanel";
-import { ChannelInsightsPanel } from "../ChannelInsightsPanel";
-import { ChannelPanel } from "../ChannelPanel";
-import { ChannelPulsePanel } from "../ChannelPulsePanel";
-import { AchievementsPanel } from "../AchievementsPanel";
+// Eager: o Dashboard (primeiro paint) + o que está sempre montado.
 import { DailyBrief } from "../DailyBrief";
-import { ProductionHeatmap } from "../ProductionHeatmap";
-import { DailyChecklist } from "../DailyChecklist";
-import { DataPanel } from "../DataPanel";
 import { Filters } from "../Filters";
 import { FocusMode } from "../FocusMode";
-import { IdeaScoutPanel } from "../IdeaScoutPanel";
-import { InspirationBank } from "../InspirationBank";
 import { KanbanBoard } from "../KanbanBoard";
-import { MetricGrid } from "../MetricGrid";
 import { OnboardingPanel } from "../OnboardingPanel";
-import { OpportunityPanel } from "../OpportunityPanel";
-import { PerformancePanel } from "../PerformancePanel";
 import { ShortcutsModal } from "../ShortcutsModal";
-import { SmartWeeklyPlanner } from "../SmartWeeklyPlanner";
 import { TodayPanel } from "../TodayPanel";
-import { TrendsPanel } from "../TrendsPanel";
-import { WeeklyCalendar } from "../WeeklyCalendar";
 import { formatDate } from "../../lib/date";
 import { setScoutSeed } from "../../lib/ideaScout";
 import { getVideoAwaitingReview } from "../../lib/performance";
 import { makeId } from "../../lib/video";
 import { buildBackupExtras, exportCsv, exportJson } from "../../lib/export";
+
+// Lazy: cada tela fora do Dashboard vira um chunk carregado sob demanda,
+// enxugando o bundle inicial (Fase 4 da auditoria).
+const ArchivePanel = lazy(() => import("../ArchivePanel").then((m) => ({ default: m.ArchivePanel })));
+const BottleneckPanel = lazy(() => import("../BottleneckPanel").then((m) => ({ default: m.BottleneckPanel })));
+const ChannelInsightsPanel = lazy(() => import("../ChannelInsightsPanel").then((m) => ({ default: m.ChannelInsightsPanel })));
+const ChannelPanel = lazy(() => import("../ChannelPanel").then((m) => ({ default: m.ChannelPanel })));
+const ChannelPulsePanel = lazy(() => import("../ChannelPulsePanel").then((m) => ({ default: m.ChannelPulsePanel })));
+const AchievementsPanel = lazy(() => import("../AchievementsPanel").then((m) => ({ default: m.AchievementsPanel })));
+const ProductionHeatmap = lazy(() => import("../ProductionHeatmap").then((m) => ({ default: m.ProductionHeatmap })));
+const DailyChecklist = lazy(() => import("../DailyChecklist").then((m) => ({ default: m.DailyChecklist })));
+const DataPanel = lazy(() => import("../DataPanel").then((m) => ({ default: m.DataPanel })));
+const IdeaScoutPanel = lazy(() => import("../IdeaScoutPanel").then((m) => ({ default: m.IdeaScoutPanel })));
+const InspirationBank = lazy(() => import("../InspirationBank").then((m) => ({ default: m.InspirationBank })));
+const MetricGrid = lazy(() => import("../MetricGrid").then((m) => ({ default: m.MetricGrid })));
+const OpportunityPanel = lazy(() => import("../OpportunityPanel").then((m) => ({ default: m.OpportunityPanel })));
+const PerformancePanel = lazy(() => import("../PerformancePanel").then((m) => ({ default: m.PerformancePanel })));
+const SmartWeeklyPlanner = lazy(() => import("../SmartWeeklyPlanner").then((m) => ({ default: m.SmartWeeklyPlanner })));
+const TrendsPanel = lazy(() => import("../TrendsPanel").then((m) => ({ default: m.TrendsPanel })));
+const WeeklyCalendar = lazy(() => import("../WeeklyCalendar").then((m) => ({ default: m.WeeklyCalendar })));
+
+function PanelFallback() {
+  return (
+    <div className="flex items-center justify-center py-24 text-sm font-semibold text-slate-500">
+      Carregando…
+    </div>
+  );
+}
 
 export function MainContent() {
   const {
@@ -102,6 +115,7 @@ export function MainContent() {
       {/* Shortcuts modal — available on all views */}
       <ShortcutsModal open={shortcutsOpen} onClose={() => setShortcutsOpen(false)} />
 
+      <Suspense fallback={<PanelFallback />}>
       {/* ── Production (Dashboard) ─────────────────────────────────────────── */}
       {/* Enxuto de propósito: 1 decisão acima da dobra (TodayPanel) + o pipeline.
           Diagnósticos e planejamento moraram aqui e viraram a aba "Análise". */}
@@ -352,6 +366,7 @@ export function MainContent() {
           backupInputRef={importRef}
         />
       )}
+      </Suspense>
     </main>
   );
 }
