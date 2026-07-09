@@ -1,8 +1,8 @@
 import { useMemo } from "react";
 import type { DailyTask, Video } from "../types";
-import { formatDate } from "../lib/date";
+import { formatDate, getProductionStreak } from "../lib/date";
 import { getTopOpportunities } from "../lib/opportunity";
-import { hasScript, hasSeo, hasThumbnail, isOverdue, sortByPriorityAndDate } from "../lib/video";
+import { hasScript, hasSeo, isOverdue, isReadyToPublish, sortByPriorityAndDate } from "../lib/video";
 import { Button, cx } from "./ui";
 
 type TodayPanelProps = {
@@ -27,7 +27,8 @@ export function TodayPanel({
   onWeeklyGoalChange,
 }: TodayPanelProps) {
   const opportunities = useMemo(() => getTopOpportunities(videos), [videos]);
-  const recommendation = opportunities.quickWin || opportunities.recordNow || opportunities.top;
+  // O herói do dashboard é a melhor aposta (maior score) — não um secundário distinto.
+  const recommendation = opportunities.top || opportunities.recordNow || opportunities.quickWin;
   const overdueVideos = useMemo(() => sortByPriorityAndDate(videos.filter(isOverdue)), [videos]);
   const pendingTasks = tasks.filter((task) => !task.done);
   const completedTasks = tasks.length - pendingTasks.length;
@@ -36,14 +37,13 @@ export function TodayPanel({
   const taskBonus = Math.min(18, completedTasks * 3);
   const displayScore = Math.min(100, recommendedScore + taskBonus);
   const missingItems = recommendedVideo ? getMissingItems(recommendedVideo) : [];
-  const productionProgress = recommendedVideo ? getProductionProgress(recommendedVideo) : null;
   const streak = useMemo(() => getProductionStreak(productionDays), [productionDays]);
 
   return (
     <section className="clean-panel rounded-2xl p-5 sm:p-6">
       <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="mb-1 text-xs font-black uppercase text-aqua">Hoje</p>
+          <p className="mb-1 text-xs font-semibold uppercase text-aqua">Hoje</p>
           <h2 className="text-xl font-black sm:text-2xl">Proximo video recomendado</h2>
         </div>
         <Button variant="primary" onClick={onEnterFocus}>
@@ -57,7 +57,7 @@ export function TodayPanel({
             <>
               <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div className="min-w-0">
-                  <p className="mb-2 text-xs font-black uppercase text-aqua">{recommendation.opportunity.nextAction}</p>
+                  <p className="mb-2 text-xs font-semibold uppercase text-aqua">{recommendation.opportunity.nextAction}</p>
                   <h3 className="line-clamp-2 text-xl font-black leading-tight text-white">{recommendedVideo.title}</h3>
                   <p className="mt-2 text-sm font-semibold leading-6 text-slate-300">
                     {recommendation.opportunity.reasons.length
@@ -66,8 +66,8 @@ export function TodayPanel({
                   </p>
                 </div>
                 <div className={cx("shrink-0 rounded-xl border px-4 py-3 text-center", scoreTone(displayScore))}>
-                  <p className="text-[0.68rem] font-black uppercase">Score</p>
-                  <strong className="block text-2xl font-black">{displayScore}</strong>
+                  <p className="text-[0.68rem] font-semibold uppercase">Score</p>
+                  <strong className="block text-2xl font-extrabold">{displayScore}</strong>
                   {taskBonus ? <span className="text-[0.68rem] font-black">+{taskBonus} rotina</span> : null}
                 </div>
               </div>
@@ -78,8 +78,6 @@ export function TodayPanel({
                 <MiniInfo label="Data" value={formatDate(recommendedVideo.plannedDate, "Sem data")} />
                 <MiniInfo label="Canal" value={recommendedVideo.channel || "Sem canal"} />
               </div>
-
-              {productionProgress ? <ProductionProgress progress={productionProgress} /> : null}
 
               <div className="mb-4 flex flex-wrap gap-2">
                 {getReadinessItems(recommendedVideo).map((item) => (
@@ -95,13 +93,18 @@ export function TodayPanel({
                 ))}
               </div>
 
-              {missingItems.length ? (
+              {/* Mensagem coerente com o STATUS real, não só com o preparo preenchido */}
+              {isReadyToPublish(recommendedVideo) ? (
+                <p className="mb-4 text-sm font-semibold leading-6 text-aqua">
+                  Pronto para publicar — só falta agendar ou subir.
+                </p>
+              ) : missingItems.length ? (
                 <p className="mb-4 text-sm font-semibold leading-6 text-slate-400">
                   Para destravar: {missingItems.slice(0, 2).join(" e ")}.
                 </p>
               ) : (
-                <p className="mb-4 text-sm font-semibold leading-6 text-aqua">
-                  Este video esta pronto para virar publicacao ou entrar em revisao final.
+                <p className="mb-4 text-sm font-semibold leading-6 text-slate-300">
+                  Preparo pronto. Próximo passo: {recommendation.opportunity.nextAction.toLowerCase()}.
                 </p>
               )}
 
@@ -109,7 +112,6 @@ export function TodayPanel({
                 <Button variant="primary" onClick={() => onOpenVideo(recommendedVideo)}>
                   Trabalhar agora
                 </Button>
-                <Button onClick={onEnterFocus}>Entrar em foco</Button>
               </div>
             </>
           ) : (
@@ -162,14 +164,14 @@ export function TodayPanel({
           )}
           <div className="mt-4 rounded-lg border border-slate-800/80 bg-black/16 p-3">
             <div className="flex items-center justify-between gap-3">
-              <p className="text-xs font-black uppercase text-slate-500">Streak</p>
-              <span className="text-sm font-black text-white">{streak.current} dia(s)</span>
+              <p className="text-xs font-semibold uppercase text-slate-500">Streak</p>
+              <span className="text-sm font-black text-white">{streak} dia(s)</span>
             </div>
             <div className="mt-2 h-2 overflow-hidden rounded-full bg-slate-800">
-              <div className="h-full rounded-full bg-aqua transition-all" style={{ width: `${Math.min(100, (streak.current / 7) * 100)}%` }} />
+              <div className="h-full rounded-full bg-aqua transition-all" style={{ width: `${Math.min(100, (streak / 7) * 100)}%` }} />
             </div>
             <p className="mt-2 text-xs font-semibold text-slate-500">
-              {streak.current >= 7 ? "Multiplicador de consistencia ativo." : `${Math.max(0, 7 - streak.current)} dia(s) para ativar o multiplicador.`}
+              {streak >= 7 ? "Multiplicador de consistencia ativo." : `${Math.max(0, 7 - streak)} dia(s) para ativar o multiplicador.`}
             </p>
           </div>
         </article>
@@ -212,84 +214,9 @@ export function TodayPanel({
   );
 }
 
-type ProductionProgress = {
-  percent: number;
-  currentIndex: number;
-};
-
-const PRODUCTION_STAGES = ["Ideia", "Roteiro", "Locucao", "Edicao", "Thumbnail", "Postado"];
-
-function getProductionProgress(video: Video): ProductionProgress {
-  const currentIndexByStatus: Record<Video["status"], number> = {
-    Ideia: 0,
-    Roteiro: 1,
-    Gravacao: 2,
-    Edicao: 3,
-    Thumbnail: 4,
-    SEO: 4,
-    Agendado: 4,
-    Publicado: 5,
-  };
-  const currentIndex = currentIndexByStatus[video.status] ?? 0;
-
-  return {
-    currentIndex,
-    percent: Math.round((currentIndex / (PRODUCTION_STAGES.length - 1)) * 100),
-  };
-}
-
-function ProductionProgress({ progress }: { progress: ProductionProgress }) {
-  return (
-    <div className="mb-4 rounded-xl border border-slate-700/35 bg-black/18 p-3">
-      <div className="mb-2 flex items-center justify-between gap-3">
-        <p className="text-xs font-black uppercase text-slate-500">Conclusao de conteudo</p>
-        <span className="text-xs font-black text-white">{progress.percent}%</span>
-      </div>
-      <div className="h-2 overflow-hidden rounded-full bg-slate-800">
-        <div className="h-full rounded-full bg-aqua transition-all" style={{ width: `${progress.percent}%` }} />
-      </div>
-      <div className="mt-3 grid grid-cols-6 gap-1">
-        {PRODUCTION_STAGES.map((stage, index) => (
-          <span
-            key={stage}
-            className={cx(
-              "truncate rounded-md px-1.5 py-1 text-center text-[0.62rem] font-black",
-              index <= progress.currentIndex ? "bg-aqua/10 text-aqua" : "bg-white/[0.04] text-slate-600",
-            )}
-            title={stage}
-          >
-            {stage}
-          </span>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-function getProductionStreak(days: string[]) {
-  const unique = new Set(days.filter(Boolean));
-  let current = 0;
-  const cursor = new Date();
-
-  while (unique.has(toDateKey(cursor))) {
-    current += 1;
-    cursor.setDate(cursor.getDate() - 1);
-  }
-
-  return { current };
-}
-
-function toDateKey(date: Date) {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
-}
-
 function getReadinessItems(video: Video) {
   return [
     { label: "roteiro", done: hasScript(video) },
-    { label: "thumbnail", done: hasThumbnail(video) },
     { label: "SEO", done: hasSeo(video) },
     { label: "data", done: Boolean(video.plannedDate) },
   ];
@@ -316,7 +243,7 @@ function scoreTone(score: number) {
 function MiniInfo({ label, value }: { label: string; value: string }) {
   return (
     <div className="min-w-0 rounded-lg bg-black/18 px-3 py-2">
-      <p className="text-[0.68rem] font-black uppercase text-slate-500">{label}</p>
+      <p className="text-[0.68rem] font-semibold uppercase text-slate-500">{label}</p>
       <p className="mt-1 truncate text-xs font-black text-slate-100">{value}</p>
     </div>
   );

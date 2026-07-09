@@ -1,6 +1,7 @@
 import type { Video, VideoStatus } from "../types";
 import { isToday, parseDate } from "./date";
-import { hasScript, hasSeo, hasThumbnail, isOverdue, nextStatus } from "./video";
+import { parseMetric as numericMetric } from "./metrics";
+import { hasScript, hasSeo, isOverdue, nextStatus } from "./video";
 
 export type OpportunityScore = {
   score: number;
@@ -15,17 +16,10 @@ const STATUS_WEIGHT: Record<VideoStatus, number> = {
   Roteiro: 14,
   Gravacao: 22,
   Edicao: 18,
-  Thumbnail: 16,
   SEO: 20,
   Agendado: 24,
   Publicado: 0,
 };
-
-function numericMetric(value: string) {
-  const normalized = String(value || "").replace(",", ".").replace(/[^\d.]/g, "");
-  const parsed = Number(normalized);
-  return Number.isFinite(parsed) ? parsed : 0;
-}
 
 function average(values: number[]) {
   const valid = values.filter((value) => value > 0);
@@ -99,13 +93,8 @@ function readinessSignal(video: Video) {
     reasons.push("roteiro pronto");
   }
 
-  if (hasThumbnail(video)) {
-    points += 8;
-    reasons.push("thumbnail pensada");
-  }
-
   if (hasSeo(video)) {
-    points += 8;
+    points += 10;
     reasons.push("SEO iniciado");
   }
 
@@ -128,10 +117,6 @@ export function getNextAction(video: Video) {
 
   if (video.status === "Gravacao") {
     return "Editar";
-  }
-
-  if (!hasThumbnail(video)) {
-    return "Criar thumbnail";
   }
 
   if (!hasSeo(video)) {
@@ -197,7 +182,7 @@ export function getOpportunityScore(video: Video, videos: Video[]): OpportunityS
     score -= 4;
   }
 
-  if (!hasScript(video) && ["Gravacao", "Edicao", "Thumbnail", "SEO", "Agendado"].includes(video.status)) {
+  if (!hasScript(video) && ["Gravacao", "Edicao", "SEO", "Agendado"].includes(video.status)) {
     score -= 12;
     reasons.push("etapa avancada sem roteiro");
   }
@@ -219,13 +204,19 @@ export function getTopOpportunities(videos: Video[]) {
     .map((video) => ({ video, opportunity: getOpportunityScore(video, videos) }))
     .sort((a, b) => b.opportunity.score - a.opportunity.score || b.video.updatedAt.localeCompare(a.video.updatedAt));
 
-  const recordNow = scored.find(({ video }) => hasScript(video) && ["Ideia", "Roteiro", "Gravacao"].includes(video.status));
-  const quickWin = scored.find(({ video }) => hasScript(video) && hasThumbnail(video) && hasSeo(video));
+  // Os três cards (melhor aposta / para gravar / publicação rápida) devem mostrar
+  // vídeos DIFERENTES. Cada seleção exclui os já escolhidos; sem candidato distinto,
+  // retorna null e o card mostra seu estado vazio em vez de repetir o mesmo vídeo.
+  const top = scored[0] || null;
+  const used = new Set<string>();
+  if (top) used.add(top.video.id);
 
-  return {
-    top: scored[0] || null,
-    recordNow: recordNow || scored[0] || null,
-    quickWin: quickWin || scored.find(({ opportunity }) => opportunity.nextAction !== "Escrever roteiro") || scored[0] || null,
-    ranked: scored,
-  };
+  const recordNow =
+    scored.find(({ video }) => !used.has(video.id) && hasScript(video) && ["Ideia", "Roteiro", "Gravacao"].includes(video.status)) || null;
+  if (recordNow) used.add(recordNow.video.id);
+
+  const quickWin =
+    scored.find(({ video }) => !used.has(video.id) && hasScript(video) && hasSeo(video)) || null;
+
+  return { top, recordNow, quickWin, ranked: scored };
 }

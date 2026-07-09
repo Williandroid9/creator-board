@@ -2,7 +2,6 @@ import { useMemo } from "react";
 import type { VideoDraft } from "../types";
 import { getPublishReview } from "../lib/quality";
 import { Button, cx } from "./ui";
-import { ThumbnailChecklist } from "./ThumbnailChecklist";
 
 type PublishReviewProps = {
   draft: VideoDraft;
@@ -27,7 +26,7 @@ function scoreTone(score: number) {
 }
 
 function jumpForLabel(label: string, handlers: Pick<PublishReviewProps, "onEditPlanning" | "onEditContent" | "onEditSeo" | "onEditPublishing">) {
-  if (label === "Roteiro" || label === "Thumbnail") return handlers.onEditContent;
+  if (label === "Roteiro") return handlers.onEditContent;
   if (label === "SEO") return handlers.onEditSeo;
   if (label === "Link publicado") return handlers.onEditPublishing;
   return handlers.onEditPlanning;
@@ -54,7 +53,6 @@ export function PublishReview({
       draft.seoDescription,
       draft.seoNotes,
       draft.seoTitle,
-      draft.thumbnailIdeas,
       draft.title,
       draft.videoFormat,
     ],
@@ -63,7 +61,7 @@ export function PublishReview({
   return (
     <section className="grid gap-4">
       <div className={cx("rounded-xl border p-4", scoreTone(review.scheduleScore))}>
-        <p className="text-xs font-black uppercase opacity-70">Revisao antes de publicar</p>
+        <p className="text-xs font-semibold uppercase opacity-70">Revisao antes de publicar</p>
         <div className="mt-2 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="text-4xl font-black">{review.scheduleScore}%</p>
@@ -117,8 +115,6 @@ export function PublishReview({
           </div>
         </div>
       ) : null}
-
-      <ThumbnailChecklist draft={draft} onEditThumbnail={onEditContent} />
     </section>
   );
 }

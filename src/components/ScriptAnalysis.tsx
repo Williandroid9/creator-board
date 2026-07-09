@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 import type { VideoDraft } from "../types";
-import { hasSeo, hasThumbnail } from "../lib/video";
+import { hasSeo } from "../lib/video";
 import { Button, cx } from "./ui";
 
 type ScriptAnalysisProps = {
@@ -63,11 +63,6 @@ function analyzeScript(draft: VideoDraft) {
       detail: "Pede uma acao clara sem depender de improviso.",
     },
     {
-      label: "Thumbnail conectada",
-      passed: hasThumbnail(draft),
-      detail: "A ideia visual conversa com promessa e gancho.",
-    },
-    {
       label: "SEO minimo",
       passed: hasSeo(draft) && Boolean(draft.keyword.trim()),
       detail: "Titulo, descricao/notas e palavra-chave definidos.",
@@ -98,9 +93,6 @@ function analyzeScript(draft: VideoDraft) {
       if (item.label === "CTA") {
         return "Adicione um CTA simples ligado ao objetivo do video.";
       }
-      if (item.label === "Thumbnail conectada") {
-        return "Defina uma thumbnail com contraste, texto curto e conflito visual.";
-      }
       return "Complete palavra-chave, titulo SEO e descricao antes de agendar.";
     });
 
@@ -110,7 +102,7 @@ function analyzeScript(draft: VideoDraft) {
 export function ScriptAnalysis({ draft, onEditContent, onEditSeo }: ScriptAnalysisProps) {
   const analysis = useMemo(
     () => analyzeScript(draft),
-    [draft.keyword, draft.script, draft.seoDescription, draft.seoNotes, draft.seoTitle, draft.thumbnailIdeas, draft.title],
+    [draft.keyword, draft.script, draft.seoDescription, draft.seoNotes, draft.seoTitle, draft.title],
   );
   const scoreTone =
     analysis.score >= 75
@@ -122,7 +114,7 @@ export function ScriptAnalysis({ draft, onEditContent, onEditSeo }: ScriptAnalys
   return (
     <section className="grid gap-4">
       <div className={cx("rounded-xl border p-4", scoreTone)}>
-        <p className="text-xs font-black uppercase opacity-70">Analise local</p>
+        <p className="text-xs font-semibold uppercase opacity-70">Analise local</p>
         <div className="mt-2 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-4xl font-black">{analysis.score}%</p>
@@ -167,7 +159,7 @@ export function ScriptAnalysis({ draft, onEditContent, onEditSeo }: ScriptAnalys
           </div>
         ) : (
           <p className="text-sm font-semibold text-slate-400">
-            Roteiro, thumbnail e SEO estao coerentes. Agora vale revisar ritmo de gravacao e cortes.
+            Roteiro e SEO estao coerentes. Agora vale revisar ritmo de gravacao e cortes.
           </p>
         )}
       </div>

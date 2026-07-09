@@ -32,7 +32,7 @@ export function SmartWeeklyPlanner({ videos, weeklyGoal, onOpenVideo, onApplyPla
     <section className="clean-panel rounded-2xl p-5">
       <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <p className="mb-1 text-xs font-black uppercase text-aqua">Planejamento semanal</p>
+          <p className="mb-1 text-xs font-semibold uppercase text-aqua">Planejamento semanal</p>
           <h2 className="text-xl font-black text-white sm:text-2xl">Semana sugerida</h2>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-400">
             Distribui escrita, gravacao, edicao, SEO e publicacao com base em score, atrasos e meta semanal.
@@ -83,7 +83,7 @@ export function SmartWeeklyPlanner({ videos, weeklyGoal, onOpenVideo, onApplyPla
                           {item.score}
                         </span>
                       </div>
-                      <p className="text-xs font-black uppercase text-aqua">{item.action}</p>
+                      <p className="text-xs font-semibold uppercase text-aqua">{item.action}</p>
                       <p className="mt-1 line-clamp-2 text-xs font-semibold leading-5 text-slate-500">{item.reason}</p>
                       <Button className="mt-3 min-h-8 w-full px-3 text-xs" onClick={() => onOpenVideo(item.video)}>
                         Abrir

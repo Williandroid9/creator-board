@@ -1,7 +1,6 @@
 import type { AppData, Channel, DailyChecklist, DailyTask, Inspiration, Settings, SyncHistoryItem, Trend, Video } from "../types";
 import { bindVideosToChannels, deriveChannelsFromVideos, normalizeChannel } from "./channel";
 import { normalizeInspiration } from "./inspiration";
-import { normalizeRadarState } from "./radar";
 import { normalizeTrend } from "./trend";
 import { DEFAULT_TASKS, makeId, normalizeVideo } from "./video";
 import { localDateKey } from "./date";
@@ -49,19 +48,25 @@ export function readJson<T>(key: string, fallback: T): T {
   }
 }
 
+// Tarefas-padrão que foram aposentadas e devem ser removidas de checklists
+// já salvas (ex.: "Criar thumbnail", depois que o fluxo de thumbnail saiu).
+const RETIRED_DEFAULT_TASKS = new Set(["criar thumbnail"]);
+
 function normalizeTasks(tasks: unknown): DailyTask[] {
   if (!Array.isArray(tasks) || tasks.length === 0) {
     return DEFAULT_TASKS.map((title) => ({ id: makeId(), title, done: false }));
   }
 
-  return tasks.map((task) => {
-    const item = task as Partial<DailyTask>;
-    return {
-      id: text(item.id) || makeId(),
-      title: text(item.title).trim() || "Tarefa",
-      done: Boolean(item.done),
-    };
-  });
+  return tasks
+    .map((task) => {
+      const item = task as Partial<DailyTask>;
+      return {
+        id: text(item.id) || makeId(),
+        title: text(item.title).trim() || "Tarefa",
+        done: Boolean(item.done),
+      };
+    })
+    .filter((task) => !RETIRED_DEFAULT_TASKS.has(task.title.toLowerCase()));
 }
 
 function normalizeChecklist(raw: unknown): DailyChecklist {
@@ -158,7 +163,6 @@ export function createEmptyData(): AppData {
     channels: [],
     inspirations: [],
     trends: [],
-    radar: normalizeRadarState(null),
     syncHistory: [],
     dailyChecklist: normalizeChecklist(null),
     settings: { weeklyGoal: 2, defaultChannel: "", productionDays: [] },
@@ -185,7 +189,6 @@ export function normalizeAppData(raw: unknown): AppData {
     channels,
     inspirations: normalizeInspirations(data.inspirations),
     trends: normalizeTrends(data.trends),
-    radar: normalizeRadarState(data.radar),
     syncHistory: normalizeSyncHistory(data.syncHistory),
     dailyChecklist: normalizeChecklist(data.dailyChecklist),
     settings,
@@ -215,7 +218,6 @@ export function migrateLegacyData(): AppData {
     channels,
     inspirations: [],
     trends: [],
-    radar: normalizeRadarState(null),
     syncHistory: [],
     dailyChecklist: normalizeChecklist(legacyChecklist),
     settings: normalizeSettings(legacyGoal),
@@ -240,7 +242,18 @@ export function loadAppData(): AppData {
   return migrateLegacyData();
 }
 
-export function saveAppData(data: AppData) {
+export type SaveResult = { ok: boolean; quotaExceeded: boolean };
+
+function isQuotaError(error: unknown): boolean {
+  return (
+    error instanceof DOMException &&
+    (error.name === "QuotaExceededError" ||
+      error.name === "NS_ERROR_DOM_QUOTA_REACHED" ||
+      error.code === 22)
+  );
+}
+
+export function saveAppData(data: AppData): SaveResult {
   const next = {
     ...data,
     schemaVersion: 10 as const,
@@ -249,8 +262,10 @@ export function saveAppData(data: AppData) {
 
   try {
     localStorage.setItem(APP_STORAGE_KEY, JSON.stringify(next));
+    return { ok: true, quotaExceeded: false };
   } catch (error) {
     console.warn("Nao foi possivel salvar os dados localmente.", error);
+    return { ok: false, quotaExceeded: isQuotaError(error) };
   }
 }
 
@@ -278,7 +293,6 @@ export function parseImportedData(raw: unknown, current: AppData): AppData {
     channels?: unknown[];
     inspirations?: unknown[];
     trends?: unknown[];
-    radar?: unknown;
     dailyChecklist?: unknown;
     weeklyGoal?: unknown;
   };
@@ -301,7 +315,6 @@ export function parseImportedData(raw: unknown, current: AppData): AppData {
       channels,
       inspirations: normalizeInspirations(payload.inspirations || current.inspirations),
       trends: normalizeTrends(payload.trends || current.trends),
-      radar: normalizeRadarState(payload.radar || current.radar),
       syncHistory: normalizeSyncHistory(payload.syncHistory || current.syncHistory),
       dailyChecklist: payload.dailyChecklist ? normalizeChecklist(payload.dailyChecklist) : current.dailyChecklist,
       settings: payload.weeklyGoal ? normalizeSettings(payload.weeklyGoal) : current.settings,

@@ -72,11 +72,13 @@ export function InspirationBank({ inspirations, onSave, onDelete }: InspirationB
     <section className="clean-panel rounded-2xl p-5">
       <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <p className="mb-1 text-xs font-black uppercase text-aqua">Inspiracoes</p>
+          <p className="mb-1 text-xs font-semibold uppercase text-aqua">Inspiracoes</p>
           <h2 className="text-xl font-black sm:text-2xl">Banco de referencias</h2>
         </div>
         <div className="flex flex-wrap gap-2">
-          <Pill className="border-aqua/25 bg-white/[0.04] text-aqua">{inspirations.length} salvas</Pill>
+          <Pill className="border-aqua/25 bg-white/[0.04] text-aqua">
+            {inspirations.length} salva{inspirations.length === 1 ? "" : "s"}
+          </Pill>
           <Button
             variant={editorOpen ? "ghost" : "primary"}
             onClick={() => {
@@ -144,46 +146,49 @@ export function InspirationBank({ inspirations, onSave, onDelete }: InspirationB
       </form>
       )}
 
-      <div className="mt-4 grid gap-3 md:grid-cols-4">
-        <Field label="Tipo">
-          <SelectInput value={filters.type} onChange={(event) => setFilters({ ...filters, type: event.target.value })}>
-            <option value="all">Todos</option>
-            {INSPIRATION_TYPES.map((type) => (
-              <option key={type} value={type}>
-                {type}
-              </option>
-            ))}
-          </SelectInput>
-        </Field>
-        <Field label="Canal">
-          <SelectInput value={filters.channel} onChange={(event) => setFilters({ ...filters, channel: event.target.value })}>
-            <option value="all">Todos</option>
-            {channels.map((channel) => (
-              <option key={channel} value={channel}>
-                {channel}
-              </option>
-            ))}
-          </SelectInput>
-        </Field>
-        <Field label="Nicho">
-          <SelectInput value={filters.niche} onChange={(event) => setFilters({ ...filters, niche: event.target.value })}>
-            <option value="all">Todos</option>
-            {niches.map((niche) => (
-              <option key={niche} value={niche}>
-                {niche}
-              </option>
-            ))}
-          </SelectInput>
-        </Field>
-        <Field label="Buscar">
-          <TextInput
-            type="search"
-            value={filters.search}
-            onChange={(event) => setFilters({ ...filters, search: event.target.value })}
-            placeholder="Titulo, tag, link..."
-          />
-        </Field>
-      </div>
+      {/* Filtros só aparecem quando há volume suficiente para justificá-los. */}
+      {inspirations.length >= 6 && (
+        <div className="mt-4 grid gap-3 md:grid-cols-4">
+          <Field label="Tipo">
+            <SelectInput value={filters.type} onChange={(event) => setFilters({ ...filters, type: event.target.value })}>
+              <option value="all">Todos</option>
+              {INSPIRATION_TYPES.map((type) => (
+                <option key={type} value={type}>
+                  {type}
+                </option>
+              ))}
+            </SelectInput>
+          </Field>
+          <Field label="Canal">
+            <SelectInput value={filters.channel} onChange={(event) => setFilters({ ...filters, channel: event.target.value })}>
+              <option value="all">Todos</option>
+              {channels.map((channel) => (
+                <option key={channel} value={channel}>
+                  {channel}
+                </option>
+              ))}
+            </SelectInput>
+          </Field>
+          <Field label="Nicho">
+            <SelectInput value={filters.niche} onChange={(event) => setFilters({ ...filters, niche: event.target.value })}>
+              <option value="all">Todos</option>
+              {niches.map((niche) => (
+                <option key={niche} value={niche}>
+                  {niche}
+                </option>
+              ))}
+            </SelectInput>
+          </Field>
+          <Field label="Buscar">
+            <TextInput
+              type="search"
+              value={filters.search}
+              onChange={(event) => setFilters({ ...filters, search: event.target.value })}
+              placeholder="Titulo, tag, link..."
+            />
+          </Field>
+        </div>
+      )}
 
       <div className="mt-4 grid gap-3 lg:grid-cols-2 2xl:grid-cols-3">
         {filteredInspirations.length ? (
@@ -194,8 +199,8 @@ export function InspirationBank({ inspirations, onSave, onDelete }: InspirationB
                 {item.channel && <Pill className="border-slate-600/60 bg-white/[0.04] text-slate-200">{item.channel}</Pill>}
                 {item.niche && <Pill className="border-slate-600/60 bg-white/[0.04] text-slate-200">{item.niche}</Pill>}
               </div>
-              <h3 className="line-clamp-2 min-h-[2.7rem] text-sm font-black leading-snug text-white">{item.title}</h3>
-              <p className="mt-3 line-clamp-2 text-sm leading-6 text-slate-400">{item.notes || item.tags || item.url || "Sem notas."}</p>
+              <h3 className="line-clamp-2 min-h-[2.7rem] break-words text-sm font-black leading-snug text-white">{item.title}</h3>
+              <p className="mt-3 line-clamp-2 break-words text-sm leading-6 text-slate-400">{item.notes || item.tags || item.url || "Sem notas."}</p>
               {item.url && <p className="mt-2 truncate text-xs font-bold text-slate-500">{getHost(item.url) || item.url}</p>}
               <div className="mt-4 flex flex-wrap gap-2">
                 {item.url && (

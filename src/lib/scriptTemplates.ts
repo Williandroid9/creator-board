@@ -64,49 +64,12 @@ export function getScriptTemplate(format: string) {
   return SCRIPT_TEMPLATES.find((template) => template.key === format) || DEFAULT_TEMPLATE;
 }
 
-export function getScriptFormatLabel(format: string) {
-  return getScriptTemplate(format).label;
-}
-
-export function buildScriptFromTemplate(draft: VideoDraft) {
-  const template = getScriptTemplate(draft.videoFormat);
-  const title = clean(draft.title, "[titulo do video]");
-  const keyword = clean(draft.keyword, "[palavra-chave]");
-  const niche = clean(draft.niche, "[nicho]");
-
-  const intro = [
-    `Formato: ${template.label}`,
-    `Titulo: ${title}`,
-    `Nicho: ${niche}`,
-    `Palavra-chave: ${keyword}`,
-    "",
-  ].join("\n");
-
-  const body = template.sections
-    .map((section, index) => {
-      const hint = index === 0 ? "Abra com uma promessa, pergunta ou erro forte." : "Escreva os pontos principais.";
-      return `${section}\n- ${hint}\n- Exemplo/nota:\n`;
-    })
-    .join("\n");
-
-  return `${intro}${body}`.trim();
-}
-
-export function mergeScriptTemplate(currentScript: string, templateScript: string) {
-  if (!currentScript.trim()) {
-    return templateScript;
-  }
-
-  return `${currentScript.trim()}\n\n--- Estrutura sugerida ---\n${templateScript}`;
-}
-
 export function buildVideoBriefText(draft: VideoDraft) {
   const template = getScriptTemplate(draft.videoFormat);
   const title = clean(draft.title, "Titulo ainda nao definido");
   const channel = clean(draft.channel, "Canal nao definido");
   const niche = clean(draft.niche, "Nicho nao definido");
   const keyword = clean(draft.keyword, "Palavra-chave nao definida");
-  const thumbnail = clean(draft.thumbnailIdeas, "Thumbnail ainda nao definida");
   const seoTitle = clean(draft.seoTitle, title);
   const seoDescription = clean(draft.seoDescription, "Descricao SEO ainda nao definida");
 
@@ -126,9 +89,6 @@ export function buildVideoBriefText(draft: VideoDraft) {
     "",
     `Estrutura sugerida`,
     ...template.sections.map((section) => `- ${section}`),
-    "",
-    `Thumbnail`,
-    `- ${thumbnail}`,
     "",
     `SEO`,
     `- Titulo SEO: ${seoTitle}`,
@@ -160,10 +120,6 @@ export function buildBriefBlocks(draft: VideoDraft) {
     {
       title: "Estrutura",
       body: template.sections.join(" / "),
-    },
-    {
-      title: "Thumbnail",
-      body: draft.thumbnailIdeas || "Defina texto curto, contraste e curiosidade visual.",
     },
     {
       title: "SEO",

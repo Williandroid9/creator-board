@@ -42,7 +42,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     return (
       <main className="grid min-h-screen place-items-center px-4 py-8">
         <section className="clean-panel max-w-2xl rounded-2xl p-6 text-center shadow-soft sm:p-8">
-          <p className="mb-2 text-xs font-black uppercase text-aqua">Creator Board</p>
+          <p className="mb-2 text-xs font-semibold uppercase text-aqua">Creator Board</p>
           <h1 className="text-2xl font-black text-white sm:text-3xl">Nao foi possivel abrir o painel</h1>
           <p className="mt-4 text-sm leading-6 text-slate-300">
             Algum dado salvo no navegador parece estar em um formato antigo ou corrompido. Voce pode recarregar a

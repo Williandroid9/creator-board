@@ -3,6 +3,10 @@ export default {
   content: ["./index.html", "./src/**/*.{ts,tsx}"],
   theme: {
     extend: {
+      fontFamily: {
+        sans: ["Inter", "ui-sans-serif", "system-ui", "-apple-system", "Segoe UI", "sans-serif"],
+        display: ["Space Grotesk", "Inter", "ui-sans-serif", "system-ui", "sans-serif"],
+      },
       colors: {
         ink: "#0b0f14",
         panel: "#101720",
@@ -15,6 +19,10 @@ export default {
       },
       boxShadow: {
         soft: "0 22px 70px rgba(0, 0, 0, 0.28)",
+        card: "0 2px 12px rgba(0, 0, 0, 0.22)",
+      },
+      transitionDuration: {
+        250: "250ms",
       },
     },
   },

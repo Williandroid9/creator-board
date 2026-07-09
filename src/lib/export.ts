@@ -1,5 +1,8 @@
 import type { AppData, Video } from "../types";
 import { localDateKey } from "./date";
+import { loadProgress } from "./achievements";
+import { loadScoutState } from "./ideaScout";
+import { loadNotifPrefs } from "./notifications";
 
 function downloadTextFile(filename: string, type: string, content: string) {
   const blob = new Blob([content], { type });
@@ -16,11 +19,28 @@ function csvCell(value: unknown) {
   return `"${text.replace(/"/g, '""')}"`;
 }
 
-export function exportJson(data: AppData) {
+export type BackupExtras = {
+  progress: ReturnType<typeof loadProgress>;
+  scout: ReturnType<typeof loadScoutState>;
+  notifPrefs: ReturnType<typeof loadNotifPrefs>;
+};
+
+// XP/conquistas, perfis do Caçador e preferências de notificação vivem fora do
+// AppData (storages próprios) — entram no backup para sobreviver à troca de navegador.
+export function buildBackupExtras(): BackupExtras {
+  return {
+    progress: loadProgress(),
+    scout: loadScoutState(),
+    notifPrefs: loadNotifPrefs(),
+  };
+}
+
+export function exportJson(data: AppData, extras?: BackupExtras) {
   const payload = {
     app: "Creator Board",
     exportedAt: new Date().toISOString(),
     data,
+    ...(extras ? { extras } : {}),
   };
 
   downloadTextFile(

@@ -71,3 +71,22 @@ export function isSameMonth(value: string, baseDate = new Date()) {
 export function isToday(value: string) {
   return value === localDateKey();
 }
+
+// Chave (YYYY-MM-DD, local) da segunda-feira da semana de `baseDate`.
+export function weekStartKey(baseDate = new Date()) {
+  return localDateKey(startOfWeek(baseDate));
+}
+
+// Dias consecutivos de produção terminando hoje. Fonte única — antes estava
+// reimplementado em AppContext, DailyBrief, TodayPanel e notifications (este
+// último em UTC, divergindo do resto). Tudo agora usa data local.
+export function getProductionStreak(productionDays: string[]) {
+  const unique = new Set(productionDays.filter(Boolean));
+  let count = 0;
+  const cursor = new Date();
+  while (unique.has(localDateKey(cursor))) {
+    count += 1;
+    cursor.setDate(cursor.getDate() - 1);
+  }
+  return count;
+}

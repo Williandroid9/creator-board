@@ -54,7 +54,7 @@ export function TitleAnalyzer({ draft, videos }: { draft: VideoDraft; videos: Vi
     <section className="rounded-xl border border-slate-700/45 bg-black/20 p-4">
       <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
         <div>
-          <p className="text-xs font-black uppercase text-aqua">Analisador de titulo</p>
+          <p className="text-xs font-semibold uppercase text-aqua">Analisador de titulo</p>
           <h3 className="mt-1 text-lg font-black text-white">{label} / {finalScore}</h3>
         </div>
         <Pill className="border-slate-700/60 bg-white/[0.04] text-slate-300">{length || 0} caracteres</Pill>
@@ -62,13 +62,13 @@ export function TitleAnalyzer({ draft, videos }: { draft: VideoDraft; videos: Vi
 
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="rounded-lg bg-white/[0.045] p-3">
-          <p className="text-xs font-black uppercase text-slate-500">Promessa</p>
+          <p className="text-xs font-semibold uppercase text-slate-500">Promessa</p>
           <p className="mt-1 text-sm font-bold text-slate-200">
             {hasSpecificPromise(title) ? "Tem gancho claro" : "Pode ficar mais especifico"}
           </p>
         </div>
         <div className="rounded-lg bg-white/[0.045] p-3">
-          <p className="text-xs font-black uppercase text-slate-500">Historico parecido</p>
+          <p className="text-xs font-semibold uppercase text-slate-500">Historico parecido</p>
           <p className="mt-1 line-clamp-2 text-sm font-bold text-slate-200">
             {bestMatch?.score ? bestMatch.video.title : "Sem comparavel forte"}
           </p>
@@ -77,7 +77,7 @@ export function TitleAnalyzer({ draft, videos }: { draft: VideoDraft; videos: Vi
 
       {related.length ? (
         <div className="mt-4">
-          <p className="mb-2 text-xs font-black uppercase text-slate-500">Referencias do canal</p>
+          <p className="mb-2 text-xs font-semibold uppercase text-slate-500">Referencias do canal</p>
           <div className="grid gap-2">
             {related.slice(0, 3).map((video) => (
               <div key={video.id} className="rounded-lg bg-white/[0.035] p-3">

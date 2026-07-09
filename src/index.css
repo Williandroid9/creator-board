@@ -10,6 +10,18 @@
   background: #0b0f14;
 }
 
+@layer base {
+  /* Voz tipográfica: títulos em Space Grotesk; corpo segue Inter.
+     tracking levemente fechado dá ar editorial sem perder legibilidade. */
+  h1,
+  h2,
+  h3,
+  .font-display {
+    font-family: "Space Grotesk", Inter, ui-sans-serif, system-ui, sans-serif;
+    letter-spacing: -0.015em;
+  }
+}
+
 * {
   box-sizing: border-box;
 }
@@ -80,7 +92,12 @@ textarea {
   }
 
   .field-label {
-    @apply grid gap-2 text-[0.8rem] font-bold text-slate-300;
+    @apply grid gap-2 text-[0.8rem] font-bold text-slate-200;
+  }
+
+  /* WCAG AA: ensure readable helper text meets 4.5:1 contrast */
+  .help-text {
+    @apply text-sm font-semibold text-slate-400;
   }
 
   .btn {
@@ -96,7 +113,11 @@ textarea {
   }
 
   .btn-danger {
-    @apply border border-brand/35 bg-brand/10 text-red-100 hover:bg-brand/15;
+    @apply border border-red-500/35 bg-red-500/10 text-red-200 hover:bg-red-500/15;
+  }
+
+  .btn-success {
+    @apply border border-emerald-500/35 bg-emerald-500/10 text-emerald-200 hover:bg-emerald-500/15;
   }
 }
 
@@ -105,6 +126,28 @@ textarea {
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
   overflow: hidden;
+}
+
+.line-clamp-1 {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  overflow: hidden;
+}
+
+/* Sidebar nav active glow */
+.nav-active {
+  position: relative;
+}
+.nav-active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: #14b8a6;
+  border-radius: 0 2px 2px 0;
 }
 
 .drag-over {
@@ -135,12 +178,8 @@ textarea {
 }
 
 @keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 @keyframes modal-in {
@@ -152,6 +191,46 @@ textarea {
     transform: translateY(0) scale(1);
     opacity: 1;
   }
+}
+
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(-10px) rotate(0deg) scale(1);
+    opacity: 1;
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotate(720deg) scale(0.5);
+    opacity: 0;
+  }
+}
+
+.animate-confetti-fall {
+  animation: confetti-fall linear forwards;
+}
+
+/* Command palette smooth open */
+@keyframes palette-in {
+  from {
+    transform: translateY(-8px) scale(0.98);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-palette-in {
+  animation: palette-in 140ms ease-out;
+}
+
+/* Kanban collapsed column shimmer */
+@keyframes shimmer {
+  from { background-position: -200% 0; }
+  to   { background-position:  200% 0; }
 }
 
 @media (max-width: 640px) {

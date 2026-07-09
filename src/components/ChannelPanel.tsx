@@ -266,7 +266,7 @@ function ChannelCard({
 function MiniMetric({ label, value }: { label: string; value: string }) {
   return (
     <div className="min-w-0 rounded-lg bg-black/18 px-2 py-2">
-      <p className="truncate text-[0.62rem] font-black uppercase text-slate-600">{label}</p>
+      <p className="truncate text-[0.62rem] font-semibold uppercase text-slate-600">{label}</p>
       <p className="mt-1 truncate text-xs font-black text-white">{value}</p>
     </div>
   );
@@ -412,7 +412,7 @@ export function ChannelPanel({
       <div className="clean-panel rounded-2xl p-5">
       <div className="mb-5 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <p className="mb-1 text-xs font-black uppercase text-aqua">Canais</p>
+          <p className="mb-1 text-xs font-semibold uppercase text-aqua">Canais</p>
           <h2 className="text-xl font-black sm:text-2xl">Canais conectados</h2>
           <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-400">
             Conecte, alterne e sincronize cada canal do YouTube sem depender de planilhas.
@@ -449,19 +449,19 @@ export function ChannelPanel({
 
       <div className="mb-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         <div className="rounded-xl bg-white/[0.045] p-4">
-          <p className="text-xs font-black uppercase text-slate-500">Canal ativo</p>
+          <p className="text-xs font-semibold uppercase text-slate-500">Canal ativo</p>
           <p className="mt-2 line-clamp-1 text-base font-black text-white">{activeChannel?.name || "Todos os canais"}</p>
         </div>
         <div className="rounded-xl bg-white/[0.045] p-4">
-          <p className="text-xs font-black uppercase text-slate-500">Conectados</p>
+          <p className="text-xs font-semibold uppercase text-slate-500">Conectados</p>
           <p className="mt-2 text-base font-black text-white">{connectedCount}/{channels.length}</p>
         </div>
         <div className="rounded-xl bg-white/[0.045] p-4">
-          <p className="text-xs font-black uppercase text-slate-500">Precisam sync</p>
+          <p className="text-xs font-semibold uppercase text-slate-500">Precisam sync</p>
           <p className="mt-2 text-base font-black text-white">{channelsNeedingSync}</p>
         </div>
         <div className="rounded-xl bg-white/[0.045] p-4">
-          <p className="text-xs font-black uppercase text-slate-500">Videos via API</p>
+          <p className="text-xs font-semibold uppercase text-slate-500">Videos via API</p>
           <p className="mt-2 text-base font-black text-white">{onlineImportedTotal}</p>
         </div>
       </div>
@@ -470,7 +470,7 @@ export function ChannelPanel({
         <div className="mb-5 rounded-xl border border-slate-400/10 bg-black/18 p-3">
           <div className="mb-3 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-xs font-black uppercase text-slate-500">Troca rapida</p>
+              <p className="text-xs font-semibold uppercase text-slate-500">Troca rapida</p>
               <p className="text-sm font-semibold text-slate-400">Clique em um canal para filtrar todo o app.</p>
             </div>
             <Button className="min-h-9 px-3 text-xs" onClick={() => onActiveChannelChange("all")}>
@@ -512,7 +512,7 @@ export function ChannelPanel({
         <div className="mb-5 rounded-xl border border-aqua/20 bg-aqua/5 p-4">
           <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
             <div className="min-w-0">
-              <p className="text-xs font-black uppercase text-aqua">Canal ativo agora</p>
+              <p className="text-xs font-semibold uppercase text-aqua">Canal ativo agora</p>
               <h3 className="mt-1 truncate text-xl font-black text-white">{activeChannel.name}</h3>
               <p className="mt-1 line-clamp-2 text-sm font-semibold leading-6 text-slate-400">
                 {activeChannel.promise || activeChannel.audience || activeChannel.niche || "Complete o perfil estrategico para melhorar analises."}
@@ -631,7 +631,7 @@ export function ChannelPanel({
           {connectedChannels.length ? (
             <div>
               <div className="mb-3 flex items-center justify-between gap-3">
-                <h3 className="text-sm font-black uppercase text-slate-400">Conectados ao YouTube</h3>
+                <h3 className="text-sm font-semibold uppercase text-slate-400">Conectados ao YouTube</h3>
                 <Pill className="border-aqua/20 bg-aqua/10 text-aqua">{connectedChannels.length}</Pill>
               </div>
               <div className="grid gap-3 lg:grid-cols-2 2xl:grid-cols-3">
@@ -659,7 +659,7 @@ export function ChannelPanel({
           {manualChannels.length ? (
             <div>
               <div className="mb-3 flex items-center justify-between gap-3">
-                <h3 className="text-sm font-black uppercase text-slate-400">Perfis separados</h3>
+                <h3 className="text-sm font-semibold uppercase text-slate-400">Perfis separados</h3>
                 <Pill className="border-slate-700/60 bg-white/[0.04] text-slate-300">{manualChannels.length}</Pill>
               </div>
               <div className="grid gap-3 lg:grid-cols-2 2xl:grid-cols-3">

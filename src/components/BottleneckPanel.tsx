@@ -3,7 +3,6 @@ import { STATUSES, type Video } from "../types";
 import {
   hasScript,
   hasSeo,
-  hasThumbnail,
   isOverdue,
   isReadyToPublish,
   sortByPriorityAndDate,
@@ -55,7 +54,6 @@ export function BottleneckPanel({ videos, onOpenVideo }: BottleneckPanelProps) {
     const overdue = sortByPriorityAndDate(videos.filter(isOverdue));
     const ready = sortByPriorityAndDate(videos.filter(isReadyToPublish));
     const missingScript = sortByPriorityAndDate(openVideos.filter((video) => !hasScript(video)));
-    const missingThumbnail = sortByPriorityAndDate(openVideos.filter((video) => !hasThumbnail(video)));
     const missingSeo = sortByPriorityAndDate(openVideos.filter((video) => !hasSeo(video)));
     const stale = sortByPriorityAndDate(openVideos.filter((video) => daysSince(video.updatedAt) >= 10));
 
@@ -91,13 +89,6 @@ export function BottleneckPanel({ videos, onOpenVideo }: BottleneckPanelProps) {
         count: missingScript.length,
         videos: missingScript,
         tone: missingScript.length ? "warning" : "good",
-      },
-      {
-        title: "Sem thumbnail",
-        detail: "Sem direcao visual.",
-        count: missingThumbnail.length,
-        videos: missingThumbnail,
-        tone: missingThumbnail.length ? "warning" : "good",
       },
       {
         title: "Sem SEO",
@@ -136,7 +127,7 @@ export function BottleneckPanel({ videos, onOpenVideo }: BottleneckPanelProps) {
     <section className="clean-panel rounded-2xl p-5">
       <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="mb-1 text-xs font-black uppercase text-aqua">Gargalos</p>
+          <p className="mb-1 text-xs font-semibold uppercase text-aqua">Gargalos</p>
           <h2 className="text-xl font-black sm:text-2xl">Saude do fluxo</h2>
         </div>
         <Pill className={toneClasses(insights.ready.length ? "good" : "neutral")}>

@@ -29,7 +29,7 @@ export function DailyChecklist({ tasks, onToggle, onRename, onRemove, onAdd, onR
     <aside className="clean-panel rounded-2xl p-5 2xl:sticky 2xl:top-5 2xl:self-start">
       <div className="mb-4 flex items-start justify-between gap-3">
         <div>
-          <p className="mb-1 text-xs font-black uppercase text-aqua">Checklist</p>
+          <p className="mb-1 text-xs font-semibold uppercase text-aqua">Checklist</p>
           <h2 className="text-xl font-black">Rotina</h2>
         </div>
         <Button className="min-h-9 px-3 text-xs" onClick={onReset}>
